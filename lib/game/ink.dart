@@ -1,0 +1,303 @@
+import 'dart:math' as math;
+
+import 'package:flutter/material.dart';
+
+import '../core/model.dart';
+import '../core/sim.dart';
+import 'controller.dart';
+import 'palette.dart';
+
+/// Pincel da oficina: as rotinas de desenho que os componentes do Flame usam.
+/// Tudo em coordenadas da bancada (1000 x 560, y para baixo).
+class Ink {
+  final GameController g;
+  Palette c;
+  final String mono, display;
+  Ink(this.g, this.c, {required this.mono, required this.display});
+
+  late Canvas cv;
+  double get z => g.cam.z;
+
+  /// Escolhe a tela onde desenhar e devolve o próprio pincel.
+  Ink on(Canvas canvas) {
+    cv = canvas;
+    return this;
+  }
+
+  Paint fill(Color col, [double a = 1]) => Paint()..color = col.withValues(alpha: col.a * a);
+  Paint stroke(Color col, double w, [double a = 1]) => Paint()
+    ..color = col.withValues(alpha: col.a * a)
+    ..style = PaintingStyle.stroke
+    ..strokeWidth = w;
+
+  void line(double x1, double y1, double x2, double y2, Paint p) => cv.drawLine(Offset(x1, y1), Offset(x2, y2), p);
+
+  void dashLine(Offset a, Offset b, Paint p, double on, double off) {
+    final d = (b - a).distance;
+    if (d == 0) return;
+    final u = (b - a) / d;
+    for (var s = 0.0; s < d; s += on + off) {
+      cv.drawLine(a + u * s, a + u * math.min(s + on, d), p);
+    }
+  }
+
+  void dashRect(Rect r, Paint p, double on, double off) {
+    dashLine(r.topLeft, r.topRight, p, on, off);
+    dashLine(r.topRight, r.bottomRight, p, on, off);
+    dashLine(r.bottomRight, r.bottomLeft, p, on, off);
+    dashLine(r.bottomLeft, r.topLeft, p, on, off);
+  }
+
+  void dashCircle(Offset o, double r, Paint p, double on, double off) {
+    final n = (2 * math.pi * r / (on + off)).floor();
+    final step = 2 * math.pi / n, sweep = step * on / (on + off);
+    for (var i = 0; i < n; i++) {
+      cv.drawArc(Rect.fromCircle(center: o, radius: r), i * step, sweep, false, p);
+    }
+  }
+
+  void text(String s, double x, double y, Color col,
+      {double size = 12, String? family, FontWeight w = FontWeight.w500, bool center = false, bool middle = false}) {
+    final tp = TextPainter(
+      text: TextSpan(text: s, style: TextStyle(color: col, fontSize: size, fontFamily: family ?? mono, fontWeight: w)),
+      textDirection: TextDirection.ltr,
+    )..layout();
+    // y é a linha de base, como no canvas do HTML (exceto quando middle)
+    final dy = middle ? -tp.height / 2 : -tp.computeDistanceToActualBaseline(TextBaseline.alphabetic);
+    tp.paint(cv, Offset(center ? x - tp.width / 2 : x, y + dy));
+  }
+
+  // ---------- peças ----------
+  void rod(double x1, double y1, double x2, double y2, String kind, [double a = 1]) {
+    final p = stroke(kind == 'solid' ? c.rod : c.water, 8, kind == 'solid' ? a : .6 * a)..strokeCap = StrokeCap.round;
+    line(x1, y1, x2, y2, p);
+  }
+
+  void joint(double x, double y, [double a = 1]) {
+    cv.drawCircle(Offset(x, y), 3.5, fill(c.paper, a));
+    cv.drawCircle(Offset(x, y), 3.5, stroke(c.ink, 1.5, a));
+  }
+
+  void wheel(double x, double y, double r, String kind, double rot, [double a = 1]) {
+    cv.drawCircle(Offset(x, y), r, fill(c.wheel(kind), a));
+    cv.drawCircle(Offset(x, y), r, stroke(c.ink, 2, a));
+    final sp = stroke(c.paper, 2.5, .85 * a);
+    for (var i = 0; i < 4; i++) {
+      final an = rot + i * math.pi / 2;
+      line(x, y, x + math.cos(an) * r * .8, y + math.sin(an) * r * .8, sp);
+    }
+    joint(x, y, a);
+    for (var i = 0; i < 4; i++) {
+      final an = rot + i * math.pi / 2;
+      joint(x + math.cos(an) * r, y + math.sin(an) * r, a);
+    }
+  }
+
+  void magnet(double x, double y, double r, String pole, bool fixed, [double a = 1]) {
+    final col = pole == 'N' ? c.mN : c.mS;
+    cv.drawCircle(Offset(x, y), r, fill(col, a));
+    cv.drawCircle(Offset(x, y), r, stroke(c.ink, fixed ? 3 : 2, a));
+    if (fixed) dashCircle(Offset(x, y), r + 7, stroke(col, 1.5, a), 3, 4);
+    text(pole, x, y + 1, Colors.white.withValues(alpha: a), size: (r * .9).roundToDouble(), w: FontWeight.w700, center: true, middle: true);
+  }
+
+  void ball(double x, double y, double ang) {
+    cv.drawCircle(Offset(x, y), kBallR, fill(c.ball));
+    cv.drawCircle(Offset(x, y), kBallR, stroke(c.ink, 2));
+    line(x, y, x + math.cos(ang) * kBallR * .7, y + math.sin(ang) * kBallR * .7, stroke(c.ink, 2));
+  }
+
+  void plank(double cx, double cy, double len, double thick, double ang, Color color, [double a = 1]) {
+    cv.save();
+    cv.translate(cx, cy);
+    cv.rotate(ang);
+    final r = Rect.fromCenter(center: Offset.zero, width: len, height: thick);
+    cv.drawRect(r, fill(color, a));
+    cv.drawRect(r, stroke(c.ink, 1.5, a));
+    cv.restore();
+  }
+
+  void plat(Pt a, Pt b, [double al = 1]) =>
+      line(a.x, a.y, b.x, b.y, stroke(c.ground, kPlatT, al)..strokeCap = StrokeCap.round);
+
+  void lift(double x, double y, double w, [double a = 1]) {
+    plank(x, y, w, kLiftT, 0, c.lift, a);
+    final p = stroke(c.paper, 2, a);
+    for (final i in [-1, 1]) {
+      line(x + i * w / 4 - 6, y + 3, x + i * w / 4 + 6, y - 3, p);
+    }
+  }
+
+  void pivot(Pt m) {
+    final path = Path()
+      ..moveTo(m.x, m.y)
+      ..lineTo(m.x - 12, m.y + 22)
+      ..lineTo(m.x + 12, m.y + 22)
+      ..close();
+    cv.drawPath(path, fill(c.ink));
+  }
+
+  void door(double x, double y, double w, double h, [double a = 1]) {
+    final r = Rect.fromLTWH(x, y, w, h);
+    cv.drawRect(r, fill(c.door, a));
+    cv.save();
+    cv.clipRect(r);
+    final p = stroke(c.paper, 3, .35 * a);
+    for (var k = -w; k < h + w; k += 14) {
+      line(x, y + k, x + w, y + k - w, p);
+    }
+    cv.restore();
+    cv.drawRect(r, stroke(c.ink, 1.5, a));
+  }
+
+  void button(Pt b, bool pressed) {
+    final h = pressed ? 3.0 : 8.0;
+    final r = Rect.fromLTWH(b.x - 25, b.y - h, 50, h);
+    cv.drawRect(r, fill(c.door));
+    cv.drawRect(r, stroke(c.ink, 1.5));
+    line(b.x - 32, b.y, b.x + 32, b.y, stroke(c.ink, 1.5));
+  }
+
+  // ---------- cenário ----------
+  void grid() {
+    cv.drawRect(const Rect.fromLTWH(0, 0, kW, kH), fill(c.paper));
+    final minor = stroke(c.grid, 1 / z), major = stroke(c.gridMajor, 1 / z);
+    for (var x = 0; x <= kW; x += 20) {
+      line(x.toDouble(), 0, x.toDouble(), kH, x % 100 != 0 ? minor : major);
+    }
+    for (var y = 0; y <= kH; y += 20) {
+      line(0, y.toDouble(), kW, y.toDouble(), y % 100 != 0 ? minor : major);
+    }
+  }
+
+  void zones(Level lv) {
+    final zr = Rect.fromLTWH(lv.zone.x, lv.zone.y, lv.zone.w, lv.zone.h);
+    final gr = Rect.fromLTWH(lv.goal.x, lv.goal.y, lv.goal.w, lv.goal.h);
+    cv.drawRect(zr, fill(c.zone, .13));
+    cv.drawRect(gr, fill(c.goal, g.won && g.mode == Mode.run ? .4 : .18));
+    dashRect(zr, stroke(c.zone, 1.5), 6, 5);
+    dashRect(gr, stroke(c.goal, 1.5), 6, 5);
+    text('CONSTRUÇÃO', lv.zone.x + 6, lv.zone.y - 7, c.zone);
+    text('META', lv.goal.x + 6, lv.goal.y - 7, c.goal);
+  }
+
+  void scenery(Level lv, Sim? s) {
+    if (lv.ground) {
+      cv.drawRect(const Rect.fromLTWH(0, 500, kW, kH - 500), fill(c.ground));
+      line(0, 500, kW, 500, stroke(c.ink, 1.5));
+    }
+    for (final p in lv.plats) {
+      plat(p.a, p.b);
+    }
+    for (final b in lv.blocks) {
+      final r = Rect.fromLTWH(b.x, b.y, b.w, b.h);
+      cv.drawRect(r, fill(c.ground));
+      cv.drawRect(r, stroke(c.ink, 1.5));
+    }
+    for (var x = 100; x < kW; x += 100) {
+      line(x.toDouble(), kH - 10, x.toDouble(), kH, stroke(c.muted, 1));
+      text('${x ~/ 100} m', x + 4, kH - 3, lv.ground ? c.paper : c.muted, size: 11);
+    }
+    for (var i = 0; i < lv.lifts.length; i++) {
+      final l = lv.lifts[i];
+      dashLine(Offset(l.a.x, l.a.y), Offset(l.b.x, l.b.y), stroke(c.lift, 1.5), 4, 5);
+      if (s == null) cv.drawRect(Rect.fromLTWH(l.b.x - l.w / 2, l.b.y - kLiftT / 2, l.w, kLiftT), stroke(c.lift, 1.5, .5));
+      final pos = s != null ? s.pose(s.lifts[i].body) : Pose(l.a.x, l.a.y, 0);
+      lift(pos.x, pos.y, l.w);
+    }
+    for (var i = 0; i < lv.seesaws.length; i++) {
+      final ss = lv.seesaws[i];
+      final mid = Pt((ss.a.x + ss.b.x) / 2, (ss.a.y + ss.b.y) / 2);
+      pivot(mid);
+      if (s != null) {
+        final o = s.seesaws[i], p = s.pose(o.body);
+        plank(p.x, p.y, o.len, kSeeT, p.angle, c.lift);
+      } else {
+        plank(mid.x, mid.y, dist(ss.a, ss.b), kSeeT, math.atan2(ss.b.y - ss.a.y, ss.b.x - ss.a.x), c.lift);
+      }
+      joint(mid.x, mid.y);
+    }
+    for (var i = 0; i < lv.doors.length; i++) {
+      final d = lv.doors[i];
+      final y = s != null ? s.pose(s.doors[i].body).y - d.h / 2 : d.y;
+      door(d.x, y, d.w, d.h);
+    }
+    for (var i = 0; i < lv.buttons.length; i++) {
+      button(lv.buttons[i], s != null && s.buttons[i].pressed);
+    }
+    for (final m in lv.magnets) {
+      magnet(m.x, m.y, kFixR, m.pole, true);
+    }
+  }
+
+  void parts(List<Part> list) {
+    if (g.sel.isNotEmpty || g.selBall) {
+      final p = stroke(c.accent, 8, .4)..strokeCap = StrokeCap.round;
+      for (final q in g.sel) {
+        if (q.isRod) {
+          line(q.a!.x, q.a!.y, q.b!.x, q.b!.y, Paint.from(p)..strokeWidth = 20);
+        } else {
+          cv.drawCircle(Offset(q.c!.x, q.c!.y), q.r + 6, p);
+        }
+      }
+      if (g.selBall) cv.drawCircle(Offset(g.ball0.x, g.ball0.y), kBallR + 6, p);
+    }
+    for (final q in list) {
+      if (q.isRod) rod(q.a!.x, q.a!.y, q.b!.x, q.b!.y, q.k);
+    }
+    for (final q in list) {
+      if (q.isWheel) wheel(q.c!.x, q.c!.y, q.r, q.k, q.rot);
+    }
+    for (final q in list) {
+      if (q.isMag) {
+        magnet(q.c!.x, q.c!.y, q.r, q.k, false);
+        joint(q.c!.x, q.c!.y + q.r * .62);
+      }
+    }
+    for (final q in list) {
+      if (q.isRod) {
+        joint(q.a!.x, q.a!.y);
+        joint(q.b!.x, q.b!.y);
+      }
+    }
+  }
+
+  void editDraft(Act d) {
+    const al = .55;
+    final a = d.a!, b = d.b!;
+    switch (d.et) {
+      case 'plat':
+        plat(a, b, al);
+      case 'seesaw':
+        plank((a.x + b.x) / 2, (a.y + b.y) / 2, dist(a, b), kSeeT, math.atan2(b.y - a.y, b.x - a.x), c.lift, al);
+      case 'lift':
+        lift(a.x, a.y, 160, al);
+        lift(b.x, b.y, 160, al);
+        dashLine(Offset(a.x, a.y), Offset(b.x, b.y), stroke(c.lift, 1, al), 4, 5);
+      default:
+        final r = R.fromPoints(a, b);
+        if (d.et == 'door') {
+          door(r.x, r.y, r.w, r.h, al);
+        } else {
+          cv.drawRect(Rect.fromLTWH(r.x, r.y, r.w, r.h), fill(d.et == 'zone' ? c.zone : d.et == 'goal' ? c.goal : c.ground, al));
+        }
+    }
+  }
+
+  void winBanner(WinInfo i) {
+    const w = 660.0, h = 190.0, x = (kW - w) / 2, y = 60.0;
+    final r = const Rect.fromLTWH(x, y, w, h);
+    cv.drawRect(r, fill(c.paper, .95));
+    cv.drawRect(r, stroke(c.goal, 4));
+    text(i.replay ? 'REPLAY CONCLUÍDO' : 'FASE CONCLUÍDA!', kW / 2, y + 62, c.goal, size: 52, family: display, w: FontWeight.w700, center: true);
+    text('${fmt(i.t)} s · ${i.n} ${i.n == 1 ? 'peça' : 'peças'} · \$${i.c}', kW / 2, y + 112, c.ink, size: 30, center: true);
+    if (!i.replay) {
+      const names = {'t': 'tempo', 'n': 'peças', 'c': 'custo'};
+      final tg = {'t': i.tg.t, 'n': i.tg.n, 'c': i.tg.c};
+      final bits = ['t', 'n', 'c']
+          .where((k) => tg[k] != null)
+          .map((k) => '${i.m[k] == true ? '★ ' : '☆ '}${names[k]}${i.fresh.contains(names[k]) ? ' (nova!)' : ''}');
+      text(bits.join('   '), kW / 2, y + 160, c.ink, size: 26, center: true);
+    }
+  }
+}

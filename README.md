@@ -1,6 +1,6 @@
 # Oficina Geringonça
 
-Jogo de física em Flutter: monte uma engenhoca com barras, rodas e ímãs e leve a bola até a área vermelha.
+Jogo de física em Flutter com [Flame](https://flame-engine.org): monte uma engenhoca com barras, rodas e ímãs e leve a bola até a área vermelha.
 É a versão Flutter do jogo que começou como página HTML com Matter.js.
 
 ## O que tem
@@ -33,7 +33,13 @@ flutter test           # testes da física e dos códigos
 | `lib/core/sim.dart` | Mundo físico com Forge2D (Box2D v3). Não depende do Flutter |
 | `lib/core/share.dart` | Códigos `OG1:` |
 | `lib/game/controller.dart` | Regras: construção, seleção, câmera, medalhas, editor |
-| `lib/game/painter.dart` | Desenho da bancada |
-| `lib/ui/home_page.dart` | Tela e barras de ferramentas |
+| `lib/game/oficina_game.dart` | A bancada como jogo Flame: laço, câmera, componentes e toques |
+| `lib/game/ink.dart` | Rotinas de desenho usadas pelos componentes |
+| `lib/ui/home_page.dart` | Tela, barras de ferramentas e o `GameWidget` |
+
+O Flame cuida do laço do jogo (passos fixos de 1/60 s), da câmera de zoom e arraste, dos
+toques e da árvore de componentes: cada barra, roda, ímã e a bola viram um componente que
+segue o seu corpo no Box2D enquanto a simulação roda. A física fica em `Sim`, um mundo
+Forge2D novo a cada tentativa, para a mesma engenhoca sempre rodar igual.
 
 As coordenadas são as mesmas da versão HTML (bancada de 1000 × 560, 100 px = 1 m).

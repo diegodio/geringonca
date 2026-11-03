@@ -488,6 +488,8 @@ class GameController extends ChangeNotifier {
     snapHint = null;
   }
 
+  bool hasPointer(int id) => _pointers.containsKey(id);
+
   /// [sp] em coordenadas da bancada (0..1000, 0..560) sem zoom.
   void pointerDown(int id, Pt sp, {bool secondary = false}) {
     _pointers[id] = sp;
@@ -518,7 +520,7 @@ class GameController extends ChangeNotifier {
       cam.x = pinch.wm.x - mid.x / cam.z;
       cam.y = pinch.wm.y - mid.y / cam.z;
       _clampCam();
-      return notifyListeners();
+      return notifyListeners(); // atualiza o rótulo de zoom
     }
     final a = action;
     if (a == null) return;
@@ -527,11 +529,11 @@ class GameController extends ChangeNotifier {
       cam.y -= (sp.y - a.last!.y) / cam.z;
       a.last = sp;
       _clampCam();
-      return notifyListeners();
+      return;
     }
+    // só a bancada muda; o Flame redesenha a cada quadro
     final p = toWorld(sp);
     mode == Mode.edit ? _editMove(p) : _buildMove(p);
-    notifyListeners();
   }
 
   /// Soltar ou cancelar: termina a ação na última posição conhecida.
@@ -553,7 +555,7 @@ class GameController extends ChangeNotifier {
     if (a == null) return;
     if (a.type == 'pan') {
       action = null;
-      return;
+      return notifyListeners();
     }
     final p = toWorld(last);
     if (mode == Mode.edit) {
@@ -762,6 +764,7 @@ class GameController extends ChangeNotifier {
   }
 
   /// Avança a simulação em passos fixos de 1/60 s, qualquer que seja a taxa de quadros.
+  /// Chamado pelo laço do Flame (OficinaGame.update).
   void tick(double elapsed) {
     final s = sim;
     if (mode != Mode.run || s == null) return;
@@ -772,9 +775,9 @@ class GameController extends ChangeNotifier {
       if (!won && s.won()) {
         won = true;
         _onWin();
+        notifyListeners(); // medalhas e mensagem mudaram
       }
     }
-    notifyListeners();
   }
 
   // ---------- compartilhar ----------

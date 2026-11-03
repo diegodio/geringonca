@@ -1,15 +1,12 @@
-import 'dart:math' as math;
-
-import 'package:flutter/gestures.dart';
+import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../core/levels.dart';
 import '../core/model.dart';
 import '../game/controller.dart';
-import '../game/painter.dart';
+import '../game/oficina_game.dart';
 import '../game/palette.dart';
 
 class HomePage extends StatefulWidget {
@@ -19,10 +16,9 @@ class HomePage extends StatefulWidget {
   State<HomePage> createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin {
+class _HomePageState extends State<HomePage> {
   GameController get g => widget.g;
-  late final Ticker _ticker;
-  Duration _last = Duration.zero;
+  late final OficinaGame _game;
   final _code = TextEditingController();
   final _name = TextEditingController();
   final _tg = {'t': TextEditingController(), 'n': TextEditingController(), 'c': TextEditingController()};
@@ -32,12 +28,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
   @override
   void initState() {
     super.initState();
-    _ticker = createTicker((now) {
-      final dt = (now - _last).inMicroseconds / 1e6;
-      _last = now;
-      g.tick(dt.clamp(0, .1));
-    })
-      ..start();
+    _game = OficinaGame(g, mono: GoogleFonts.ibmPlexMono().fontFamily!, display: GoogleFonts.chakraPetch().fontFamily!);
     g.addListener(_sync);
   }
 
@@ -60,7 +51,6 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
   @override
   void dispose() {
     g.removeListener(_sync);
-    _ticker.dispose();
     _code.dispose();
     _name.dispose();
     for (final c in _tg.values) {
@@ -341,44 +331,18 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     ]);
   }
 
+  /// A bancada é um jogo Flame; os toques, o zoom e o desenho ficam com ele.
   Widget _bench(Palette c) {
+    _game.palette = c;
     return Container(
       decoration: BoxDecoration(border: Border.all(color: c.line), borderRadius: BorderRadius.circular(8), color: c.paper),
       clipBehavior: Clip.antiAlias,
       child: AspectRatio(
         aspectRatio: kW / kH,
-        child: LayoutBuilder(builder: (context, box) {
-          final w = box.maxWidth;
-          g.viewWidth = w;
-          Pt sp(Offset o) => Pt(o.dx * kW / w, o.dy * kW / w);
-          return MouseRegion(
-            cursor: g.panMode ? SystemMouseCursors.grab : SystemMouseCursors.precise,
-            child: Listener(
-              onPointerDown: (e) => g.pointerDown(e.pointer, sp(e.localPosition),
-                  secondary: e.kind == PointerDeviceKind.mouse && (e.buttons & (kSecondaryMouseButton | kMiddleMouseButton)) != 0),
-              onPointerMove: (e) => g.pointerMove(e.pointer, sp(e.localPosition)),
-              onPointerUp: (e) => g.pointerUp(e.pointer),
-              onPointerCancel: (e) => g.pointerUp(e.pointer),
-              onPointerSignal: (e) {
-                if (e is PointerScrollEvent && (HardwareKeyboard.instance.isControlPressed || HardwareKeyboard.instance.isMetaPressed)) {
-                  GestureBinding.instance.pointerSignalResolver.register(e, (ev) {
-                    g.zoomAt(sp(ev.localPosition), math.exp(-(ev as PointerScrollEvent).scrollDelta.dy * .01));
-                  });
-                }
-              },
-              // Sem isto a rolagem da página toma o arraste do dedo na bancada.
-              child: GestureDetector(
-                onScaleStart: (_) {},
-                onScaleUpdate: (_) {},
-                child: CustomPaint(
-                  size: Size(w, w * kH / kW),
-                  painter: BenchPainter(g, c,
-                      mono: GoogleFonts.ibmPlexMono().fontFamily!, display: GoogleFonts.chakraPetch().fontFamily!, repaint: g),
-                ),
-              ),
-            ),
-          );
-        }),
+        child: MouseRegion(
+          cursor: g.panMode ? SystemMouseCursors.grab : SystemMouseCursors.precise,
+          child: GameWidget(game: _game),
+        ),
       ),
     );
   }
