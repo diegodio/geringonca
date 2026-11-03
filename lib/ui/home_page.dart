@@ -1,15 +1,12 @@
-import 'dart:math' as math;
-
-import 'package:flutter/gestures.dart';
+import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../core/levels.dart';
 import '../core/model.dart';
 import '../game/controller.dart';
-import '../game/painter.dart';
+import '../game/oficina_game.dart';
 import '../game/palette.dart';
 
 class HomePage extends StatefulWidget {
@@ -19,10 +16,9 @@ class HomePage extends StatefulWidget {
   State<HomePage> createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin {
+class _HomePageState extends State<HomePage> {
   GameController get g => widget.g;
-  late final Ticker _ticker;
-  Duration _last = Duration.zero;
+  late final OficinaGame _game;
   final _code = TextEditingController();
   final _name = TextEditingController();
   final _tg = {'t': TextEditingController(), 'n': TextEditingController(), 'c': TextEditingController()};
@@ -32,12 +28,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
   @override
   void initState() {
     super.initState();
-    _ticker = createTicker((now) {
-      final dt = (now - _last).inMicroseconds / 1e6;
-      _last = now;
-      g.tick(dt.clamp(0, .1));
-    })
-      ..start();
+    _game = OficinaGame(g, mono: GoogleFonts.ibmPlexMono().fontFamily!, display: GoogleFonts.chakraPetch().fontFamily!);
     g.addListener(_sync);
   }
 
@@ -60,7 +51,6 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
   @override
   void dispose() {
     g.removeListener(_sync);
-    _ticker.dispose();
     _code.dispose();
     _name.dispose();
     for (final c in _tg.values) {
@@ -116,7 +106,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
         spacing: 16,
         runSpacing: 6,
         children: [
-          Text('Oficina Geringonça', style: GoogleFonts.chakraPetch(fontSize: 30, fontWeight: FontWeight.w700, color: c.ink)),
+          Text('Geringonça', style: GoogleFonts.chakraPetch(fontSize: 30, fontWeight: FontWeight.w700, color: c.ink)),
           Text('Barras, rodas, ímãs e juntas em Box2D', style: GoogleFonts.ibmPlexSans(fontSize: 14, color: c.muted)),
         ],
       );
@@ -225,7 +215,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
       Wrap(spacing: 6, runSpacing: 6, children: [
         tool('rod', 'Barra', Sw.bar(c.rod), '\$10'),
-        tool('water', 'Vazada', Sw.bar(c.water.withValues(alpha: .6)), '\$5'),
+        tool('water', 'Borracha', Sw.bar(c.water.withValues(alpha: .6)), '\$5'),
         tool('cw', 'Roda ↻', Sw.dot(c.cw, c.ink), '\$25'),
         tool('ccw', 'Roda ↺', Sw.dot(c.ccw, c.ink), '\$25'),
         tool('free', 'Livre', Sw.dot(c.free, c.ink), '\$15'),
@@ -239,6 +229,12 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
             TB(c: c, label: 'Mover', pressed: g.tool == 'move', onTap: run ? null : () => g.setTool('move')),
             TB(c: c, label: 'Selecionar', pressed: g.tool == 'select', onTap: run ? null : () => g.setTool('select')),
             TB(c: c, label: 'Apagar', pressed: g.tool == 'del', onTap: run ? null : () => g.setTool('del')),
+            TB(
+                c: c,
+                label: 'Encaixe: ${g.snapOn ? 'ligado' : 'desligado'}',
+                pressed: g.snapOn,
+                tooltip: 'Liga ou desliga a conexão automática das pontas nas juntas',
+                onTap: run ? null : g.toggleSnap),
             Container(width: 1, height: 28, color: c.line, margin: const EdgeInsets.symmetric(horizontal: 4)),
             TB(c: c, label: 'Desfazer', onTap: run ? null : g.undo),
             TB(c: c, label: 'Limpar', onTap: run ? null : g.clear),
@@ -341,44 +337,18 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     ]);
   }
 
+  /// A bancada é um jogo Flame; os toques, o zoom e o desenho ficam com ele.
   Widget _bench(Palette c) {
+    _game.palette = c;
     return Container(
       decoration: BoxDecoration(border: Border.all(color: c.line), borderRadius: BorderRadius.circular(8), color: c.paper),
       clipBehavior: Clip.antiAlias,
       child: AspectRatio(
         aspectRatio: kW / kH,
-        child: LayoutBuilder(builder: (context, box) {
-          final w = box.maxWidth;
-          g.viewWidth = w;
-          Pt sp(Offset o) => Pt(o.dx * kW / w, o.dy * kW / w);
-          return MouseRegion(
-            cursor: g.panMode ? SystemMouseCursors.grab : SystemMouseCursors.precise,
-            child: Listener(
-              onPointerDown: (e) => g.pointerDown(e.pointer, sp(e.localPosition),
-                  secondary: e.kind == PointerDeviceKind.mouse && (e.buttons & (kSecondaryMouseButton | kMiddleMouseButton)) != 0),
-              onPointerMove: (e) => g.pointerMove(e.pointer, sp(e.localPosition)),
-              onPointerUp: (e) => g.pointerUp(e.pointer),
-              onPointerCancel: (e) => g.pointerUp(e.pointer),
-              onPointerSignal: (e) {
-                if (e is PointerScrollEvent && (HardwareKeyboard.instance.isControlPressed || HardwareKeyboard.instance.isMetaPressed)) {
-                  GestureBinding.instance.pointerSignalResolver.register(e, (ev) {
-                    g.zoomAt(sp(ev.localPosition), math.exp(-(ev as PointerScrollEvent).scrollDelta.dy * .01));
-                  });
-                }
-              },
-              // Sem isto a rolagem da página toma o arraste do dedo na bancada.
-              child: GestureDetector(
-                onScaleStart: (_) {},
-                onScaleUpdate: (_) {},
-                child: CustomPaint(
-                  size: Size(w, w * kH / kW),
-                  painter: BenchPainter(g, c,
-                      mono: GoogleFonts.ibmPlexMono().fontFamily!, display: GoogleFonts.chakraPetch().fontFamily!, repaint: g),
-                ),
-              ),
-            ),
-          );
-        }),
+        child: MouseRegion(
+          cursor: g.panMode ? SystemMouseCursors.grab : SystemMouseCursors.precise,
+          child: GameWidget(game: _game),
+        ),
       ),
     );
   }
@@ -422,7 +392,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
         note('Seleção e zoom',
             'Use dois dedos para aproximar e arrastar a tela (no computador, Ctrl + rolagem). Em Selecionar, marque várias peças para mover, duplicar ou girar de uma vez.'),
         note('Peças entre si',
-            'Rodas, ímãs e a bola rolam por cima de barras sólidas, como numa ponte. Peças presas à roda ou à bola por uma junta, como o eixo, passam por dentro delas. Cada roda tem 4 pontos de conexão na borda, a cada π/2; uma barra presa neles gira junto, como uma manivela. Barras vazadas atravessam tudo. Ímã norte (vermelho) atrai sul (azul) e repele norte.'),
+            'Barras de madeira não atravessam outras barras de madeira, rodas, ímãs, a bola nem o cenário; só as que já começam encostadas passam uma pela outra. Rodas e ímãs também trombam entre si. Rodas, ímãs e a bola rolam por cima das barras, como numa ponte. Peças presas à roda ou à bola por uma junta, como o eixo, passam por dentro delas. Cada roda tem 4 pontos de conexão na borda, a cada π/2; uma barra presa neles gira junto, como uma manivela. Só a barra azul, de borracha, atravessa tudo. As rodas com motor têm uma seta com o sentido do giro. Ímã norte (vermelho) atrai sul (azul) e repele norte.'),
       ]),
     );
   }

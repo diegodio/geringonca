@@ -26,7 +26,7 @@ class GeringoncaApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => MaterialApp(
-        title: 'Oficina Geringonça',
+        title: 'Geringonça',
         debugShowCheckedModeBanner: false,
         theme: _theme(Palette.light, Brightness.light),
         darkTheme: _theme(Palette.dark, Brightness.dark),

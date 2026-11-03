@@ -1,11 +1,11 @@
 {
-    "name": "geringonca",
-    "short_name": "geringonca",
+    "name": "Geringonça",
+    "short_name": "Geringonça",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
     "theme_color": "#0175C2",
-    "description": "Oficina Geringonça: jogo de física",
+    "description": "Geringonça: jogo de física",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

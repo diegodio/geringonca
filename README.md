@@ -1,11 +1,16 @@
-# Oficina Geringonça
+# Geringonça
 
-Jogo de física em Flutter: monte uma engenhoca com barras, rodas e ímãs e leve a bola até a área vermelha.
+Jogo de física em Flutter com [Flame](https://flame-engine.org): monte uma engenhoca com barras, rodas e ímãs e leve a bola até a área vermelha.
 É a versão Flutter do jogo que começou como página HTML com Matter.js.
 
 ## O que tem
 
-- Peças: barra sólida, barra vazada, rodas (horária, anti-horária e livre) e ímãs N/S.
+- Peças: barra de madeira, barra de borracha, rodas (horária, anti-horária e livre) e ímãs N/S.
+- A madeira não atravessa outras barras de madeira, rodas, ímãs, a bola nem o cenário; rodas e ímãs
+  também trombam entre si. Peças que já começam encostadas passam uma pela outra. Só a borracha
+  atravessa tudo.
+- Rodas com motor mostram uma seta com o sentido do giro.
+- Botão Encaixe: liga ou desliga a conexão automática das pontas nas juntas.
 - 7 fases prontas, com medalhas de tempo, peças e custo, e replay da melhor solução.
 - Editor de fases: bloco, plataforma, elevador, gangorra, porta, botão, ímã fixo, área de construção e meta.
 - Códigos de compartilhamento `OG1:...`, compatíveis com os da versão HTML.
@@ -33,7 +38,13 @@ flutter test           # testes da física e dos códigos
 | `lib/core/sim.dart` | Mundo físico com Forge2D (Box2D v3). Não depende do Flutter |
 | `lib/core/share.dart` | Códigos `OG1:` |
 | `lib/game/controller.dart` | Regras: construção, seleção, câmera, medalhas, editor |
-| `lib/game/painter.dart` | Desenho da bancada |
-| `lib/ui/home_page.dart` | Tela e barras de ferramentas |
+| `lib/game/oficina_game.dart` | A bancada como jogo Flame: laço, câmera, componentes e toques |
+| `lib/game/ink.dart` | Rotinas de desenho usadas pelos componentes |
+| `lib/ui/home_page.dart` | Tela, barras de ferramentas e o `GameWidget` |
+
+O Flame cuida do laço do jogo (passos fixos de 1/60 s), da câmera de zoom e arraste, dos
+toques e da árvore de componentes: cada barra, roda, ímã e a bola viram um componente que
+segue o seu corpo no Box2D enquanto a simulação roda. A física fica em `Sim`, um mundo
+Forge2D novo a cada tentativa, para a mesma engenhoca sempre rodar igual.
 
 As coordenadas são as mesmas da versão HTML (bancada de 1000 × 560, 100 px = 1 m).

@@ -1,0 +1,93 @@
+import 'package:flutter_test/flutter_test.dart';
+import 'package:forge2d/forge2d.dart';
+import 'package:geringonca/core/levels.dart';
+import 'package:geringonca/core/model.dart';
+import 'package:geringonca/core/sim.dart';
+
+/// Fase vazia com chão; a bola fica longe das barras.
+Level _lab() => Level(name: 'lab', zone: R(0, 0, 1000, 560), goal: R(990, 0, 10, 10), ball: Pt(900, 470));
+
+Sim _run(List<Part> parts, double seconds) {
+  final s = Sim(_lab(), parts, Pt(900, 470));
+  while (s.t < seconds) {
+    s.step();
+  }
+  return s;
+}
+
+double _y(Sim s, int i) => s.pose(s.bodies[i].body).y;
+
+void main() {
+  setUpAll(() async => initializeForge2D());
+
+  test('madeira cai sobre madeira e para em cima', () {
+    final s = _run([
+      Part.rod('solid', Pt(300, 495), Pt(500, 495)), // no chão
+      Part.rod('solid', Pt(320, 400), Pt(480, 400)), // solta, acima
+    ], 2);
+    // a de baixo fica no chão (centro em 496) e a de cima uma espessura acima
+    expect(_y(s, 1), closeTo(488, 2));
+    s.dispose();
+  });
+
+  test('borracha atravessa madeira e o cenário', () {
+    final s = _run([
+      Part.rod('solid', Pt(300, 495), Pt(500, 495)),
+      Part.rod('water', Pt(320, 400), Pt(480, 400)),
+    ], 2);
+    expect(_y(s, 1), greaterThan(560));
+    s.dispose();
+  });
+
+  test('triângulo de barras presas na mesma junta fica parado', () {
+    final s = _run([
+      Part.rod('solid', Pt(300, 490), Pt(460, 490)),
+      Part.rod('solid', Pt(300, 490), Pt(380, 400)),
+      Part.rod('solid', Pt(460, 490), Pt(380, 400)),
+    ], 2);
+    for (final b in s.bodies) {
+      expect(b.body.linearVelocity.length, lessThan(.05));
+    }
+    s.dispose();
+  });
+
+  test('barras cruzadas em X no início não se empurram', () {
+    final s = _run([
+      Part.rod('solid', Pt(300, 200), Pt(460, 310)),
+      Part.rod('solid', Pt(300, 310), Pt(460, 200)),
+    ], .2);
+    // ainda no ar: caem juntas, sem serem lançadas para os lados
+    for (final b in s.bodies) {
+      expect(b.body.linearVelocity.x.abs(), lessThan(.3));
+    }
+    s.dispose();
+  });
+
+  test('roda cai sobre outra roda e para em cima', () {
+    final s = _run([
+      Part.wheel('free', Pt(400, 472), 28), // no chão
+      Part.wheel('free', Pt(400, 380), 28), // solta, logo acima
+    ], 1);
+    final a = s.pose(s.bodies[0].body), b = s.pose(s.bodies[1].body);
+    // as duas continuam separadas: os centros ficam a pelo menos dois raios
+    expect(dist(Pt(a.x, a.y), Pt(b.x, b.y)), greaterThan(55));
+    s.dispose();
+  });
+
+  test('distância entre segmentos', () {
+    expect(segSegDist(Pt(0, 0), Pt(10, 10), Pt(0, 10), Pt(10, 0)), 0);
+    expect(segSegDist(Pt(0, 0), Pt(10, 0), Pt(0, 5), Pt(10, 5)), 5);
+  });
+
+  test('exemplo continua vencendo a fase 1', () {
+    final lv = kBuiltin[0];
+    final s = Sim(lv, sampleFor(lv, lv.ball)!, lv.ball);
+    var won = false;
+    while (s.t < 10 && !won) {
+      s.step();
+      won = s.won();
+    }
+    expect(won, isTrue);
+    s.dispose();
+  });
+}
