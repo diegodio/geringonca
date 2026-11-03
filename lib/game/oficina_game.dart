@@ -170,8 +170,15 @@ class _WheelBody extends _SimBody {
   _WheelBody(OficinaGame g, Sim s, this.b) : super(g, s, 12);
   @override
   Body get body => b.body;
+  // os raios giram com a roda; a seta fica parada para ser lida
   @override
-  void render(Canvas canvas) => game.ink.on(canvas).wheel(0, 0, b.part.r, b.part.k, b.part.rot);
+  void render(Canvas canvas) {
+    final i = game.ink.on(canvas)..wheel(0, 0, b.part.r, b.part.k, b.part.rot, 1, false);
+    canvas.save();
+    canvas.rotate(-angle);
+    i.wheelArrow(0, 0, b.part.r, b.part.k);
+    canvas.restore();
+  }
 }
 
 class _MagnetBody extends _SimBody {

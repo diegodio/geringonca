@@ -19,7 +19,7 @@ const kETools = ['block', 'plat', 'lift', 'seesaw', 'door', 'button', 'zone', 'g
 
 const kHints = {
   'rod': 'Arraste para criar uma barra. Solte perto de uma junta para conectar.',
-  'water': 'Barra vazada: estrutura que atravessa o cenário e a bola.',
+  'water': 'Barra de borracha: a única peça que atravessa tudo, inclusive outras barras.',
   'cw': 'Toque para uma roda horária; arraste para mudar o tamanho.',
   'ccw': 'Toque para uma roda anti-horária; arraste para mudar o tamanho.',
   'free': 'Toque para uma roda livre; arraste para mudar o tamanho.',
@@ -98,6 +98,10 @@ class GameController extends ChangeNotifier {
   Level? editLevel;
   Cam cam = Cam();
   bool panMode = false;
+
+  /// Encaixe: pontas soltas perto de uma junta, roda, ímã ou da bola se ligam a ela.
+  /// Desligado, a ponta fica onde o dedo soltar. A escolha fica salva.
+  late bool snapOn = store.get<bool>('snap', true);
   String hint = '';
   bool hintWin = false;
   bool shareOpen = false;
@@ -424,7 +428,8 @@ class GameController extends ChangeNotifier {
     return b == null ? null : Pt(rnd(b.x), rnd(b.y));
   }
 
-  Pt _snapOr(Pt p) => findSnap(p) ?? Pt(rnd(p.x), rnd(p.y));
+  // Mover continua usando findSnap direto: ali é escolher a junta a arrastar, não corrigir a posição.
+  Pt _snapOr(Pt p, {bool endsOnly = false}) => (snapOn ? findSnap(p, endsOnly: endsOnly) : null) ?? Pt(rnd(p.x), rnd(p.y));
 
   int _hitPart(Pt p) {
     final tol = math.max(6.0, snapRadius() * .5);
@@ -466,6 +471,15 @@ class GameController extends ChangeNotifier {
     cam.x = z.x + z.w / 2 - kW / (2 * cam.z);
     cam.y = z.y + z.h / 2 - kH / (2 * cam.z);
     _clampCam();
+    notifyListeners();
+  }
+
+  void toggleSnap() {
+    snapOn = !snapOn;
+    store.set('snap', snapOn);
+    say(snapOn
+        ? 'Encaixe ligado: pontas perto de uma junta, roda, ímã ou da bola se conectam a ela.'
+        : 'Encaixe desligado: a ponta fica exatamente onde você soltar.');
     notifyListeners();
   }
 
@@ -636,7 +650,7 @@ class GameController extends ChangeNotifier {
     }
     if (parts.length >= kLimit) return say('Limite de 150 peças atingido.');
     final isRod = tool == 'rod' || tool == 'water';
-    final s = isRod ? _snapOr(p) : (findSnap(p, endsOnly: true) ?? Pt(rnd(p.x), rnd(p.y)));
+    final s = _snapOr(p, endsOnly: !isRod);
     if (!level.zone.contains(s)) return say('Construa dentro da área verde.');
     final Part d;
     if (isRod) {
@@ -681,7 +695,7 @@ class GameController extends ChangeNotifier {
       case 'draft':
         final d = a.d!;
         if (d.isRod) {
-          snapHint = findSnap(p);
+          snapHint = snapOn ? findSnap(p) : null;
           d.b = snapHint ?? Pt(rnd(p.x), rnd(p.y));
         } else if (d.isWheel) {
           final r = dist(p, a.down!);

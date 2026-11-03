@@ -78,7 +78,9 @@ class Ink {
     cv.drawCircle(Offset(x, y), 3.5, stroke(c.ink, 1.5, a));
   }
 
-  void wheel(double x, double y, double r, String kind, double rot, [double a = 1]) {
+  /// Roda; as com motor ganham uma seta circular com o sentido do giro.
+  /// [arrow] falso deixa a seta para quem desenha (a roda da simulação a mantém parada).
+  void wheel(double x, double y, double r, String kind, double rot, [double a = 1, bool arrow = true]) {
     cv.drawCircle(Offset(x, y), r, fill(c.wheel(kind), a));
     cv.drawCircle(Offset(x, y), r, stroke(c.ink, 2, a));
     final sp = stroke(c.paper, 2.5, .85 * a);
@@ -86,11 +88,35 @@ class Ink {
       final an = rot + i * math.pi / 2;
       line(x, y, x + math.cos(an) * r * .8, y + math.sin(an) * r * .8, sp);
     }
+    if (arrow) wheelArrow(x, y, r, kind, a);
     joint(x, y, a);
     for (var i = 0; i < 4; i++) {
       final an = rot + i * math.pi / 2;
       joint(x + math.cos(an) * r, y + math.sin(an) * r, a);
     }
+  }
+
+  /// Seta circular branca: horária na roda ↻, anti-horária na ↺. A roda livre não tem.
+  void wheelArrow(double x, double y, double r, String kind, [double a = 1]) {
+    if (kind != 'cw' && kind != 'ccw') return;
+    final dir = kind == 'cw' ? 1.0 : -1.0; // ângulo positivo gira no sentido horário na tela (y para baixo)
+    final ra = r * .56, w = math.max(2.0, r * .1), head = math.max(5.0, r * .26);
+    final start = -math.pi / 2 - dir * math.pi * .7, sweep = dir * math.pi * 1.25;
+    final end = start + sweep;
+    final rect = Rect.fromCircle(center: Offset(x, y), radius: ra);
+    // ponta: triângulo tangente ao arco, apontando no sentido do giro
+    final tip = Offset(x + math.cos(end) * ra, y + math.sin(end) * ra);
+    final t = Offset(-math.sin(end) * dir, math.cos(end) * dir), n = Offset(math.cos(end), math.sin(end));
+    final path = Path()
+      ..moveTo(tip.dx + t.dx * head * .9, tip.dy + t.dy * head * .9)
+      ..lineTo(tip.dx + n.dx * head * .55, tip.dy + n.dy * head * .55)
+      ..lineTo(tip.dx - n.dx * head * .55, tip.dy - n.dy * head * .55)
+      ..close();
+    // contorno escuro fino por baixo para ler bem em qualquer tema
+    cv.drawArc(rect, start, sweep, false, stroke(c.ink, w + 2, .55 * a)..strokeCap = StrokeCap.round);
+    cv.drawPath(path, stroke(c.ink, 2, .55 * a)..strokeJoin = StrokeJoin.round);
+    cv.drawArc(rect, start, sweep, false, stroke(const Color(0xffffffff), w, a)..strokeCap = StrokeCap.round);
+    cv.drawPath(path, fill(const Color(0xffffffff), a));
   }
 
   void magnet(double x, double y, double r, String pole, bool fixed, [double a = 1]) {

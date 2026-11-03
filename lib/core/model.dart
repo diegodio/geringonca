@@ -1,4 +1,4 @@
-// Modelo de dados da Oficina Geringonça.
+// Modelo de dados da Geringonça.
 //
 // As coordenadas ficam em "pixels de mundo" numa bancada de 1000 x 560,
 // com y para baixo, iguais às da versão HTML. Assim os códigos de
@@ -50,6 +50,14 @@ double segDist(Pt p, Pt a, Pt b) {
   if (l2 == 0) l2 = 1;
   final u = clampD(((p.x - a.x) * dx + (p.y - a.y) * dy) / l2, 0, 1);
   return math.sqrt(math.pow(p.x - a.x - u * dx, 2) + math.pow(p.y - a.y - u * dy, 2));
+}
+
+/// Distância entre dois segmentos (0 quando se cruzam).
+double segSegDist(Pt a, Pt b, Pt c, Pt d) {
+  double cross(Pt o, Pt p, Pt q) => (p.x - o.x) * (q.y - o.y) - (p.y - o.y) * (q.x - o.x);
+  final d1 = cross(c, d, a), d2 = cross(c, d, b), d3 = cross(a, b, c), d4 = cross(a, b, d);
+  if (((d1 > 0 && d2 < 0) || (d1 < 0 && d2 > 0)) && ((d3 > 0 && d4 < 0) || (d3 < 0 && d4 > 0))) return 0;
+  return [segDist(a, c, d), segDist(b, c, d), segDist(c, a, b), segDist(d, a, b)].reduce(math.min);
 }
 
 class R {

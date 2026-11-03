@@ -1,11 +1,16 @@
-# Oficina Geringonça
+# Geringonça
 
 Jogo de física em Flutter com [Flame](https://flame-engine.org): monte uma engenhoca com barras, rodas e ímãs e leve a bola até a área vermelha.
 É a versão Flutter do jogo que começou como página HTML com Matter.js.
 
 ## O que tem
 
-- Peças: barra sólida, barra vazada, rodas (horária, anti-horária e livre) e ímãs N/S.
+- Peças: barra de madeira, barra de borracha, rodas (horária, anti-horária e livre) e ímãs N/S.
+- A madeira não atravessa outras barras de madeira, rodas, ímãs, a bola nem o cenário; rodas e ímãs
+  também trombam entre si. Peças que já começam encostadas passam uma pela outra. Só a borracha
+  atravessa tudo.
+- Rodas com motor mostram uma seta com o sentido do giro.
+- Botão Encaixe: liga ou desliga a conexão automática das pontas nas juntas.
 - 7 fases prontas, com medalhas de tempo, peças e custo, e replay da melhor solução.
 - Editor de fases: bloco, plataforma, elevador, gangorra, porta, botão, ímã fixo, área de construção e meta.
 - Códigos de compartilhamento `OG1:...`, compatíveis com os da versão HTML.

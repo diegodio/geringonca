@@ -225,7 +225,7 @@ class Sim {
             material: SurfaceMaterial(friction: .8),
             enableSensorEvents: q.k == 'solid',
             filter: q.k == 'solid'
-                ? Filter(categoryBits: catRod, maskBits: catEnv | catBall | catScen | catCirc)
+                ? Filter(categoryBits: catRod, maskBits: catEnv | catBall | catScen | catCirc | catRod)
                 : Filter(categoryBits: catWater, maskBits: 0),
           ),
         );
@@ -245,7 +245,7 @@ class Sim {
             density: _dPart,
             material: SurfaceMaterial(friction: 1),
             enableSensorEvents: true,
-            filter: Filter(categoryBits: catCirc, maskBits: catEnv | catBall | catScen | catRod),
+            filter: Filter(categoryBits: catCirc, maskBits: catEnv | catBall | catScen | catRod | catCirc),
           ),
         );
         if (q.isWheel) {
@@ -270,6 +270,21 @@ class Sim {
     for (final c in circs) {
       for (final r in rods) {
         if (segDist(c.part.c!, r.part.a!, r.part.b!) < c.part.r + 8) _noCollide(shapeOf[c.body]!, shapeOf[r.body]!);
+      }
+    }
+    // Madeira bate em madeira, menos nas barras que já começam encostadas
+    // (presas na mesma junta ou cruzadas em X); senão a engenhoca se empurraria ao começar.
+    for (var i = 0; i < rods.length; i++) {
+      for (var j = i + 1; j < rods.length; j++) {
+        final a = rods[i].part, b = rods[j].part;
+        if (segSegDist(a.a!, a.b!, b.a!, b.b!) < 8) _noCollide(shapeOf[rods[i].body]!, shapeOf[rods[j].body]!);
+      }
+    }
+    // Rodas e ímãs trombam entre si, menos os que já começam encostados ou sobrepostos.
+    for (var i = 0; i < circs.length; i++) {
+      for (var j = i + 1; j < circs.length; j++) {
+        final a = circs[i].part, b = circs[j].part;
+        if (dist(a.c!, b.c!) < a.r + b.r + 2) _noCollide(shapeOf[circs[i].body]!, shapeOf[circs[j].body]!);
       }
     }
     // A bola não bate nas peças presas nela por uma junta.
