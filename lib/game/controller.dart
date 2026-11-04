@@ -112,6 +112,12 @@ abstract class GameState extends ChangeNotifier {
     hintWin = win;
   }
 
+  /// Mostra uma mensagem na linha de dicas e avisa a interface.
+  void tell(String msg) {
+    say(msg);
+    notifyListeners();
+  }
+
   void _saveBuild() => progress.saveBuild(level.id!, parts, ball0);
 
   // implementados nas partes

@@ -4,7 +4,7 @@ import 'package:forge2d/forge2d.dart';
 import 'game/controller.dart';
 import 'game/palette.dart';
 import 'game/storage.dart';
-import 'ui/home_page.dart';
+import 'ui/menu_page.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -30,6 +30,6 @@ class GeringoncaApp extends StatelessWidget {
         debugShowCheckedModeBanner: false,
         theme: _theme(Palette.light, Brightness.light),
         darkTheme: _theme(Palette.dark, Brightness.dark),
-        home: HomePage(g: controller),
+        home: MenuPage(g: controller),
       );
 }

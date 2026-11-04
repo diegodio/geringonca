@@ -2,7 +2,10 @@ import 'model.dart';
 
 Seg _s(double ax, double ay, double bx, double by) => Seg(Pt(ax, ay), Pt(bx, by));
 
-/// As sete fases prontas, iguais às da versão HTML.
+/// Fases prontas, em ordem crescente de dificuldade. As 7 primeiras vêm da
+/// versão HTML; as seguintes exigem engenhocas mais elaboradas. Cada uma tem
+/// uma solução de referência em test/levels_test.dart, que também confere
+/// que as medalhas são alcançáveis e que os truques mais simples não bastam.
 List<Level> buildBuiltinLevels() => [
       Level(
         id: 'l1',
@@ -56,7 +59,8 @@ List<Level> buildBuiltinLevels() => [
         ball: Pt(170, 440),
         blocks: [R(760, 300, 240, 200)],
         lifts: [Lift(Pt(640, 508), Pt(640, 308), 220)],
-        targets: Targets(t: 4.0, n: 2, c: 35),
+        // 4,0 s vinha da versão em Matter.js; com o Box2D a melhor solução conhecida leva 6,8 s
+        targets: Targets(t: 7.5, n: 2, c: 35),
       ),
       Level(
         id: 'l6',
@@ -79,6 +83,64 @@ List<Level> buildBuiltinLevels() => [
         doors: [R(620, 330, 30, 170)],
         buttons: [Pt(420, 500)],
         targets: Targets(t: 1.9, n: 2, c: 35),
+      ),
+      // ---------- novas: cada uma pede uma ideia a mais ----------
+      Level(
+        id: 'l8',
+        name: 'Marcha à ré',
+        tip: 'A meta ficou para trás. Qual roda gira para o outro lado?',
+        zone: R(650, 270, 310, 220),
+        goal: R(30, 360, 180, 140),
+        ball: Pt(830, 478),
+        targets: Targets(t: 1.6, n: 1, c: 25),
+      ),
+      Level(
+        id: 'l9',
+        name: 'Túnel',
+        tip: 'O túnel é baixo: uma roda grande demais fica entalada.',
+        zone: zone0(),
+        goal: R(790, 360, 180, 140),
+        ball: Pt(170, 440),
+        blocks: [R(420, 0, 280, 410)], // parede que desce do teto: passagem de 90 px
+        targets: Targets(t: 2.1, n: 1, c: 25),
+      ),
+      Level(
+        id: 'l10',
+        name: 'Entrega',
+        tip: 'A bola tem que cair no buraco, mas nenhuma roda cabe nele. Empurre a bola em vez de carregá-la.',
+        ground: false,
+        zone: zone0(),
+        goal: R(700, 500, 50, 60),
+        ball: Pt(200, 478),
+        plats: [_s(0, 508, 692, 508), _s(758, 508, 1000, 508)],
+        blocks: [R(690, 560, 70, 40)],
+        targets: Targets(t: 6.0, n: 1, c: 25),
+      ),
+      Level(
+        id: 'l11',
+        name: 'Túnel e fosso',
+        tip: 'Rodas grandes não entram no túnel; uma roda pequena sozinha cai no fosso. Ligue duas rodas com barras em triângulo.',
+        ground: false,
+        zone: R(40, 270, 330, 220),
+        goal: R(790, 360, 180, 140),
+        ball: Pt(190, 440),
+        plats: [_s(0, 508, 600, 508), _s(740, 508, 1000, 508)],
+        blocks: [R(380, 0, 200, 410)], // passagem baixa de 90 px
+        targets: Targets(t: 2.7, n: 5, c: 80),
+      ),
+      Level(
+        id: 'l12',
+        name: 'Grande final',
+        tip: 'Túnel, fosso e uma porta que só abre com o botão. Junte tudo o que aprendeu.',
+        ground: false,
+        zone: R(40, 270, 330, 220),
+        goal: R(790, 360, 180, 140),
+        ball: Pt(190, 440),
+        plats: [_s(0, 508, 600, 508), _s(740, 508, 1000, 508)],
+        blocks: [R(380, 0, 200, 410)], // passagem baixa de 90 px
+        buttons: [Pt(500, 500)],
+        doors: [R(750, 300, 30, 200)],
+        targets: Targets(t: 2.9, n: 5, c: 80),
       ),
     ];
 
