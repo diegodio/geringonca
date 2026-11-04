@@ -8,6 +8,7 @@ import '../core/model.dart';
 import '../game/controller.dart';
 import '../game/oficina_game.dart';
 import '../game/palette.dart';
+import 'how_to_play.dart';
 
 class HomePage extends StatefulWidget {
   final GameController g;
@@ -62,7 +63,16 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     final c = Palette.of(context);
-    return Scaffold(
+    return PopScope(
+      canPop: g.mode != Mode.edit,
+      onPopInvokedWithResult: (didPop, _) {
+        if (didPop) {
+          if (g.mode == Mode.run) g.stop();
+        } else {
+          _backToMenu();
+        }
+      },
+      child: Scaffold(
       backgroundColor: c.bg,
       body: SafeArea(
         child: ListenableBuilder(
@@ -89,7 +99,12 @@ class _HomePageState extends State<HomePage> {
                     Text(g.hint,
                         style: GoogleFonts.ibmPlexMono(
                             fontSize: 13, color: g.hintWin ? c.goal : c.muted, fontWeight: g.hintWin ? FontWeight.w500 : FontWeight.w400)),
-                    _notes(c),
+                    Container(
+                      margin: const EdgeInsets.only(top: 18),
+                      padding: const EdgeInsets.only(top: 18),
+                      decoration: BoxDecoration(border: Border(top: BorderSide(color: c.line))),
+                      child: HowToPlay(c: c),
+                    ),
                   ],
                 ),
               ),
@@ -97,16 +112,32 @@ class _HomePageState extends State<HomePage> {
           ),
         ),
       ),
-    );
+    ));
+  }
+
+  /// Volta ao menu. Rodando, para a simulação; no editor, pede para salvar ou cancelar antes.
+  void _backToMenu() {
+    if (g.mode == Mode.edit) {
+      g.tell('Salve ou cancele a fase antes de voltar ao menu.');
+      return;
+    }
+    if (g.mode == Mode.run) g.stop();
+    Navigator.of(context).maybePop();
   }
 
   Widget _header(Palette c) => Wrap(
         alignment: WrapAlignment.spaceBetween,
-        crossAxisAlignment: WrapCrossAlignment.end,
+        crossAxisAlignment: WrapCrossAlignment.center,
         spacing: 16,
         runSpacing: 6,
         children: [
-          Text('Geringonça', style: GoogleFonts.chakraPetch(fontSize: 30, fontWeight: FontWeight.w700, color: c.ink)),
+          Row(mainAxisSize: MainAxisSize.min, children: [
+            if (Navigator.of(context).canPop()) ...[
+              TB(c: c, label: '← Menu', onTap: _backToMenu),
+              const SizedBox(width: 12),
+            ],
+            Text('Geringonça', style: GoogleFonts.chakraPetch(fontSize: 30, fontWeight: FontWeight.w700, color: c.ink)),
+          ]),
           Text('Barras, rodas, ímãs e juntas em Box2D', style: GoogleFonts.ibmPlexSans(fontSize: 14, color: c.muted)),
         ],
       );
@@ -388,32 +419,6 @@ class _HomePageState extends State<HomePage> {
           Text(g.countText, style: GoogleFonts.ibmPlexMono(fontSize: 13, color: c.muted, fontFeatures: const [FontFeature.tabularFigures()])),
         ],
       );
-
-  Widget _notes(Palette c) {
-    Widget note(String h, String p) => SizedBox(
-          width: 300,
-          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text(h, style: GoogleFonts.chakraPetch(fontSize: 17, fontWeight: FontWeight.w700, color: c.ink)),
-            const SizedBox(height: 6),
-            Text(p, style: GoogleFonts.ibmPlexSans(fontSize: 14, color: c.ink, height: 1.5)),
-          ]),
-        );
-    return Container(
-      margin: const EdgeInsets.only(top: 18),
-      padding: const EdgeInsets.only(top: 18),
-      decoration: BoxDecoration(border: Border(top: BorderSide(color: c.line))),
-      child: Wrap(spacing: 28, runSpacing: 18, children: [
-        note('Medalhas',
-            'Cada fase tem três: tempo, número de peças e custo. Não precisa ganhar todas na mesma engenhoca. A solução mais rápida fica guardada em Melhor solução.'),
-        note('Cenário que se move',
-            'Elevadores sobem e descem sem parar. Gangorras giram no eixo do meio. Portas abrem quando algo pisa num botão; numa fase sem botões, elas abrem e fecham a cada 2 s.'),
-        note('Seleção e zoom',
-            'Use dois dedos para aproximar e arrastar a tela (no computador, Ctrl + rolagem). Em Selecionar, marque várias peças para mover, duplicar ou girar de uma vez.'),
-        note('Peças entre si',
-            'Barras de madeira não atravessam outras barras de madeira, rodas, ímãs, a bola nem o cenário; só as que já começam encostadas passam uma pela outra. Rodas e ímãs também trombam entre si. Rodas, ímãs e a bola rolam por cima das barras, como numa ponte. Peças presas à roda ou à bola por uma junta, como o eixo, passam por dentro delas. Cada roda tem 4 pontos de conexão na borda, a cada π/2; uma barra presa neles gira junto, como uma manivela. Só a barra azul, de borracha, atravessa tudo. As rodas com motor têm uma seta com o sentido do giro. Ímã norte (vermelho) atrai sul (azul) e repele norte.'),
-      ]),
-    );
-  }
 }
 
 /// Amostras de cor dos botões de peça.
