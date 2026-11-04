@@ -122,17 +122,23 @@ class _HomePageState extends State<HomePage> {
       if (list.isEmpty) return;
       items.add(DropdownMenuItem(enabled: false, value: '#$title', child: _label(c, title)));
       for (final l in list) {
-        final stars = g.starsOf(l.id!);
+        final pr = g.progress, stars = pr.starsOf(l.id!), open = pr.isUnlocked(l.id!);
+        // fase bloqueada aparece com cadeado e apagada; tocar nela explica o que falta
         items.add(DropdownMenuItem(
           value: l.id,
-          child: Text('${g.isDone(l.id!) ? '✓ ' : ''}${l.name}${stars > 0 ? ' ${'★' * stars}' : ''}',
-              overflow: TextOverflow.ellipsis, style: GoogleFonts.ibmPlexSans(fontSize: 14, color: c.ink)),
+          child: Row(mainAxisSize: MainAxisSize.min, children: [
+            if (!open) ...[Icon(Icons.lock_outline, size: 15, color: c.muted), const SizedBox(width: 5)],
+            Flexible(
+              child: Text('${open && pr.isDone(l.id!) ? '✓ ' : ''}${l.name}${stars > 0 ? ' ${'★' * stars}' : ''}',
+                  overflow: TextOverflow.ellipsis, style: GoogleFonts.ibmPlexSans(fontSize: 14, color: open ? c.ink : c.muted)),
+            ),
+          ]),
         ));
       }
     }
 
     group('Fases', kBuiltin);
-    group('Minhas fases', g.custom);
+    group('Minhas fases', g.progress.custom);
     return Wrap(
       spacing: 6,
       runSpacing: 6,
@@ -243,6 +249,17 @@ class _HomePageState extends State<HomePage> {
         ),
         const SizedBox(width: 6),
         TB(c: c, label: run ? '■ Parar' : '▶ Rodar', primary: true, running: run, onTap: g.togglePlay),
+      ]),
+      const SizedBox(height: 6),
+      // controles da simulação: pausa, passo a passo e câmera lenta
+      Wrap(spacing: 6, runSpacing: 6, crossAxisAlignment: WrapCrossAlignment.center, children: [
+        _label(c, 'Simulação'),
+        TB(c: c, label: g.paused ? '▶ Continuar' : '❚❚ Pausar', pressed: g.paused, onTap: run ? g.togglePause : null),
+        TB(c: c, label: 'Avançar 0,1 s', tooltip: 'Com a simulação pausada, avança um décimo de segundo', onTap: run && g.paused ? g.stepForward : null),
+        Container(width: 1, height: 28, color: c.line, margin: const EdgeInsets.symmetric(horizontal: 4)),
+        _label(c, 'Velocidade'),
+        for (final s in [1.0, .5, .25])
+          TB(c: c, label: s == 1 ? '1×' : s == .5 ? '½×' : '¼×', pressed: g.speed == s, onTap: () => g.setSpeed(s)),
       ]),
       if (g.showSelBar) ...[
         const SizedBox(height: 6),
@@ -366,6 +383,7 @@ class _HomePageState extends State<HomePage> {
             TB(c: c, label: 'Área verde', small: true, onTap: g.zoomZone),
             TB(c: c, label: 'Tudo', small: true, onTap: g.zoomFit),
             TB(c: c, label: '✋ Mão', small: true, pressed: g.panMode, onTap: g.togglePan),
+            TB(c: c, label: 'Rastro: ${g.trailOn ? 'ligado' : 'desligado'}', small: true, pressed: g.trailOn, onTap: g.toggleTrail),
           ]),
           Text(g.countText, style: GoogleFonts.ibmPlexMono(fontSize: 13, color: c.muted, fontFeatures: const [FontFeature.tabularFigures()])),
         ],

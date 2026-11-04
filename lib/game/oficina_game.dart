@@ -41,6 +41,11 @@ class OficinaGame extends FlameGame {
       _Layer(this, 0, (i) => i.grid()),
       _Layer(this, 1, (i) => i.zones(g.cur)),
       _Layer(this, 2, (i) => i.scenery(g.cur, g.mode == Mode.run ? g.sim : null)),
+      // rastro da tentativa atual, ou o da última tentativa (mais claro) enquanto se constrói
+      _Layer(this, 4, (i) {
+        if (!g.trailOn || g.mode == Mode.edit) return;
+        g.mode == Mode.run ? i.trail(g.trail, .8) : i.trail(g.lastTrail, .35);
+      }),
       _BuildLayer(this),
     ]);
     camera.viewport.addAll([_InputLayer(this), _Hud(this)]);
@@ -217,7 +222,15 @@ class _Hud extends Component {
     final hs = clampD((14 * kW / math.max(1, game.size.x)).roundToDouble(), 14, 30);
     i.text('t = ${fmt(s.t)} s', 16, 12 + hs * 1.2, i.c.ink, size: hs);
     i.text('v(bola) = ${fmt(s.ballSpeed)} m/s', 16, 12 + hs * 2.5, i.c.ink, size: hs);
-    if (g.replaying) i.text('REPLAY', 16, 12 + hs * 3.8, i.c.accent, size: hs);
+    var line = 3.8;
+    if (g.replaying) {
+      i.text('REPLAY', 16, 12 + hs * line, i.c.accent, size: hs);
+      line += 1.3;
+    }
+    if (g.paused || g.speed != 1) {
+      final sp = g.speed == 1 ? '' : g.speed == .5 ? '½×' : '¼×';
+      i.text([if (g.paused) 'PAUSADO', if (sp.isNotEmpty) 'CÂMERA LENTA $sp'].join(' · '), 16, 12 + hs * line, i.c.goal, size: hs);
+    }
     if (g.winInfo != null) i.winBanner(g.winInfo!);
   }
 }

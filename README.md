@@ -11,7 +11,13 @@ Jogo de física em Flutter com [Flame](https://flame-engine.org): monte uma enge
   atravessa tudo.
 - Rodas com motor mostram uma seta com o sentido do giro.
 - Botão Encaixe: liga ou desliga a conexão automática das pontas nas juntas.
-- 7 fases prontas, com medalhas de tempo, peças e custo, e replay da melhor solução.
+- 7 fases prontas, liberadas em sequência: cada uma abre quando a anterior é concluída.
+  Fases próprias e importadas estão sempre abertas.
+- Medalhas de tempo, peças e custo, e replay da melhor solução.
+- Simulação com pausa, avanço de 0,1 s em 0,1 s e câmera lenta (½× e ¼×). A câmera lenta não
+  muda o resultado: só mostra os mesmos passos mais devagar.
+- Rastro da bola, com um ponto a cada meio segundo (pontos afastados: a bola acelerou). Depois
+  de parar, o rastro da última tentativa fica mais claro na bancada.
 - Editor de fases: bloco, plataforma, elevador, gangorra, porta, botão, ímã fixo, área de construção e meta.
 - Códigos de compartilhamento `OG1:...`, compatíveis com os da versão HTML.
 - Zoom com dois dedos (ou Ctrl + rolagem), seleção múltipla, desfazer, tema claro e escuro.
@@ -37,7 +43,14 @@ flutter test           # testes da física e dos códigos
 | `lib/core/levels.dart` | As 7 fases prontas e o carrinho de exemplo |
 | `lib/core/sim.dart` | Mundo físico com Forge2D (Box2D v3). Não depende do Flutter |
 | `lib/core/share.dart` | Códigos `OG1:` |
-| `lib/game/controller.dart` | Regras: construção, seleção, câmera, medalhas, editor |
+| `lib/core/detmath.dart` | Seno e cosseno que dão o mesmo resultado em toda plataforma |
+| `lib/core/fingerprint.dart` | Impressão digital de uma simulação, para comparar plataformas |
+| `lib/game/controller.dart` | Estado compartilhado e a classe que junta as partes abaixo |
+| `lib/game/build_tools.dart` | Construção: peças, desfazer, seleção e encaixe |
+| `lib/game/camera_input.dart` | Câmera, zoom e toques na bancada |
+| `lib/game/run_control.dart` | Simulação: rodar, replay, pausa, câmera lenta, rastro e vitória |
+| `lib/game/level_editor.dart` | Editor de fases |
+| `lib/game/progress.dart` | Progresso: fases liberadas, medalhas, recordes e engenhocas salvas |
 | `lib/game/oficina_game.dart` | A bancada como jogo Flame: laço, câmera, componentes e toques |
 | `lib/game/ink.dart` | Rotinas de desenho usadas pelos componentes |
 | `lib/ui/home_page.dart` | Tela, barras de ferramentas e o `GameWidget` |
@@ -48,3 +61,25 @@ segue o seu corpo no Box2D enquanto a simulação roda. A física fica em `Sim`,
 Forge2D novo a cada tentativa, para a mesma engenhoca sempre rodar igual.
 
 As coordenadas são as mesmas da versão HTML (bancada de 1000 × 560, 100 px = 1 m).
+
+## Mesma física em todo lugar
+
+Os códigos de compartilhamento e o replay só funcionam se a mesma engenhoca der o mesmo
+resultado em qualquer aparelho. Para isso:
+
+- O Box2D é compilado com `-ffp-contract=off`, numa cópia do Forge2D em `third_party/forge2d`
+  (ver `GERINGONCA.md` lá dentro). Sem isso, celulares ARM fundem multiplicação e soma (FMA) e
+  chegam a números diferentes dos do computador e da web.
+- A física em Dart não usa `sin`, `cos`, `atan2` nem `pow` da plataforma, que variam entre
+  sistemas: usa `detmath.dart`, raiz quadrada e as quatro operações.
+- `test/determinism_test.dart` compara a impressão digital de 7 engenhocas com valores fixos.
+  Rode nos dois ambientes:
+
+```sh
+flutter test test/determinism_test.dart                    # nativo (Box2D em C)
+flutter test test/determinism_test.dart --platform chrome  # web (Box2D em WebAssembly)
+```
+
+Verificado em x86 nativo, no Chrome e num Box2D compilado com FMA (como nos celulares ARM).
+Ainda não foi rodado num celular de verdade.
+

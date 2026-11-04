@@ -90,3 +90,10 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
+
+# Cópia do forge2d com o Box2D compilado sem fundir multiplicação e soma
+# (-ffp-contract=off), para a física dar o mesmo resultado em celulares ARM,
+# no computador e na web. Ver third_party/forge2d/GERINGONCA.md.
+dependency_overrides:
+  forge2d:
+    path: third_party/forge2d
