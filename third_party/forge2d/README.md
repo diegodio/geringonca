@@ -1,0 +1,232 @@
+#
+
+<p align="center">
+  <a href="https://flame-engine.org">
+    <img alt="flame" width="200px" src="https://raw.githubusercontent.com/flame-engine/forge2d/master/design/with-text.png">
+  </a>
+</p>
+
+<p align="center">
+  Forge2D - Dart bindings for the Box2D physics engine
+</p>
+
+<p align="center">
+  <a title="Pub" href="https://pub.dartlang.org/packages/forge2d" ><img src="https://img.shields.io/pub/v/forge2d.svg?style=popout" /></a> <img src="https://github.com/flame-engine/forge2d/workflows/cicd/badge.svg?branch=main&event=push" alt="Test" /> <a title="Discord" href="https://discord.gg/pxrBmy4" ><img src="https://img.shields.io/discord/509714518008528896.svg" /></a>
+</p>
+
+Forge2D provides an idiomatic Dart API for the native
+[Box2D](https://box2d.org) v3 physics engine. The C library is bundled,
+compiled by the Dart/Flutter build through
+[native assets](https://dart.dev/tools/hooks), and called over `dart:ffi`,
+so simulations run at native speed with the real, actively maintained
+Box2D.
+
+You can use it independently in Dart or in your
+[Flame](https://github.com/flame-engine/flame) project with the help of
+[flame_forge2d](https://github.com/flame-engine/flame/tree/main/packages/flame_forge2d).
+
+## Requirements
+
+- Dart 3.12+ (Flutter 3.38+), which builds the bundled C library
+  automatically through build hooks.
+- A C toolchain on native platforms: Xcode on macOS/iOS, Visual Studio
+  Build Tools on Windows, clang or gcc on Linux, and the NDK on Android.
+- Supported platforms: Android, iOS, macOS, Windows, Linux, and the web.
+
+On the web the same API runs against a bundled WebAssembly build of Box2D
+(about 220 KB). No setup is needed: `initializeForge2D()` finds the module
+at the package asset path in Dart web apps, and at the bundled package
+asset in Flutter web apps. For custom hosting setups the location can be
+overridden with `initializeForge2D(wasmUri: ...)`, and
+`dart run forge2d:setup_web` copies the module into a `web/` directory.
+
+## Getting started
+
+```dart
+import 'package:forge2d/forge2d.dart';
+
+Future<void> main() async {
+  await initializeForge2D();
+
+  final world = World();
+
+  // Static ground: a wide box whose top surface is at y = 0.
+  world
+      .createBody(BodyDef(position: Vector2(0, -1)))
+      .createShape(Polygon.box(50, 1));
+
+  // A dynamic box dropped from above.
+  final box = world.createBody(
+    BodyDef(type: BodyType.dynamic, position: Vector2(0, 10)),
+  )..createShape(Polygon.square(0.5));
+
+  for (var i = 0; i < 90; i++) {
+    world.step(1 / 60);
+  }
+  print(box.position); // The box has landed on the ground.
+
+  world.destroy();
+}
+```
+
+Highlights of the API:
+
+- `World`, `Body`, `Shape`, `Chain`, and the joints are cheap value-like
+  handles over native ids; destroy things explicitly with `destroy()`.
+- Contact, sensor, and body-move events are polled from the world after
+  each step (`world.contactEvents`, `world.sensorEvents`,
+  `world.bodyMoveEvents`).
+- Ray casts (`castRayClosest`, `castRayAll`, `castRay`), AABB overlap
+  queries, and explosions are available on `World`.
+- `DebugDraw` can be implemented to render the physics world for
+  debugging.
+
+## Units
+
+Box2D is tuned for meters, kilograms and seconds, so lay your world out in
+meters and aim to keep moving objects roughly between 0.1 and 10 of them,
+with 1 being the sweet spot. Rendering scale is a separate concern: decide
+how many pixels a meter is worth in your renderer, not in the simulation.
+
+Some of the tolerances are absolute lengths rather than fractions of the
+shapes they apply to, so a world laid out at a much smaller scale behaves
+oddly. The most visible one is the speculative distance: Box2D creates
+contact points for shapes that are approaching but not yet touching, which
+is what stops fast objects from passing through each other, and it means
+`beginContact` fires while there is still a gap of up to `0.02` meters. A
+shape that is only a couple of centimeters across is therefore permanently
+in contact with its neighbors. `Tolerances` exposes these values:
+
+```dart
+Tolerances.linearSlop;           // 0.005
+Tolerances.speculativeDistance;  // 0.02
+Tolerances.aabbMargin;           // 0.05
+```
+
+`WorldDef.restitutionThreshold` (1 m/s), `WorldDef.hitEventThreshold`
+(1 m/s), `WorldDef.maxContactPushSpeed` (3 m/s),
+`WorldDef.maximumLinearSpeed` (400 m/s) and `BodyDef.sleepThreshold`
+(0.05 m/s) are absolute in the same way, but they are per world or per body,
+so they can simply be set.
+
+When a world genuinely cannot be laid out at that scale, tell Box2D how many
+of your length units make up a meter and every tolerance above moves with it:
+
+```dart
+await initializeForge2D(lengthUnitsPerMeter: 100);
+```
+
+A good rule of thumb is to pass the height of your player character. You are
+then on the hook for gravity, densities and forces being sensible at that
+scale. For a length scale factor of `S`, velocities and accelerations scale
+by `S`, masses by `S²`, forces and impulses by `S³` and torques by `S⁴`,
+while densities, friction, restitution and damping stay as they are. Scaling
+lengths and gravity together leaves the timing of the simulation unchanged.
+
+The length unit is process-wide and cannot change once a `World` exists,
+which is why it is set through `initializeForge2D`.
+
+## Performance
+
+The standard [bench2d](https://github.com/joelgwebber/bench2d) benchmark
+(a 40-high pyramid of boxes, 256 frames), on the same machine:
+
+| Engine | ms/frame (mean) |
+|---|---|
+| forge2d 0.14 (pure Dart port) | 9.37 |
+| forge2d with native Box2D v3 | 0.51 |
+
+## Migrating from forge2d 0.14
+
+Forge2D 0.15 is a ground-up rewrite on the Box2D v3 API. For the full
+walkthrough, see the [Forge2D migration
+guide](https://docs.flame-engine.org/main/other_modules/forge2d/migration.html).
+The high-level concepts map as follows:
+
+- Dart 3.12+ and a C toolchain are required, see [Requirements](#requirements).
+  This is usually the biggest practical hurdle of the upgrade.
+- On the web, `await initializeForge2D()` has to run before the first
+  `World` is created. On native it is a no-op (the backend is created
+  lazily), but cross-platform code should always await it.
+- `World`, `Body`, `Shape`, `Chain`, and joints are value-like handles over
+  native ids rather than Dart objects owning their state. Nothing is
+  garbage collected: destroy things explicitly, and check `isValid` if a
+  handle may have outlived what it points at.
+- `Fixture` is gone: bodies carry `Shape`s directly, created with
+  `body.createShape(geometry, ShapeDef(...))` where the geometry is a
+  `Circle`, `Capsule`, `Segment`, or `Polygon`. Chains have their own
+  `body.createChain(ChainDef(points: ...))`.
+- `EdgeShape` is replaced by `Segment` (standalone) and one-sided chain
+  shapes for level geometry.
+- Friction, restitution, and rolling resistance live on
+  `ShapeDef(material: SurfaceMaterial(...))` instead of being fields on the
+  old `FixtureDef`.
+- `ContactListener` callbacks are replaced by events polled after each
+  step: `world.contactEvents`, `world.sensorEvents`, and
+  `world.bodyMoveEvents`. Contact and sensor events are opted in per shape
+  with `ShapeDef(enableContactEvents: true)` and
+  `ShapeDef(isSensor: true, enableSensorEvents: true)`; hit events need
+  `enableHitEvents`. Custom filtering is a `world.customFilterCallback`.
+- Query and ray-cast callback classes are gone: `world.castRayClosest`,
+  `world.castRayAll`, and `world.overlapAabb` return their results
+  directly, and `world.castRay` takes a plain closure. `AABB` is now
+  `Aabb`.
+- Joints are created with type-specific methods such as
+  `world.createRevoluteJoint(RevoluteJointDef(...))`, and the set is now
+  distance, filter, motor, mouse, prismatic, revolute, weld, and wheel.
+  Gear, pulley, rope, friction, and constant-volume joints do not exist in
+  Box2D v3.
+- Rotations are a `Rot` rather than a raw angle: `BodyDef(rotation: ...)`
+  and `body.setTransform(position, rotation)` take one, built with
+  `Rot.fromAngle(radians)`. `body.angle` still reads back a double.
+- `body.applyForce` and `body.applyLinearImpulse` take the point of
+  application as a named argument, `applyForce(force, point: ..., wake:
+  true)`, and applying at the centre of mass is just leaving `point` out.
+  `applyForceToCenter` is gone.
+- `DebugDraw` is an abstract class you implement and pass to
+  `world.draw(debugDraw)`, with colors as `0xRRGGBB` ints.
+- The particle system (LiquidFun) is not part of Box2D v3 and has been
+  removed; stay on forge2d 0.14 if you depend on it.
+- Worlds default to `subStepCount: 4` in `step` instead of velocity and
+  position iterations.
+- A bare `World()` now has the Box2D default gravity of `(0, -10)`; the old
+  API defaulted to zero gravity. Top-down games should pass
+  `World(gravity: Vector2.zero())`.
+- Destroying bodies, shapes, chains, or joints while the world is stepping
+  (from a collision callback) is deferred until the step ends; creating
+  them mid-step throws a `StateError` instead of the old silent queueing.
+  `world.destroy()` itself is not deferred and throws mid-step.
+
+## Timeline
+
+Box2D was first written in C++ and released by
+[Erin Catto](https://github.com/erincatto) in 2007, and it is still
+actively maintained.
+
+It was ported to Java (jbox2d) by [Daniel Murphy](https://github.com/dmurph)
+around 2015, then from that Java port it was ported to Dart by
+[Dominic Hamon](https://github.com/dominichamon) and
+[Kevin Moore](https://github.com/kevmoo).
+
+A few years after that [Lukas Klingsbo](https://github.com/spydon)
+refactored the code to better follow the Dart standard and the project was
+renamed to Forge2D.
+
+Since Box2D v3 rewrote the engine in C with a first-class embedding API,
+Forge2D moved from being a port to being bindings: the same idiomatic Dart
+surface, powered by the real engine.
+
+There have also been countless other contributors which we are very
+thankful to!
+
+## Credits
+
+ * The [Flame engine team](https://github.com/orgs/flame-engine/people) who
+   is continuously working on maintaining and improving Forge2D.
+ * [Erin Catto](https://github.com/erincatto) for Box2D itself, which this
+   package embeds.
+ * Special thanks to [Lukas Klingsbo](https://github.com/spydon), a Flame
+   team member who took this project under his wing and greatly improved
+   the project!
+ * The Dart port of [Box2D](https://github.com/google/box2d.dart) that
+   earlier versions of Forge2D were built on.

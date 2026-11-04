@@ -5,6 +5,8 @@
 // compartilhamento (OG1:...) continuam compatíveis entre as duas versões.
 import 'dart:math' as math;
 
+import 'detmath.dart';
+
 const double kW = 1000, kH = 560;
 const int kLimit = 150;
 const double kBallR = 22, kMagR = 18, kFixR = 20, kPlatT = 16, kLiftT = 16, kSeeT = 14;
@@ -49,7 +51,8 @@ double segDist(Pt p, Pt a, Pt b) {
   var l2 = dx * dx + dy * dy;
   if (l2 == 0) l2 = 1;
   final u = clampD(((p.x - a.x) * dx + (p.y - a.y) * dy) / l2, 0, 1);
-  return math.sqrt(math.pow(p.x - a.x - u * dx, 2) + math.pow(p.y - a.y - u * dy, 2));
+  final ex = p.x - a.x - u * dx, ey = p.y - a.y - u * dy;
+  return math.sqrt(ex * ex + ey * ey);
 }
 
 /// Distância entre dois segmentos (0 quando se cruzam).
@@ -103,7 +106,7 @@ class Part {
   /// Quatro pontos de conexão na borda de cada roda, espaçados de π/2.
   List<Pt> get perim => List.generate(4, (i) {
         final ang = rot + i * math.pi / 2;
-        return Pt(c!.x + r * math.cos(ang), c!.y + r * math.sin(ang));
+        return Pt(c!.x + r * dcos(ang), c!.y + r * dsin(ang));
       });
 
   Part copy() => isRod

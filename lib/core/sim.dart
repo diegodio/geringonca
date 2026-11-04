@@ -8,6 +8,7 @@ import 'dart:math' as math;
 
 import 'package:forge2d/forge2d.dart';
 
+import 'detmath.dart';
 import 'model.dart';
 
 const double kScale = 100; // px por metro
@@ -25,6 +26,18 @@ const double _airDamping = 0.6;
 const double _motorSpeed = 12;
 
 Vector2 _v(double x, double y) => Vector2(x / kScale, y / kScale);
+
+// Direção e rotação de um segmento só com divisão e raiz quadrada, que dão o
+// mesmo resultado em toda plataforma (atan2, cos e sin podem diferir; ver detmath.dart).
+(double, double) _dir(Pt a, Pt b) {
+  final d = dist(a, b);
+  return d == 0 ? (1.0, 0.0) : ((b.x - a.x) / d, (b.y - a.y) / d);
+}
+
+Rot _rot(Pt a, Pt b) {
+  final (c, s) = _dir(a, b);
+  return Rot(c, s);
+}
 Vector2 _vp(Pt p) => _v(p.x, p.y);
 
 class SimLift {
@@ -97,11 +110,12 @@ class Sim {
         filter: Filter(categoryBits: catEnv, maskBits: catParts | catBall | catScen),
       );
 
-  Body _static(double cx, double cy, {double angle = 0, BodyType type = BodyType.static}) =>
-      world.createBody(BodyDef(type: type, position: _v(cx, cy), rotation: Rot.fromAngle(angle)));
+  // corpos do cenário nascem sem rotação (plataformas inclinadas são cápsulas)
+  Body _static(double cx, double cy, {BodyType type = BodyType.static}) =>
+      world.createBody(BodyDef(type: type, position: _v(cx, cy)));
 
-  Body _box(double cx, double cy, double w, double h, {double angle = 0, BodyType type = BodyType.static, ShapeDef? def}) {
-    final b = _static(cx, cy, angle: angle, type: type);
+  Body _box(double cx, double cy, double w, double h, {BodyType type = BodyType.static, ShapeDef? def}) {
+    final b = _static(cx, cy, type: type);
     b.createShape(Polygon.box(w / 2 / kScale, h / 2 / kScale), def ?? _envDef());
     return b;
   }
@@ -127,11 +141,12 @@ class Sim {
     for (final s in lv.plats) {
       final body = _static((s.a.x + s.b.x) / 2, (s.a.y + s.b.y) / 2);
       // cápsula = retângulo com pontas redondas, como a plataforma do HTML
-      final half = dist(s.a, s.b) / 2 / kScale, ang = math.atan2(s.b.y - s.a.y, s.b.x - s.a.x);
+      final half = dist(s.a, s.b) / 2 / kScale;
+      final (ux, uy) = _dir(s.a, s.b);
       body.createShape(
         Capsule(
-          center1: Vector2(-half * math.cos(ang), -half * math.sin(ang)),
-          center2: Vector2(half * math.cos(ang), half * math.sin(ang)),
+          center1: Vector2(-half * ux, -half * uy),
+          center2: Vector2(half * ux, half * uy),
           radius: kPlatT / 2 / kScale,
         ),
         _envDef(),
@@ -161,7 +176,7 @@ class Sim {
       final body = world.createBody(BodyDef(
         type: BodyType.dynamic,
         position: _vp(mid),
-        rotation: Rot.fromAngle(math.atan2(s.b.y - s.a.y, s.b.x - s.a.x)),
+        rotation: _rot(s.a, s.b),
         linearDamping: _airDamping,
         angularDamping: _airDamping,
       ));
@@ -214,7 +229,7 @@ class Sim {
         b = world.createBody(BodyDef(
           type: BodyType.dynamic,
           position: _v((q.a!.x + q.b!.x) / 2, (q.a!.y + q.b!.y) / 2),
-          rotation: Rot.fromAngle(math.atan2(q.b!.y - q.a!.y, q.b!.x - q.a!.x)),
+          rotation: _rot(q.a!, q.b!),
           linearDamping: _airDamping,
           angularDamping: _airDamping,
         ));
@@ -327,7 +342,7 @@ class Sim {
     t += kDt;
     // Elevadores e portas são cinemáticos: a velocidade leva o corpo até a posição do próximo passo.
     for (final o in lifts) {
-      final s = (1 - math.cos(2 * math.pi * t / o.period)) / 2;
+      final s = (1 - dcos(2 * math.pi * t / o.period)) / 2;
       final target = _v(o.l.a.x + (o.l.b.x - o.l.a.x) * s, o.l.a.y + (o.l.b.y - o.l.a.y) * s);
       o.body.linearVelocity = (target - o.body.position)..scale(1 / kDt);
     }
@@ -351,7 +366,8 @@ class Sim {
         final len = d.length;
         if (len > kMagRange || len < 1) continue;
         // força do Matter.js × 10⁴ = newtons com as massas equivalentes
-        final f = kMagK / math.pow(math.max(len, kMagMin), 2) * (pa == pb ? -1 : 1) * 1e4;
+        final m = math.max(len, kMagMin);
+        final f = kMagK / (m * m) * (pa == pb ? -1 : 1) * 1e4;
         final dir = d / len;
         if (!fa) a.applyForce(dir * f);
         if (!fb) b.applyForce(dir * -f);

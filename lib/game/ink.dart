@@ -310,9 +310,28 @@ class Ink {
     }
   }
 
+  /// Rastro da bola: linha do caminho e um ponto a cada meio segundo, para ver
+  /// onde a bola acelera (pontos afastados) ou freia (pontos juntos).
+  /// [pts] tem um ponto a cada 1/30 s.
+  void trail(List<Pt> pts, double a) {
+    if (pts.length < 2) return;
+    final path = Path()..moveTo(pts.first.x, pts.first.y);
+    for (final p in pts.skip(1)) {
+      path.lineTo(p.x, p.y);
+    }
+    cv.drawPath(path, stroke(c.accent, 2.5 / z, a)
+      ..strokeJoin = StrokeJoin.round
+      ..strokeCap = StrokeCap.round);
+    final dot = fill(c.accent, a);
+    for (var k = 0; k < pts.length; k += 15) {
+      cv.drawCircle(Offset(pts[k].x, pts[k].y), 3.5 / math.sqrt(z), dot);
+    }
+  }
+
   void winBanner(WinInfo i) {
-    const w = 660.0, h = 190.0, x = (kW - w) / 2, y = 60.0;
-    final r = const Rect.fromLTWH(x, y, w, h);
+    final unlocked = i.unlocked;
+    final w = 660.0, h = unlocked != null ? 230.0 : 190.0, x = (kW - w) / 2, y = 60.0;
+    final r = Rect.fromLTWH(x, y, w, h);
     cv.drawRect(r, fill(c.paper, .95));
     cv.drawRect(r, stroke(c.goal, 4));
     text(i.replay ? 'REPLAY CONCLUÍDO' : 'FASE CONCLUÍDA!', kW / 2, y + 62, c.goal, size: 52, family: display, w: FontWeight.w700, center: true);
@@ -324,6 +343,7 @@ class Ink {
           .where((k) => tg[k] != null)
           .map((k) => '${i.m[k] == true ? '★ ' : '☆ '}${names[k]}${i.fresh.contains(names[k]) ? ' (nova!)' : ''}');
       text(bits.join('   '), kW / 2, y + 160, c.ink, size: 26, center: true);
+      if (unlocked != null) text('Fase liberada: $unlocked', kW / 2, y + 205, c.zone, size: 26, center: true);
     }
   }
 }
