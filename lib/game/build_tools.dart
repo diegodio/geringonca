@@ -80,7 +80,11 @@ mixin _BuildTools on GameState {
     notifyListeners();
   }
 
+  /// O carrinho de exemplo é o tutorial da primeira fase; nas outras, montar é o desafio.
+  bool get hasSample => level.id == 'l1';
+
   void loadSample() {
+    if (!hasSample) return tell('O exemplo só existe na primeira fase. Aqui, a engenhoca é com você!');
     final s = sampleFor(level, ball0);
     if (s != null && !s.every((q) => toolAllowed(toolOf(q)))) {
       say('O exemplo usa peças que esta fase não permite.');
@@ -96,6 +100,9 @@ mixin _BuildTools on GameState {
     notifyListeners();
   }
 
+  /// Bola fora da área verde fica onde está: a fase quer que a engenhoca a alcance.
+  bool get _ballMovable => level.zone.contains(ball0);
+
   // ---------- seleção ----------
   List<Pt> _selPoints() => [for (final q in sel) ...q.points, if (selBall) ball0];
 
@@ -108,7 +115,7 @@ mixin _BuildTools on GameState {
 
   void selectAll() {
     sel = parts.toSet();
-    selBall = true;
+    selBall = _ballMovable;
     notifyListeners();
   }
 
@@ -219,7 +226,8 @@ mixin _BuildTools on GameState {
         consider(q.b!, dist(p, q.b!));
       }
     }
-    if (!endsOnly) consider(ball0, math.max(0, dist(p, ball0) - kBallR));
+    // com bola solta, nada encaixa na bola
+    if (!endsOnly && !level.looseBall) consider(ball0, math.max(0, dist(p, ball0) - kBallR));
     final b = best;
     return b == null ? null : Pt(rnd(b.x), rnd(b.y));
   }
@@ -266,17 +274,19 @@ mixin _BuildTools on GameState {
       return;
     }
     if (tool == 'move') {
-      final onBall = dist(p, ball0) <= kBallR + 6;
+      // bola fora da área verde (fase que pede alcance) não pode ser arrastada
+      final onBall = _ballMovable && dist(p, ball0) <= kBallR + 6;
       final target = onBall ? ball0 : findSnap(p);
       if (target == null) return;
       final refs = <Pt>[];
-      if (target.key == ball0.key) refs.add(ball0);
+      if (target.key == ball0.key && _ballMovable) refs.add(ball0);
       for (final q in parts) {
         for (final pt in q.points) {
           if (pt.key == target.key) refs.add(pt);
         }
       }
       // pontas presas na borda de uma roda arrastada pelo eixo vão junto
+      if (refs.isEmpty) return;
       final followers = <(Pt, double, double)>[];
       for (final q in parts) {
         if (!q.isWheel || !refs.contains(q.c)) continue;
@@ -301,7 +311,7 @@ mixin _BuildTools on GameState {
     if (tool == 'select') {
       final i = _hitPart(p);
       final q = i >= 0 ? parts[i] : null;
-      final onBall = q == null && dist(p, ball0) <= kBallR + 6;
+      final onBall = q == null && _ballMovable && dist(p, ball0) <= kBallR + 6;
       if ((q != null && sel.contains(q)) || (onBall && selBall)) {
         final pts = _selPoints();
         _pushUndo();
@@ -410,7 +420,7 @@ mixin _BuildTools on GameState {
         } else {
           final r = R.fromPoints(a.a!, a.b!);
           sel = parts.where((q) => q.points.every(r.contains)).toSet();
-          selBall = r.contains(ball0);
+          selBall = _ballMovable && r.contains(ball0);
         }
       case 'draft':
         final d = a.d!;
@@ -423,7 +433,7 @@ mixin _BuildTools on GameState {
           _pushUndo();
           d.r = d.r.roundToDouble();
           parts.add(d);
-          if (d.isWheel && d.k != 'free' && !hubConnected(d, parts, ball0)) {
+          if (d.isWheel && d.k != 'free' && !hubConnected(d, parts, hubBall)) {
             say('O motor só gira com o centro da roda preso: ligue uma barra, outra peça ou a bola no eixo.');
           }
         }

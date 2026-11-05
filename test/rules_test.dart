@@ -1,7 +1,9 @@
 // Peças permitidas por fase, desafios extras e ações da tela de vitória.
 import 'package:flutter_test/flutter_test.dart';
 import 'package:forge2d/forge2d.dart';
+import 'package:geringonca/core/levels.dart';
 import 'package:geringonca/core/model.dart';
+import 'package:geringonca/core/sim.dart';
 import 'package:geringonca/game/controller.dart';
 import 'package:geringonca/game/progress.dart';
 import 'package:geringonca/game/storage.dart';
@@ -104,6 +106,56 @@ void main() {
       _runUntilWin(g);
       g.improve();
       expect(g.mode, Mode.build);
+    });
+  });
+
+  group('regras novas', () {
+    test('orçamento: acima do limite a fase não roda', () {
+      final g = GameController(Store(null))..selectLevel('l30');
+      g.parts = [for (var i = 0; i < 3; i++) Part.wheel('cw', Pt(100 + i * 60.0, 440), 28)];
+      g.togglePlay();
+      expect(g.mode, Mode.build);
+      expect(g.hint, contains('orçamento'));
+    });
+
+    test('bola solta: nada se prende à bola nem liga motor por ela', () {
+      final lv = kBuiltin.firstWhere((l) => l.id == 'l19');
+      expect(lv.looseBall, isTrue);
+      final s = Sim(lv, [Part.wheel('cw', lv.ball.copy(), 40)], lv.ball.copy());
+      expect(s.bodies.first.powered, isFalse, reason: 'a bola não conta como eixo');
+      s.dispose();
+      final g = GameController(Store(null))..selectLevel('l19');
+      expect(g.findSnap(g.ball0.copy()), isNull, reason: 'a bola não é ponto de encaixe');
+    });
+
+    test('atraso do elevador desloca o ciclo', () {
+      final a = Lift(Pt(0, 500), Pt(0, 300), 100), b = Lift(Pt(0, 500), Pt(0, 300), 100, a.period / 2);
+      expect(a.posAt(0).y, 500);
+      expect(b.posAt(0).y, closeTo(300, 1e-9));
+      // o atraso vai e volta no JSON (códigos de compartilhamento e fases salvas)
+      final lv = Level(name: 'x', zone: zone0(), goal: R(0, 0, 10, 10), ball: Pt(100, 400), lifts: [b]);
+      expect(Level.fromJson(lv.toJson()).lifts.first.delay, closeTo(b.delay, 1e-9));
+    });
+
+    test('o exemplo só existe na primeira fase', () {
+      final g = GameController(Store(null));
+      expect(g.hasSample, isTrue);
+      g.selectLevel('l2');
+      expect(g.hasSample, isFalse);
+      final before = g.parts.length;
+      g.loadSample();
+      expect(g.parts.length, before);
+    });
+
+    test('bola fora da área verde não pode ser arrastada', () {
+      final g = GameController(Store(null))..selectLevel('l18');
+      final b = g.ball0.copy();
+      g.setTool('move');
+      g.pointerDown(1, b);
+      g.pointerMove(1, Pt(100, 400));
+      g.pointerUp(1);
+      expect(g.ball0.x, b.x);
+      expect(g.ball0.y, b.y);
     });
   });
 }

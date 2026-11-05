@@ -20,11 +20,11 @@ void main() {
       final g = GameController(Store(null));
       expect(g.progress.isUnlocked('l1'), isTrue);
       expect(g.progress.isUnlocked('l2'), isFalse);
-      expect(g.progress.blocker('l3')!.id, 'l2');
+      expect(g.progress.blocker(kBuiltin[2].id!)!.id, 'l2'); // a terceira fase espera a Rampa
     });
 
     test('escolher fase bloqueada explica o que falta e não troca', () {
-      final g = GameController(Store(null))..chooseLevel('l3');
+      final g = GameController(Store(null))..chooseLevel(kBuiltin[2].id!);
       expect(g.level.id, 'l1');
       expect(g.hint, contains('Rampa'));
     });
@@ -35,7 +35,7 @@ void main() {
       expect(g.won, isTrue);
       expect(g.winInfo!.unlocked, 'Rampa');
       expect(g.progress.isUnlocked('l2'), isTrue);
-      expect(g.progress.isUnlocked('l3'), isFalse);
+      expect(g.progress.isUnlocked(kBuiltin[2].id!), isFalse);
       g.stop();
       g.chooseLevel('l2');
       expect(g.level.id, 'l2');

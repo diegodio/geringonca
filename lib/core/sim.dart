@@ -8,7 +8,6 @@ import 'dart:math' as math;
 
 import 'package:forge2d/forge2d.dart';
 
-import 'detmath.dart';
 import 'model.dart';
 
 const double kScale = 100; // px por metro
@@ -44,7 +43,12 @@ class SimLift {
   final Lift l;
   final double period;
   final Body body;
-  SimLift(this.l, this.period, this.body);
+
+  /// Fundo móvel do poço (só elevadores com poço): fica [Lift.shaftGap] abaixo do elevador.
+  final Body? floor;
+  SimLift(this.l, this.period, this.body, [this.floor]);
+
+  static const floorH = 600.0; // altura do fundo do poço, para nunca aparecer a borda de baixo
 }
 
 class SimDoor {
@@ -135,7 +139,19 @@ class Sim {
     // Paredes, chão e cenário fixo.
     _box(-20, kH / 2, 40, kH * 3);
     _box(kW + 20, kH / 2, 40, kH * 3);
-    if (lv.ground) _box(kW / 2, 540, kW + 200, 80);
+    if (lv.ground) {
+      // o chão tem um buraco embaixo de cada elevador com poço
+      final holes = [
+        for (final l in lv.lifts)
+          if (l.hasShaft) (l.a.x - l.w / 2, l.a.x + l.w / 2),
+      ]..sort((p, q) => p.$1.compareTo(q.$1));
+      var x0 = -100.0;
+      for (final (h0, h1) in [...holes, (kW + 100, kW + 100)]) {
+        // fundo: o chão desce 1000 px, para fechar as paredes do poço
+        if (h0 > x0) _box((x0 + h0) / 2, 1000, h0 - x0, 1000);
+        if (h1 > x0) x0 = h1;
+      }
+    }
     for (final b in lv.blocks) {
       _box(b.x + b.w / 2, b.y + b.h / 2, b.w, b.h);
     }
@@ -159,7 +175,11 @@ class Sim {
       _mags.add((b, m.pole, true));
     }
     for (final l in lv.lifts) {
-      lifts.add(SimLift(l, l.period, _box(l.a.x, l.a.y, l.w, kLiftT, type: BodyType.kinematic)));
+      final p = l.posAt(0);
+      final floor = l.hasShaft
+          ? _box(p.x, p.y + kLiftT / 2 + l.shaftGap + SimLift.floorH / 2, l.w, SimLift.floorH, type: BodyType.kinematic)
+          : null;
+      lifts.add(SimLift(l, l.period, _box(p.x, p.y, l.w, kLiftT, type: BodyType.kinematic), floor));
     }
     for (final d in lv.doors) {
       doors.add(SimDoor(d, _box(d.x + d.w / 2, d.y + d.h / 2, d.w, d.h, type: BodyType.kinematic)));
@@ -194,8 +214,8 @@ class Sim {
       seesaws.add(SimSeesaw(body, len));
     }
 
-    // Bola.
-    final ballKey = ball0.key;
+    // Bola. Numa fase com bola solta, nada se prende a ela.
+    final ballKey = lv.looseBall ? '' : ball0.key;
     final attached = parts.any((q) => q.points.any((p) => p.key == ballKey));
     ball = world.createBody(BodyDef(
       type: BodyType.dynamic,
@@ -267,7 +287,7 @@ class Sim {
         if (q.isWheel) {
           final dir = q.k == 'cw' ? 1 : q.k == 'ccw' ? -1 : 0;
           // o motor só liga com o centro preso a alguma coisa; solta, a roda rola livre
-          if (dir != 0 && hubConnected(q, parts, ball0)) {
+          if (dir != 0 && hubConnected(q, parts, lv.looseBall ? null : ball0)) {
             _motors.add(b);
             _motorDir.add(dir);
           }
@@ -278,7 +298,7 @@ class Sim {
       }
       _tag(sh);
       shapeOf[b] = sh;
-      bodies.add(SimPart(q, b, halfLen, powered: motorOn(q, parts, ball0)));
+      bodies.add(SimPart(q, b, halfLen, powered: motorOn(q, parts, lv.looseBall ? null : ball0)));
     }
 
     // Rodas e ímãs passam por cima de barras sólidas, menos as que já começam encostadas.
@@ -344,9 +364,13 @@ class Sim {
     t += kDt;
     // Elevadores e portas são cinemáticos: a velocidade leva o corpo até a posição do próximo passo.
     for (final o in lifts) {
-      final s = (1 - dcos(2 * math.pi * t / o.period)) / 2;
-      final target = _v(o.l.a.x + (o.l.b.x - o.l.a.x) * s, o.l.a.y + (o.l.b.y - o.l.a.y) * s);
-      o.body.linearVelocity = (target - o.body.position)..scale(1 / kDt);
+      final p = o.l.posAt(t);
+      o.body.linearVelocity = (_v(p.x, p.y) - o.body.position)..scale(1 / kDt);
+      final f = o.floor;
+      if (f != null) {
+        final goal = _v(p.x, p.y + kLiftT / 2 + o.l.shaftGap + SimLift.floorH / 2);
+        f.linearVelocity = (goal - f.position)..scale(1 / kDt);
+      }
     }
     for (final o in doors) {
       final target = buttons.isNotEmpty ? (pressed ? 1.0 : 0.0) : (t % 4 >= 2 ? 1.0 : 0.0);

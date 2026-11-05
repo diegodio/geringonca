@@ -41,6 +41,11 @@ mixin _RunControl on GameState {
       tell('Esta fase não permite ${bad.join(', ')}. Apague essas peças para rodar.');
       return;
     }
+    final budget = level.budget;
+    if (!isReplay && budget != null && costOf(ps) > budget) {
+      tell('A engenhoca custa \$${costOf(ps)}, mas o orçamento desta fase é \$$budget.');
+      return;
+    }
     if (!isReplay) progress.addTry(level.id!);
     sim?.dispose();
     sim = Sim(level, ps.map((q) => q.copy()).toList(), b.copy());
@@ -56,7 +61,7 @@ mixin _RunControl on GameState {
       ..add(b.copy());
     _clearSel();
     final time = isReplay ? (progress.bestOf(level.id!)!['time'] as num).toDouble() : 0.0;
-    final idle = ps.where((q) => q.isWheel && q.k != 'free' && !motorOn(q, ps, b)).length;
+    final idle = ps.where((q) => q.isWheel && q.k != 'free' && !motorOn(q, ps, level.looseBall ? null : b)).length;
     say(isReplay
         ? 'Replay da melhor solução (${fmt(time)} s).'
         : idle > 0

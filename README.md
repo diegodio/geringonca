@@ -15,15 +15,18 @@ Jogo de física em Flutter com [Flame](https://flame-engine.org): monte uma enge
 - Botão Encaixe: liga ou desliga a conexão automática das pontas nas juntas.
 - Menu inicial: continuar de onde parou, grade de fases com medalhas e cadeados, criar fase
   e como jogar.
-- 13 fases prontas em ordem de dificuldade, liberadas em sequência: cada uma abre quando a
-  anterior é concluída. Fases próprias e importadas estão sempre abertas.
-  - 1 a 7 (Primeiros passos a Porta e botão): as fases da versão HTML.
-  - 8 Marcha à ré: a meta fica atrás; pede a roda anti-horária.
-  - 9 Túnel: passagem baixa; a roda grande fica entalada.
-  - 10 Entrega: a bola cai num buraco onde nenhuma roda cabe; é preciso empurrá-la.
-  - 11 Ladeira: fase sem motor; o que rola rampa abaixo empurra a bola.
-  - 12 Túnel e fosso: nenhuma roda sozinha passa; pede um carro rígido de duas rodas.
-  - 13 Grande final: túnel, fosso, botão e porta.
+- 50 fases prontas em ordem de dificuldade, em 5 capítulos de 10, liberadas em sequência
+  (cada uma abre quando a anterior é concluída; fases próprias e importadas estão sempre abertas):
+  1. **Oficina**: aprender cada peça (rampa, marcha à ré, degrau, túnel, vale, porta, gangorra, elevador, ímã).
+  2. **Sem carregar**: empurrar e usar a gravidade (dominó, freio, defletor, braço comprido,
+     bola solta em gaiola, catapulta).
+  3. **Estruturas**: pontes, rampas improvisadas, escada, lombadas, ponte levadiça, orçamento curto.
+  4. **Cenário em movimento**: elevadores no tempo certo, gangorras, botões atrás da área verde.
+  5. **Ímãs e mecanismos**: atração, repulsão, guindastes com braço giratório e o grande final.
+- O elevador que desce até o chão tem um poço embaixo: o que estiver sob ele desce junto para
+  dentro do poço e volta ao nível do chão quando ele sobe, em vez de ser jogado por cima.
+- Regras por fase: bola solta (nada se prende a ela), orçamento máximo e atraso do elevador.
+- O botão Exemplo (carrinho com gaiola) só existe na primeira fase.
 - Peças permitidas por fase (escolhidas no editor de fases e guardadas nos códigos).
 - Desafios extras em toda fase: Sem barras, Sem motor e De primeira.
 - Tela de vitória com o quanto faltou para cada medalha, os desafios ganhos e os botões

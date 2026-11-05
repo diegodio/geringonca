@@ -107,6 +107,26 @@ void main() {
     });
   });
 
+  test('elevador empurra para dentro do poço e devolve ao chão', () {
+    // elevador começa no alto (atraso de meio período) e desce sobre a roda parada no chão
+    final l = Lift(Pt(640, 508), Pt(640, 308), 220);
+    final lv = Level(name: 'lab', zone: R(0, 0, 1000, 560), goal: R(990, 0, 10, 10), ball: Pt(60, 470), lifts: [Lift(l.a, l.b, l.w, l.period / 2)]);
+    final s = Sim(lv, [Part.wheel('free', Pt(640, 470), 28)], Pt(60, 470));
+    var deepest = 0.0, aboveLift = false;
+    while (s.t < l.period - 1e-9) { // um ciclo: do alto, desce até o chão e volta ao alto
+      s.step();
+      final w = s.pose(s.bodies[0].body), e = s.pose(s.lifts[0].body);
+      if (w.y > deepest) deepest = w.y;
+      if (w.y < e.y) aboveLift = true; // não pode ser jogada por cima do elevador
+    }
+    final end = s.pose(s.bodies[0].body);
+    s.dispose();
+    expect(aboveLift, isFalse);
+    expect(deepest, greaterThan(560), reason: 'deveria descer para dentro do poço');
+    // no fim, com o elevador no alto de novo, a roda está de volta no nível do chão
+    expect(end.y, closeTo(472, 3));
+  });
+
   test('distância entre segmentos', () {
     expect(segSegDist(Pt(0, 0), Pt(10, 10), Pt(0, 10), Pt(10, 0)), 0);
     expect(segSegDist(Pt(0, 0), Pt(10, 0), Pt(0, 5), Pt(10, 5)), 5);

@@ -227,9 +227,20 @@ class Ink {
     }
     for (var i = 0; i < lv.lifts.length; i++) {
       final l = lv.lifts[i];
+      final p0 = l.posAt(0);
+      final pos = s != null ? s.pose(s.lifts[i].body) : Pose(p0.x, p0.y, 0);
+      // poço: buraco no chão com o fundo móvel, que fica sempre à mesma distância do elevador
+      if (lv.ground && l.hasShaft) {
+        final x = l.a.x - l.w / 2, top = pos.y + kLiftT / 2 + l.shaftGap;
+        cv.drawRect(Rect.fromLTWH(x, 500, l.w, kH - 500), fill(c.paper));
+        if (top < kH) cv.drawRect(Rect.fromLTWH(x, top, l.w, kH - top), fill(c.ground));
+        final edge = stroke(c.ink, 1.5);
+        line(x, 500, x, kH, edge);
+        line(x + l.w, 500, x + l.w, kH, edge);
+        if (top < kH) line(x, top, x + l.w, top, edge);
+      }
       dashLine(Offset(l.a.x, l.a.y), Offset(l.b.x, l.b.y), stroke(c.lift, 1.5), 4, 5);
       if (s == null) cv.drawRect(Rect.fromLTWH(l.b.x - l.w / 2, l.b.y - kLiftT / 2, l.w, kLiftT), stroke(c.lift, 1.5, .5));
-      final pos = s != null ? s.pose(s.lifts[i].body) : Pose(l.a.x, l.a.y, 0);
       lift(pos.x, pos.y, l.w);
     }
     for (var i = 0; i < lv.seesaws.length; i++) {
@@ -273,7 +284,7 @@ class Ink {
       if (q.isRod) rod(q.a!.x, q.a!.y, q.b!.x, q.b!.y, q.k);
     }
     for (final q in list) {
-      if (q.isWheel) wheel(q.c!.x, q.c!.y, q.r, q.k, q.rot, 1, true, q.k == 'free' || motorOn(q, list, g.ball0) ? 1 : .3);
+      if (q.isWheel) wheel(q.c!.x, q.c!.y, q.r, q.k, q.rot, 1, true, q.k == 'free' || motorOn(q, list, g.hubBall) ? 1 : .3);
     }
     for (final q in list) {
       if (q.isMag) {

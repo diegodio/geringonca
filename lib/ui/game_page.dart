@@ -41,6 +41,7 @@ class _GamePageState extends State<GamePage> {
   late final OficinaGame _game;
   final _name = TextEditingController();
   final _tg = {'t': TextEditingController(), 'n': TextEditingController(), 'c': TextEditingController()};
+  final _budget = TextEditingController();
   Object? _editKey;
   DateTime _delArmed = DateTime(0);
 
@@ -60,6 +61,7 @@ class _GamePageState extends State<GamePage> {
     final lv = g.editLevel;
     if (lv == null) return;
     _name.text = lv.name;
+    _budget.text = lv.budget?.toString() ?? '';
     final tg = {'t': lv.targets.t, 'n': lv.targets.n, 'c': lv.targets.c};
     _tg.forEach((k, c) => c.text = tg[k] == null ? '' : tg[k].toString().replaceAll('.', ','));
   }
@@ -68,6 +70,7 @@ class _GamePageState extends State<GamePage> {
   void dispose() {
     g.removeListener(_sync);
     _name.dispose();
+    _budget.dispose();
     for (final c in _tg.values) {
       c.dispose();
     }
@@ -205,7 +208,7 @@ class _GamePageState extends State<GamePage> {
         item('info', Icons.emoji_events_outlined, 'Metas e desafios', enabled: !edit),
         item('best', Icons.slow_motion_video, 'Ver a melhor solução', enabled: build && g.best != null),
         const PopupMenuDivider(),
-        item('sample', Icons.auto_fix_high, 'Carregar exemplo', enabled: build),
+        item('sample', Icons.auto_fix_high, 'Carregar exemplo', enabled: build && g.hasSample),
         item('clear', Icons.layers_clear_outlined, 'Limpar bancada', enabled: build && g.parts.isNotEmpty),
         const PopupMenuDivider(),
         item('snap', Icons.link, 'Encaixe automático', enabled: !edit, check: g.snapOn),
@@ -364,7 +367,6 @@ class _GamePageState extends State<GamePage> {
   }
 
   Widget _buildControls(Palette c, bool vertical) {
-    final restricted = g.level.allowed != null;
     final chips = [
       for (final (id, name, cost, sw) in _pieces(c))
         if (g.toolAllowed(id))
@@ -384,13 +386,14 @@ class _GamePageState extends State<GamePage> {
           onTap: g.toggleSnap),
     ];
     final play = RoundAction(c: c, icon: Icons.play_arrow_rounded, tooltip: 'Rodar', onTap: g.togglePlay);
-    final note = restricted
+    final rules = _rules(g.level);
+    final note = rules.isNotEmpty
         ? Padding(
             padding: const EdgeInsets.only(bottom: 6),
             child: Row(children: [
               Icon(Icons.info_outline, size: 15, color: c.muted),
               const SizedBox(width: 6),
-              Expanded(child: Text('Nesta fase só algumas peças estão liberadas.', style: GoogleFonts.ibmPlexSans(fontSize: 12, color: c.muted))),
+              Expanded(child: Text(rules.join(' · '), style: GoogleFonts.ibmPlexSans(fontSize: 12, color: c.muted))),
             ]),
           )
         : const SizedBox.shrink();
@@ -428,6 +431,13 @@ class _GamePageState extends State<GamePage> {
       Row(children: [...tools, const Spacer(), play]),
     ]);
   }
+
+  /// Regras especiais da fase, em frases curtas.
+  List<String> _rules(Level lv) => [
+        if (lv.allowed != null) 'Só algumas peças liberadas',
+        if (lv.looseBall) 'Bola solta: nada se prende a ela',
+        if (lv.budget != null) 'Orçamento: \$${lv.budget} (gasto: \$${costOf(g.parts)})',
+      ];
 
   Widget _runControls(Palette c, bool vertical) {
     Widget speed(double s, String t) => Padding(
@@ -524,6 +534,34 @@ class _GamePageState extends State<GamePage> {
             side: BorderSide(color: c.line),
             onSelected: (_) => g.toggleAllowed(id),
           ),
+      ]),
+      label(c, 'Regras'),
+      Wrap(spacing: 10, runSpacing: 6, crossAxisAlignment: WrapCrossAlignment.center, children: [
+        FilterChip(
+          avatar: Icon(Icons.sports_baseball_outlined, size: 18, color: c.ink),
+          label: Text('Bola solta', style: GoogleFonts.ibmPlexSans(fontSize: 13, color: c.ink)),
+          tooltip: 'Nada pode ser preso à bola, e ela não liga motor de roda',
+          selected: lv.looseBall,
+          selectedColor: c.zone.withValues(alpha: .18),
+          checkmarkColor: c.zone,
+          backgroundColor: c.bg,
+          side: BorderSide(color: c.line),
+          onSelected: (_) => g.toggleLooseBall(),
+        ),
+        Row(mainAxisSize: MainAxisSize.min, children: [
+          Text('Orçamento (\$)', style: GoogleFonts.ibmPlexSans(fontSize: 13, color: c.muted)),
+          const SizedBox(width: 6),
+          SizedBox(
+            width: 80,
+            child: TextField(
+              controller: _budget,
+              keyboardType: TextInputType.number,
+              onChanged: g.setBudget,
+              style: GoogleFonts.ibmPlexSans(fontSize: 14, color: c.ink),
+              decoration: InputDecoration(hintText: 'sem', isDense: true, border: OutlineInputBorder(borderSide: BorderSide(color: c.line))),
+            ),
+          ),
+        ]),
       ]),
       label(c, 'Metas das medalhas'),
       Wrap(spacing: 10, runSpacing: 6, children: [_num(c, 't', 'Tempo (s)'), _num(c, 'n', 'Peças'), _num(c, 'c', 'Custo')]),
@@ -626,6 +664,16 @@ class _GamePageState extends State<GamePage> {
             label(c, 'Peças liberadas nesta fase'),
             const SizedBox(height: 6),
             Text(lv.allowed!.map((t) => kPieceNames[t]).join(', '), style: GoogleFonts.ibmPlexSans(fontSize: 14, color: c.ink)),
+          ],
+          if (lv.looseBall || lv.budget != null) ...[
+            const SizedBox(height: 10),
+            label(c, 'Regras desta fase'),
+            const SizedBox(height: 6),
+            if (lv.looseBall)
+              Text('Bola solta: nenhuma peça pode ser presa à bola, e ela não liga o motor de uma roda.',
+                  style: GoogleFonts.ibmPlexSans(fontSize: 14, color: c.ink)),
+            if (lv.budget != null)
+              Text('Orçamento: a engenhoca pode custar no máximo \$${lv.budget}.', style: GoogleFonts.ibmPlexSans(fontSize: 14, color: c.ink)),
           ],
         ]);
       });
