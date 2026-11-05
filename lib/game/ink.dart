@@ -80,7 +80,8 @@ class Ink {
 
   /// Roda; as com motor ganham uma seta circular com o sentido do giro.
   /// [arrow] falso deixa a seta para quem desenha (a roda da simulação a mantém parada).
-  void wheel(double x, double y, double r, String kind, double rot, [double a = 1, bool arrow = true]) {
+  /// [arrowA] < 1 apaga a seta: roda com motor cujo centro não está preso, que não vai girar.
+  void wheel(double x, double y, double r, String kind, double rot, [double a = 1, bool arrow = true, double arrowA = 1]) {
     cv.drawCircle(Offset(x, y), r, fill(c.wheel(kind), a));
     cv.drawCircle(Offset(x, y), r, stroke(c.ink, 2, a));
     final sp = stroke(c.paper, 2.5, .85 * a);
@@ -88,7 +89,7 @@ class Ink {
       final an = rot + i * math.pi / 2;
       line(x, y, x + math.cos(an) * r * .8, y + math.sin(an) * r * .8, sp);
     }
-    if (arrow) wheelArrow(x, y, r, kind, a);
+    if (arrow) wheelArrow(x, y, r, kind, a * arrowA);
     joint(x, y, a);
     for (var i = 0; i < 4; i++) {
       final an = rot + i * math.pi / 2;
@@ -272,7 +273,7 @@ class Ink {
       if (q.isRod) rod(q.a!.x, q.a!.y, q.b!.x, q.b!.y, q.k);
     }
     for (final q in list) {
-      if (q.isWheel) wheel(q.c!.x, q.c!.y, q.r, q.k, q.rot);
+      if (q.isWheel) wheel(q.c!.x, q.c!.y, q.r, q.k, q.rot, 1, true, q.k == 'free' || motorOn(q, list, g.ball0) ? 1 : .3);
     }
     for (final q in list) {
       if (q.isMag) {

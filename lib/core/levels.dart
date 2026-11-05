@@ -114,7 +114,8 @@ List<Level> buildBuiltinLevels() => [
         ball: Pt(200, 478),
         plats: [_s(0, 508, 692, 508), _s(758, 508, 1000, 508)],
         blocks: [R(690, 560, 70, 40)],
-        targets: Targets(t: 6.0, n: 1, c: 25),
+        // o motor só liga com o eixo preso: a solução mais simples tem roda + barra
+        targets: Targets(t: 6.0, n: 2, c: 30),
       ),
       Level(
         id: 'l11',

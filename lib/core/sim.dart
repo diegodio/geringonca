@@ -71,7 +71,8 @@ class SimPart {
   final Part part;
   final Body body;
   final double halfLen; // barras
-  SimPart(this.part, this.body, this.halfLen);
+  final bool powered; // roda com motor ligado (centro preso a alguma coisa)
+  SimPart(this.part, this.body, this.halfLen, {this.powered = false});
 }
 
 /// Pose de um corpo em pixels, para desenhar.
@@ -265,7 +266,8 @@ class Sim {
         );
         if (q.isWheel) {
           final dir = q.k == 'cw' ? 1 : q.k == 'ccw' ? -1 : 0;
-          if (dir != 0) {
+          // o motor só liga com o centro preso a alguma coisa; solta, a roda rola livre
+          if (dir != 0 && hubConnected(q, parts, ball0)) {
             _motors.add(b);
             _motorDir.add(dir);
           }
@@ -276,7 +278,7 @@ class Sim {
       }
       _tag(sh);
       shapeOf[b] = sh;
-      bodies.add(SimPart(q, b, halfLen));
+      bodies.add(SimPart(q, b, halfLen, powered: motorOn(q, parts, ball0)));
     }
 
     // Rodas e ímãs passam por cima de barras sólidas, menos as que já começam encostadas.

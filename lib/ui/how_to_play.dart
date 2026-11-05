@@ -17,7 +17,7 @@ class HowToPlay extends StatelessWidget {
     ('Seleção e zoom',
         'Use dois dedos para aproximar e arrastar a tela (no computador, Ctrl + rolagem). Em Selecionar, marque várias peças para mover, duplicar ou girar de uma vez.'),
     ('Peças entre si',
-        'Barras de madeira não atravessam outras barras de madeira, rodas, ímãs, a bola nem o cenário; só as que já começam encostadas passam uma pela outra. Rodas e ímãs também trombam entre si. Rodas, ímãs e a bola rolam por cima das barras, como numa ponte. Peças presas à roda ou à bola por uma junta, como o eixo, passam por dentro delas. Cada roda tem 4 pontos de conexão na borda, a cada π/2; uma barra presa neles gira junto, como uma manivela. Só a barra azul, de borracha, atravessa tudo. As rodas com motor têm uma seta com o sentido do giro. Ímã norte (vermelho) atrai sul (azul) e repele norte.'),
+        'Barras de madeira não atravessam outras barras de madeira, rodas, ímãs, a bola nem o cenário; só as que já começam encostadas passam uma pela outra. Rodas e ímãs também trombam entre si. Rodas, ímãs e a bola rolam por cima das barras, como numa ponte. Peças presas à roda ou à bola por uma junta, como o eixo, passam por dentro delas. Cada roda tem 4 pontos de conexão na borda, a cada π/2; uma barra presa neles gira junto, como uma manivela. Só a barra azul, de borracha, atravessa tudo. As rodas com motor têm uma seta com o sentido do giro, e o motor só liga se o centro da roda estiver preso a alguma coisa (uma barra, outra peça ou a bola); solta, a roda rola livre e a seta fica apagada. Ímã norte (vermelho) atrai sul (azul) e repele norte.'),
   ];
 
   @override

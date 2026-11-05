@@ -150,6 +150,17 @@ class Part {
 
 int costOf(List<Part> list) => list.fold(0, (s, q) => s + q.cost);
 
+/// O centro da roda [w] está preso a alguma coisa: a ponta de uma barra, o
+/// centro de outra peça ou a bola.
+bool hubConnected(Part w, List<Part> parts, Pt ball) {
+  final k = w.c!.key;
+  return ball.key == k || parts.any((o) => !identical(o, w) && o.points.any((p) => p.key == k));
+}
+
+/// Roda com motor que vai girar: horária ou anti-horária, com o centro preso.
+/// Solta, ela rola como uma roda livre.
+bool motorOn(Part q, List<Part> parts, Pt ball) => q.isWheel && q.k != 'free' && hubConnected(q, parts, ball);
+
 class Seg {
   Pt a, b;
   Seg(this.a, this.b);

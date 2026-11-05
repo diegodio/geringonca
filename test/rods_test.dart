@@ -74,6 +74,39 @@ void main() {
     s.dispose();
   });
 
+  group('motor só gira com o centro preso', () {
+    double xAfter(List<Part> parts) {
+      final s = _run(parts, 1);
+      final x = s.pose(s.bodies[0].body).x;
+      s.dispose();
+      return x;
+    }
+
+    test('roda com o centro solto fica parada', () {
+      expect(xAfter([Part.wheel('cw', Pt(400, 460), 40)]), closeTo(400, 2));
+    });
+
+    test('com uma barra no eixo, anda', () {
+      expect(xAfter([Part.wheel('cw', Pt(400, 460), 40), Part.rod('water', Pt(400, 460), Pt(370, 420))]), greaterThan(600));
+    });
+
+    test('com a bola no eixo, anda', () {
+      final lv = Level(name: 'lab', zone: R(0, 0, 1000, 560), goal: R(990, 0, 10, 10), ball: Pt(400, 460));
+      final s = Sim(lv, [Part.wheel('cw', Pt(400, 460), 40)], Pt(400, 460));
+      while (s.t < 1) {
+        s.step();
+      }
+      expect(s.pose(s.bodies[0].body).x, greaterThan(600));
+      s.dispose();
+    });
+
+    test('ponta presa só na borda não liga o motor', () {
+      final w = Part.wheel('cw', Pt(400, 460), 40);
+      expect(hubConnected(w, [w, Part.rod('solid', w.perim[0], Pt(300, 400))], Pt(900, 470)), isFalse);
+      expect(motorOn(Part.wheel('free', Pt(400, 460), 40), [], Pt(400, 460)), isFalse);
+    });
+  });
+
   test('distância entre segmentos', () {
     expect(segSegDist(Pt(0, 0), Pt(10, 10), Pt(0, 10), Pt(10, 0)), 0);
     expect(segSegDist(Pt(0, 0), Pt(10, 0), Pt(0, 5), Pt(10, 5)), 5);

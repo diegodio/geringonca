@@ -43,7 +43,12 @@ mixin _RunControl on GameState {
       ..add(b.copy());
     _clearSel();
     final time = isReplay ? (progress.bestOf(level.id!)!['time'] as num).toDouble() : 0.0;
-    say(isReplay ? 'Replay da melhor solução (${fmt(time)} s).' : 'Rodando. Leve a bola amarela até a área vermelha.');
+    final idle = ps.where((q) => q.isWheel && q.k != 'free' && !motorOn(q, ps, b)).length;
+    say(isReplay
+        ? 'Replay da melhor solução (${fmt(time)} s).'
+        : idle > 0
+            ? 'Rodando. ${idle == 1 ? 'Uma roda com motor está' : '$idle rodas com motor estão'} com o centro solto e não vai${idle == 1 ? '' : 'o'} girar (seta apagada).'
+            : 'Rodando. Leve a bola amarela até a área vermelha.');
     notifyListeners();
   }
 

@@ -410,6 +410,9 @@ mixin _BuildTools on GameState {
           _pushUndo();
           d.r = d.r.roundToDouble();
           parts.add(d);
+          if (d.isWheel && d.k != 'free' && !hubConnected(d, parts, ball0)) {
+            say('O motor só gira com o centro da roda preso: ligue uma barra, outra peça ou a bola no eixo.');
+          }
         }
         _saveBuild();
     }

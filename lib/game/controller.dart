@@ -31,8 +31,8 @@ enum Mode { build, run, edit }
 const kHints = {
   'rod': 'Arraste para criar uma barra. Solte perto de uma junta para conectar.',
   'water': 'Barra de borracha: a única peça que atravessa tudo, inclusive outras barras.',
-  'cw': 'Toque para uma roda horária; arraste para mudar o tamanho.',
-  'ccw': 'Toque para uma roda anti-horária; arraste para mudar o tamanho.',
+  'cw': 'Toque para uma roda horária; arraste para mudar o tamanho. O motor só gira com o centro preso a alguma coisa.',
+  'ccw': 'Toque para uma roda anti-horária; arraste para mudar o tamanho. O motor só gira com o centro preso a alguma coisa.',
   'free': 'Toque para uma roda livre; arraste para mudar o tamanho.',
   'magN': 'Toque para pôr um ímã norte. Ele atrai sul e repele norte.',
   'magS': 'Toque para pôr um ímã sul. Ele atrai norte e repele sul.',

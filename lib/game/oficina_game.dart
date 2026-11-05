@@ -181,7 +181,7 @@ class _WheelBody extends _SimBody {
     final i = game.ink.on(canvas)..wheel(0, 0, b.part.r, b.part.k, b.part.rot, 1, false);
     canvas.save();
     canvas.rotate(-angle);
-    i.wheelArrow(0, 0, b.part.r, b.part.k);
+    i.wheelArrow(0, 0, b.part.r, b.part.k, b.powered ? 1 : .3);
     canvas.restore();
   }
 }

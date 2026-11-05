@@ -25,8 +25,12 @@ double? winTime(Level lv, List<Part> parts, {double maxT = 15}) {
 /// Uma roda com motor e a bola presa no eixo: vence todas as fases da versão HTML.
 List<Part> axleWheel(Level lv, double r, [String k = 'cw']) => [Part.wheel(k, lv.ball.copy(), r)];
 
-/// Roda solta atrás da bola, que empurra sem prendê-la.
-List<Part> pusher(Level lv, double r) => [Part.wheel('cw', Pt(lv.ball.x - r - 26, 500 - r), r)];
+/// Roda atrás da bola, que empurra sem prendê-la. Uma barra de borracha presa no
+/// eixo liga o motor (roda com o centro solto não gira) e atravessa tudo.
+List<Part> pusher(Level lv, double r) {
+  final c = Pt(lv.ball.x - r - 26, 500 - r);
+  return [Part.wheel('cw', c, r), Part.rod('water', c.copy(), Pt(c.x - 30, c.y - 40))];
+}
 
 /// Carro rígido: duas rodas, chassi entre elas e a bola no topo de um triângulo.
 List<Part> rigidCar(Level lv, double r, double d) {
