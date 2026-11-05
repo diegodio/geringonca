@@ -5,7 +5,9 @@ Jogo de física em Flutter com [Flame](https://flame-engine.org): monte uma enge
 
 ## O que tem
 
-- Peças: barra de madeira, barra de borracha, rodas (horária, anti-horária e livre) e ímãs N/S.
+- Peças: barra de madeira, barra de borracha, rodas (horária, anti-horária e sem motor) e ímãs N/S.
+- O motor de uma roda só gira se o centro dela estiver preso a alguma coisa (barra, outra peça
+  ou a bola). A roda sem motor gira quando é puxada ou empurrada.
 - A madeira não atravessa outras barras de madeira, rodas, ímãs, a bola nem o cenário; rodas e ímãs
   também trombam entre si. Peças que já começam encostadas passam uma pela outra. Só a borracha
   atravessa tudo.
@@ -13,14 +15,21 @@ Jogo de física em Flutter com [Flame](https://flame-engine.org): monte uma enge
 - Botão Encaixe: liga ou desliga a conexão automática das pontas nas juntas.
 - Menu inicial: continuar de onde parou, grade de fases com medalhas e cadeados, criar fase
   e como jogar.
-- 12 fases prontas em ordem de dificuldade, liberadas em sequência: cada uma abre quando a
+- 13 fases prontas em ordem de dificuldade, liberadas em sequência: cada uma abre quando a
   anterior é concluída. Fases próprias e importadas estão sempre abertas.
   - 1 a 7 (Primeiros passos a Porta e botão): as fases da versão HTML.
   - 8 Marcha à ré: a meta fica atrás; pede a roda anti-horária.
   - 9 Túnel: passagem baixa; a roda grande fica entalada.
   - 10 Entrega: a bola cai num buraco onde nenhuma roda cabe; é preciso empurrá-la.
-  - 11 Túnel e fosso: nenhuma roda sozinha passa; pede um carro rígido de duas rodas.
-  - 12 Grande final: túnel, fosso, botão e porta.
+  - 11 Ladeira: fase sem motor; o que rola rampa abaixo empurra a bola.
+  - 12 Túnel e fosso: nenhuma roda sozinha passa; pede um carro rígido de duas rodas.
+  - 13 Grande final: túnel, fosso, botão e porta.
+- Peças permitidas por fase (escolhidas no editor de fases e guardadas nos códigos).
+- Desafios extras em toda fase: Sem barras, Sem motor e De primeira.
+- Tela de vitória com o quanto faltou para cada medalha, os desafios ganhos e os botões
+  Próxima fase, Tentar de novo, Melhorar e Menu.
+- Interface pensada para celular e tablet: bancada no maior tamanho possível, dock embaixo com
+  as peças e um botão grande de Rodar; no celular deitado o dock vai para a lateral.
 - Medalhas de tempo, peças e custo, e replay da melhor solução.
 - Simulação com pausa, avanço de 0,1 s em 0,1 s e câmera lenta (½× e ¼×). A câmera lenta não
   muda o resultado: só mostra os mesmos passos mais devagar.
@@ -62,7 +71,9 @@ flutter test           # testes da física e dos códigos
 | `lib/game/oficina_game.dart` | A bancada como jogo Flame: laço, câmera, componentes e toques |
 | `lib/game/ink.dart` | Rotinas de desenho usadas pelos componentes |
 | `lib/ui/menu_page.dart` | Menu inicial e grade de fases |
-| `lib/ui/home_page.dart` | Tela do jogo, barras de ferramentas e o `GameWidget` |
+| `lib/ui/game_page.dart` | Tela do jogo: barra superior, bancada (`GameWidget`), dock e folhas |
+| `lib/ui/win_panel.dart` | Tela de vitória |
+| `lib/ui/widgets.dart` | Botões, fichas de peça e outros componentes visuais |
 | `lib/ui/how_to_play.dart` | Texto de "Como jogar" |
 
 O Flame cuida do laço do jogo (passos fixos de 1/60 s), da câmera de zoom e arraste, dos

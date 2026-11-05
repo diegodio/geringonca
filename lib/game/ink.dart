@@ -328,23 +328,4 @@ class Ink {
       cv.drawCircle(Offset(pts[k].x, pts[k].y), 3.5 / math.sqrt(z), dot);
     }
   }
-
-  void winBanner(WinInfo i) {
-    final unlocked = i.unlocked;
-    final w = 660.0, h = unlocked != null ? 230.0 : 190.0, x = (kW - w) / 2, y = 60.0;
-    final r = Rect.fromLTWH(x, y, w, h);
-    cv.drawRect(r, fill(c.paper, .95));
-    cv.drawRect(r, stroke(c.goal, 4));
-    text(i.replay ? 'REPLAY CONCLUÍDO' : 'FASE CONCLUÍDA!', kW / 2, y + 62, c.goal, size: 52, family: display, w: FontWeight.w700, center: true);
-    text('${fmt(i.t)} s · ${i.n} ${i.n == 1 ? 'peça' : 'peças'} · \$${i.c}', kW / 2, y + 112, c.ink, size: 30, center: true);
-    if (!i.replay) {
-      const names = {'t': 'tempo', 'n': 'peças', 'c': 'custo'};
-      final tg = {'t': i.tg.t, 'n': i.tg.n, 'c': i.tg.c};
-      final bits = ['t', 'n', 'c']
-          .where((k) => tg[k] != null)
-          .map((k) => '${i.m[k] == true ? '★ ' : '☆ '}${names[k]}${i.fresh.contains(names[k]) ? ' (nova!)' : ''}');
-      text(bits.join('   '), kW / 2, y + 160, c.ink, size: 26, center: true);
-      if (unlocked != null) text('Fase liberada: $unlocked', kW / 2, y + 205, c.zone, size: 26, center: true);
-    }
-  }
 }

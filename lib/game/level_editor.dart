@@ -63,6 +63,18 @@ mixin _LevelEditor on GameState {
 
   void setEditName(String v) => editLevel?.name = v;
 
+  /// Peças permitidas na fase em edição (null = todas).
+  bool editAllows(String t) => editLevel!.allowed == null || editLevel!.allowed!.contains(t);
+
+  void toggleAllowed(String t) {
+    final lv = editLevel!;
+    final now = [for (final k in kPieceTools) if (k == t ? !editAllows(k) : editAllows(k)) k];
+    if (now.isEmpty) return tell('A fase precisa permitir pelo menos uma peça.');
+    _pushEU();
+    lv.allowed = now.length == kPieceTools.length ? null : now;
+    notifyListeners();
+  }
+
   void setTarget(String k, String raw) {
     final v = double.tryParse(raw.trim().replaceAll(',', '.'));
     final ok = v != null && v.isFinite && v > 0;

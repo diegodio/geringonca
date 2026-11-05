@@ -150,6 +150,23 @@ class Part {
 
 int costOf(List<Part> list) => list.fold(0, (s, q) => s + q.cost);
 
+/// As ferramentas que criam peças, na ordem da barra de peças.
+const kPieceTools = ['rod', 'water', 'cw', 'ccw', 'free', 'magN', 'magS'];
+
+/// Nome de cada peça para mensagens.
+const kPieceNames = {
+  'rod': 'barra de madeira',
+  'water': 'barra de borracha',
+  'cw': 'roda horária',
+  'ccw': 'roda anti-horária',
+  'free': 'roda sem motor',
+  'magN': 'ímã norte',
+  'magS': 'ímã sul',
+};
+
+/// A ferramenta que cria a peça [q].
+String toolOf(Part q) => q.isRod ? (q.k == 'solid' ? 'rod' : 'water') : q.isWheel ? q.k : 'mag${q.k}';
+
 /// O centro da roda [w] está preso a alguma coisa: a ponta de uma barra, o
 /// centro de outra peça ou a bola.
 bool hubConnected(Part w, List<Part> parts, Pt ball) {
@@ -217,6 +234,9 @@ class Level {
   List<Pt> buttons;
   Targets targets;
 
+  /// Peças que a fase deixa usar (ver [kPieceTools]); null libera todas.
+  List<String>? allowed;
+
   Level({
     this.id,
     required this.name,
@@ -233,6 +253,7 @@ class Level {
     List<FixedMag>? magnets,
     List<Pt>? buttons,
     Targets? targets,
+    this.allowed,
   })  : blocks = blocks ?? [],
         doors = doors ?? [],
         plats = plats ?? [],
@@ -260,6 +281,7 @@ class Level {
         'doors': doors.map((e) => e.toJson()).toList(),
         'buttons': buttons.map((e) => e.toJson()).toList(),
         'targets': targets.toJson(),
+        if (allowed != null) 'allowed': allowed,
       };
 
   /// Lê uma fase com limites de tamanho, como a versão HTML (também serve para códigos importados).
@@ -291,6 +313,7 @@ class Level {
         return FixedMag(numOr(g['x'], 0), numOr(g['y'], 0), g['pole'] == 'S' ? 'S' : 'N');
       }),
       targets: Targets.fromJson(m['targets']),
+      allowed: m['allowed'] is List ? kPieceTools.where((t) => (m['allowed'] as List).contains(t)).toList() : null,
     );
   }
 

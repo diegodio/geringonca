@@ -231,7 +231,6 @@ class _Hud extends Component {
       final sp = g.speed == 1 ? '' : g.speed == .5 ? '½×' : '¼×';
       i.text([if (g.paused) 'PAUSADO', if (sp.isNotEmpty) 'CÂMERA LENTA $sp'].join(' · '), 16, 12 + hs * line, i.c.goal, size: hs);
     }
-    if (g.winInfo != null) i.winBanner(g.winInfo!);
   }
 }
 

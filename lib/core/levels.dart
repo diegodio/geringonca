@@ -118,6 +118,17 @@ List<Level> buildBuiltinLevels() => [
         targets: Targets(t: 6.0, n: 2, c: 30),
       ),
       Level(
+        id: 'l13',
+        name: 'Ladeira',
+        tip: 'Nesta fase não há motor. Use a rampa: o que rola lá de cima empurra a bola.',
+        zone: R(40, 140, 400, 190),
+        goal: R(520, 360, 220, 140),
+        ball: Pt(390, 312),
+        plats: [_s(40, 220, 330, 340), _s(330, 340, 430, 340)],
+        allowed: ['rod', 'water', 'free', 'magN', 'magS'],
+        targets: Targets(t: 4.6, n: 1, c: 15),
+      ),
+      Level(
         id: 'l11',
         name: 'Túnel e fosso',
         tip: 'Rodas grandes não entram no túnel; uma roda pequena sozinha cai no fosso. Ligue duas rodas com barras em triângulo.',

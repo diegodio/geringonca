@@ -5,8 +5,9 @@ import '../core/levels.dart';
 import '../core/model.dart';
 import '../game/controller.dart';
 import '../game/palette.dart';
-import 'home_page.dart';
+import 'game_page.dart';
 import 'how_to_play.dart';
+import 'widgets.dart';
 
 /// Menu inicial: continuar, escolher fase, criar fase e como jogar.
 class MenuPage extends StatelessWidget {
@@ -16,7 +17,7 @@ class MenuPage extends StatelessWidget {
   /// Abre a bancada; [prepare] escolhe a fase ou abre o editor antes.
   Future<void> _play(BuildContext context, [VoidCallback? prepare]) async {
     prepare?.call();
-    await Navigator.of(context).push(MaterialPageRoute(builder: (_) => HomePage(g: g)));
+    await Navigator.of(context).push(MaterialPageRoute(builder: (_) => GamePage(g: g)));
   }
 
   void _openLevel(BuildContext context, Level lv) {
@@ -169,6 +170,17 @@ class _LevelCard extends StatelessWidget {
                 const SizedBox(height: 6),
                 Row(children: [
                   for (final on in medals) Icon(on ? Icons.star : Icons.star_border, size: 18, color: on ? c.medal : c.muted),
+                  // desafios extras ganhos nesta fase
+                  if (pr.badgesOf(id).isNotEmpty) ...[
+                    const SizedBox(width: 4),
+                    Tooltip(
+                      message: 'Desafios extras ganhos',
+                      child: Row(mainAxisSize: MainAxisSize.min, children: [
+                        Icon(Icons.verified, size: 16, color: c.zone),
+                        Text('${pr.badgesOf(id).length}', style: GoogleFonts.ibmPlexMono(fontSize: 11.5, color: c.zone)),
+                      ]),
+                    ),
+                  ],
                   const SizedBox(width: 6),
                   Expanded(
                     child: Text(status,

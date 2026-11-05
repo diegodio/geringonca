@@ -56,6 +56,7 @@ Map<String, List<Part>> solutions() => {
       'l8': axleWheel(_lv('l8'), 60, 'ccw'),
       'l9': axleWheel(_lv('l9'), 40),
       'l10': pusher(_lv('l10'), 28),
+      'l13': [Part.wheel('free', Pt(90, 197), 28)],
       'l11': rigidCar(_lv('l11'), 40, 130),
       'l12': rigidCar(_lv('l12'), 40, 130),
     };
@@ -67,6 +68,10 @@ Map<String, Map<String, List<Part>>> tooSimple() {
     'l8': {'roda horária': axleWheel(l8, 60)},
     'l9': {'roda grande': axleWheel(l9, 60)},
     'l10': {for (final r in [28.0, 40.0, 60.0]) 'roda r${r.round()} com a bola no eixo': axleWheel(l10, r)},
+    'l13': {
+      'nada': <Part>[],
+      'roda sem motor com a bola no eixo': [Part.wheel('free', _lv('l13').ball.copy(), 40)],
+    },
     'l11': {
       for (final r in [28.0, 40.0, 60.0]) 'roda r${r.round()}': axleWheel(l11, r),
       'carrinho de exemplo': sampleFor(l11, l11.ball)!,
@@ -86,6 +91,7 @@ void main() {
     test('$id ${_lv(id).name}: vence e ganha as três medalhas', () {
       final lv = _lv(id), tg = lv.targets;
       expect(parts.every((q) => q.points.every(lv.zone.contains)), isTrue, reason: 'solução fora da área verde');
+      expect(parts.every((q) => lv.allowed == null || lv.allowed!.contains(toolOf(q))), isTrue, reason: 'solução usa peça proibida na fase');
       final t = winTime(lv, parts);
       expect(t, isNotNull, reason: 'a solução não vence');
       // ignore: avoid_print
