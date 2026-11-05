@@ -66,6 +66,17 @@ mixin _LevelEditor on GameState {
   /// Peças permitidas na fase em edição (null = todas).
   bool editAllows(String t) => editLevel!.allowed == null || editLevel!.allowed!.contains(t);
 
+  void toggleLooseBall() {
+    _pushEU();
+    editLevel!.looseBall = !editLevel!.looseBall;
+    notifyListeners();
+  }
+
+  void setBudget(String raw) {
+    final v = int.tryParse(raw.trim().replaceAll('\$', ''));
+    editLevel!.budget = v != null && v > 0 ? v : null;
+  }
+
   void toggleAllowed(String t) {
     final lv = editLevel!;
     final now = [for (final k in kPieceTools) if (k == t ? !editAllows(k) : editAllows(k)) k];

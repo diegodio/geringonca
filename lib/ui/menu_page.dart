@@ -70,11 +70,23 @@ class MenuPage extends StatelessWidget {
                     Text('$done de ${kBuiltin.length} fases concluídas · $stars de $maxStars medalhas',
                         style: GoogleFonts.ibmPlexMono(fontSize: 13, color: c.muted)),
                     const SizedBox(height: 26),
-                    _section(c, 'Fases', 'Em ordem de dificuldade. Concluir uma fase libera a seguinte.'),
-                    const SizedBox(height: 12),
-                    _grid([
-                      for (final (i, lv) in kBuiltin.indexed) (w) => _LevelCard(c: c, g: g, lv: lv, number: i + 1, width: w, onTap: () => _openLevel(context, lv)),
-                    ]),
+                    // um bloco por capítulo, em ordem de dificuldade
+                    for (final (ci, (title, sub, count)) in kChapters.indexed) ...[
+                      if (ci > 0) const SizedBox(height: 26),
+                      Builder(builder: (context) {
+                        final first = kChapters.take(ci).fold(0, (a, ch) => a + ch.$3);
+                        final levels = kBuiltin.skip(first).take(count).toList();
+                        final doneHere = levels.where((l) => pr.isDone(l.id!)).length;
+                        return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+                          _section(c, 'Capítulo ${ci + 1} · $title', '$sub · $doneHere de $count concluídas'),
+                          const SizedBox(height: 12),
+                          _grid([
+                            for (final (i, lv) in levels.indexed)
+                              (w) => _LevelCard(c: c, g: g, lv: lv, number: first + i + 1, width: w, onTap: () => _openLevel(context, lv)),
+                          ]),
+                        ]);
+                      }),
+                    ],
                     if (pr.custom.isNotEmpty) ...[
                       const SizedBox(height: 26),
                       _section(c, 'Minhas fases', 'Criadas no editor ou recebidas por código. Estão sempre liberadas.'),

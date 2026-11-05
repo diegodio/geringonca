@@ -168,15 +168,16 @@ const kPieceNames = {
 String toolOf(Part q) => q.isRod ? (q.k == 'solid' ? 'rod' : 'water') : q.isWheel ? q.k : 'mag${q.k}';
 
 /// O centro da roda [w] está preso a alguma coisa: a ponta de uma barra, o
-/// centro de outra peça ou a bola.
-bool hubConnected(Part w, List<Part> parts, Pt ball) {
+/// centro de outra peça ou a bola. [ball] é null quando a bola não conta
+/// (fase com bola solta).
+bool hubConnected(Part w, List<Part> parts, Pt? ball) {
   final k = w.c!.key;
-  return ball.key == k || parts.any((o) => !identical(o, w) && o.points.any((p) => p.key == k));
+  return ball?.key == k || parts.any((o) => !identical(o, w) && o.points.any((p) => p.key == k));
 }
 
 /// Roda com motor que vai girar: horária ou anti-horária, com o centro preso.
 /// Solta, ela rola como uma roda livre.
-bool motorOn(Part q, List<Part> parts, Pt ball) => q.isWheel && q.k != 'free' && hubConnected(q, parts, ball);
+bool motorOn(Part q, List<Part> parts, Pt? ball) => q.isWheel && q.k != 'free' && hubConnected(q, parts, ball);
 
 class Seg {
   Pt a, b;
@@ -192,12 +193,31 @@ class Seg {
 
 class Lift extends Seg {
   double w;
-  Lift(super.a, super.b, this.w);
+
+  /// Atraso em segundos: elevadores com atrasos diferentes andam fora de sincronia.
+  double delay;
+  Lift(super.a, super.b, this.w, [this.delay = 0]);
   @override
-  Lift copy() => Lift(a.copy(), b.copy(), w);
+  Lift copy() => Lift(a.copy(), b.copy(), w, delay);
   @override
-  Map<String, dynamic> toJson() => {...super.toJson(), 'w': w};
+  Map<String, dynamic> toJson() => {...super.toJson(), 'w': w, if (delay != 0) 'delay': delay};
   double get period => math.max(3, 2 * dist(a, b) / kLiftSpeed);
+
+  /// Centro do elevador no instante [t]: vai de [a] a [b] e volta, suave nas pontas.
+  Pt posAt(double t) {
+    final s = (1 - dcos(2 * math.pi * (t + delay) / period)) / 2;
+    return Pt(a.x + (b.x - a.x) * s, a.y + (b.y - a.y) * s);
+  }
+
+  /// Elevador vertical cuja posição mais baixa fica no nível do chão (y = 500).
+  /// Embaixo dele o chão vira um poço: em vez de esmagar o que está embaixo e
+  /// jogar por cima, o elevador empurra para dentro do poço, e o fundo do poço
+  /// sobe junto quando o elevador sobe, devolvendo tudo ao nível do chão.
+  bool get hasShaft => (a.x - b.x).abs() < .5 && (math.max(a.y, b.y) - kLiftT / 2 - 500).abs() < 2;
+
+  /// Folga entre a parte de baixo do elevador e o fundo do poço; é a altura
+  /// livre que havia embaixo do elevador no ponto mais alto.
+  double get shaftGap => 500 - (math.min(a.y, b.y) + kLiftT / 2);
 }
 
 class FixedMag {
@@ -237,6 +257,12 @@ class Level {
   /// Peças que a fase deixa usar (ver [kPieceTools]); null libera todas.
   List<String>? allowed;
 
+  /// Bola solta: nenhuma peça pode ser presa à bola, e ela não conta como eixo de roda.
+  bool looseBall;
+
+  /// Custo máximo da engenhoca; null = sem limite.
+  int? budget;
+
   Level({
     this.id,
     required this.name,
@@ -254,6 +280,8 @@ class Level {
     List<Pt>? buttons,
     Targets? targets,
     this.allowed,
+    this.looseBall = false,
+    this.budget,
   })  : blocks = blocks ?? [],
         doors = doors ?? [],
         plats = plats ?? [],
@@ -282,6 +310,8 @@ class Level {
         'buttons': buttons.map((e) => e.toJson()).toList(),
         'targets': targets.toJson(),
         if (allowed != null) 'allowed': allowed,
+        if (looseBall) 'looseBall': true,
+        if (budget != null) 'budget': budget,
       };
 
   /// Lê uma fase com limites de tamanho, como a versão HTML (também serve para códigos importados).
@@ -304,7 +334,7 @@ class Level {
         final s = Seg.fromJson(l);
         if (s == null) return null;
         final w = numOr((l as Map)['w'], 0);
-        return Lift(s.a, s.b, clampD(w == 0 ? 160 : w, 40, 400));
+        return Lift(s.a, s.b, clampD(w == 0 ? 160 : w, 40, 400), clampD(numOr(l['delay'], 0), 0, 60));
       }),
       doors: arr(m['doors'], 20, R.fromJson),
       buttons: arr(m['buttons'], 20, Pt.fromJson),
@@ -314,6 +344,8 @@ class Level {
       }),
       targets: Targets.fromJson(m['targets']),
       allowed: m['allowed'] is List ? kPieceTools.where((t) => (m['allowed'] as List).contains(t)).toList() : null,
+      looseBall: m['looseBall'] == true,
+      budget: numOrNull(m['budget'])?.round(),
     );
   }
 

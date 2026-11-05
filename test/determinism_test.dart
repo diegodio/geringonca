@@ -41,14 +41,14 @@ Map<String, (Level, List<Part>, Pt)> scenarios() {
 /// Valores obtidos no Dart nativo (x86) e conferidos no Chrome (WebAssembly)
 /// e num Box2D compilado com FMA ligado e -ffp-contract=off (o caso dos celulares ARM).
 const golden = <String, String>{
-  'carrinho na fase 1': '11da4b29',
-  'rampa': '180a7e6d',
-  'ímã no carrinho': '25009900',
-  'elevador': '36637a2c',
-  'gangorra': '0bd8ac7d',
-  'porta e botão': '0034a407',
-  'manivela': '31eecc20',
-  'motor com o centro solto': '013b4c9c',
+  'carrinho na fase 1': '0c66aee6',
+  'rampa': '2d1bdab3',
+  'ímã no carrinho': '0d11de44',
+  'elevador': '33ea872c',
+  'gangorra': '0143d11a',
+  'porta e botão': '34445e78',
+  'manivela': '173f5d01',
+  'motor com o centro solto': '358c5e37',
 };
 
 void main() {

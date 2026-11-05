@@ -110,6 +110,9 @@ abstract class GameState extends ChangeNotifier {
 
   Level get cur => mode == Mode.edit ? editLevel! : level;
 
+  /// A bola conta como eixo e ponto de encaixe? Não numa fase com bola solta.
+  Pt? get hubBall => level.looseBall ? null : ball0;
+
   void say(String msg, [bool win = false]) {
     hint = msg;
     hintWin = win;
