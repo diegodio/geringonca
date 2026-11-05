@@ -181,7 +181,7 @@ class _WheelBody extends _SimBody {
     final i = game.ink.on(canvas)..wheel(0, 0, b.part.r, b.part.k, b.part.rot, 1, false);
     canvas.save();
     canvas.rotate(-angle);
-    i.wheelArrow(0, 0, b.part.r, b.part.k);
+    i.wheelArrow(0, 0, b.part.r, b.part.k, b.powered ? 1 : .3);
     canvas.restore();
   }
 }
@@ -231,7 +231,6 @@ class _Hud extends Component {
       final sp = g.speed == 1 ? '' : g.speed == .5 ? '½×' : '¼×';
       i.text([if (g.paused) 'PAUSADO', if (sp.isNotEmpty) 'CÂMERA LENTA $sp'].join(' · '), 16, 12 + hs * line, i.c.goal, size: hs);
     }
-    if (g.winInfo != null) i.winBanner(g.winInfo!);
   }
 }
 

@@ -31,9 +31,9 @@ enum Mode { build, run, edit }
 const kHints = {
   'rod': 'Arraste para criar uma barra. Solte perto de uma junta para conectar.',
   'water': 'Barra de borracha: a única peça que atravessa tudo, inclusive outras barras.',
-  'cw': 'Toque para uma roda horária; arraste para mudar o tamanho.',
-  'ccw': 'Toque para uma roda anti-horária; arraste para mudar o tamanho.',
-  'free': 'Toque para uma roda livre; arraste para mudar o tamanho.',
+  'cw': 'Toque para uma roda horária; arraste para mudar o tamanho. O motor só gira com o centro preso a alguma coisa.',
+  'ccw': 'Toque para uma roda anti-horária; arraste para mudar o tamanho. O motor só gira com o centro preso a alguma coisa.',
+  'free': 'Roda sem motor: gira quando é puxada ou empurrada. Toque para colocar; arraste para mudar o tamanho.',
   'magN': 'Toque para pôr um ímã norte. Ele atrai sul e repele norte.',
   'magS': 'Toque para pôr um ímã sul. Ele atrai norte e repele sul.',
   'move': 'Arraste a bola ou uma junta. Peças presas nela vão junto.',
@@ -85,7 +85,10 @@ class WinInfo {
   final List<String> fresh;
   final Targets tg;
   final String? unlocked; // nome da fase que esta vitória liberou
-  WinInfo(this.replay, this.t, this.n, this.c, this.m, this.fresh, this.tg, {this.unlocked});
+  final Set<String> badges, freshBadges; // desafios extras: todos os da fase e os ganhos agora
+  final Level? next; // próxima fase pronta, se já liberada
+  WinInfo(this.replay, this.t, this.n, this.c, this.m, this.fresh, this.tg,
+      {this.unlocked, this.badges = const {}, this.freshBadges = const {}, this.next});
 }
 
 /// Estado que todas as partes compartilham, e o que uma parte usa da outra.
@@ -168,6 +171,7 @@ class GameController extends GameState with _BuildTools, _CameraInput, _RunContr
     _clearUndo();
     _clearSel();
     _clearTrail();
+    _fitTool();
     cam = Cam();
     say(level.tip.isNotEmpty ? level.tip : kHints[tool]!);
     notifyListeners();

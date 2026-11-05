@@ -30,7 +30,9 @@ Map<String, (Level, List<Part>, Pt)> scenarios() {
     'elevador': sample('l5'),
     'gangorra': sample('l6'),
     'porta e botão': sample('l7'),
-    'manivela': (l1, [crank, Part.rod('solid', crank.perim[0], Pt(b.x - 100, b.y + 10)), Part.wheel('free', Pt(b.x - 100, b.y + 10), 24)], b),
+    // a borracha no eixo liga o motor da manivela (roda com o centro solto não gira)
+    'manivela': (l1, [crank, Part.rod('water', crank.c!.copy(), Pt(b.x + 60, b.y - 50)), Part.rod('solid', crank.perim[0], Pt(b.x - 100, b.y + 10)), Part.wheel('free', Pt(b.x - 100, b.y + 10), 24)], b),
+    'motor com o centro solto': (l1, [Part.wheel('cw', Pt(b.x + 60, b.y + 10), 40)], b),
   };
 }
 
@@ -45,7 +47,8 @@ const golden = <String, String>{
   'elevador': '36637a2c',
   'gangorra': '0bd8ac7d',
   'porta e botão': '0034a407',
-  'manivela': '30345e34',
+  'manivela': '31eecc20',
+  'motor com o centro solto': '013b4c9c',
 };
 
 void main() {

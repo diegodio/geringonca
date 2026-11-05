@@ -7,18 +7,29 @@ import '../core/levels.dart';
 import '../core/model.dart';
 import 'storage.dart';
 
-/// O que uma vitória mudou: medalhas da fase, as novas e a fase liberada (se houver).
+/// Desafios extras: medalhas bônus que valem em qualquer fase, além de tempo,
+/// peças e custo. Nem toda fase permite todos; eles só aparecem depois de ganhos.
+const kChallenges = [
+  ('norod', 'Sem barras', 'Vença sem usar nenhuma barra.'),
+  ('nomotor', 'Sem motor', 'Vença sem rodas com motor.'),
+  ('first', 'De primeira', 'Vença na primeira vez que rodar a fase.'),
+];
+
+String challengeName(String id) => kChallenges.firstWhere((c) => c.$1 == id).$2;
+
+/// O que uma vitória mudou: medalhas da fase, as novas, desafios extras e a fase liberada.
 class WinRecord {
   final Map<String, bool> medals;
   final List<String> fresh;
   final Level? unlocked;
-  WinRecord(this.medals, this.fresh, this.unlocked);
+  final Set<String> badges, freshBadges;
+  WinRecord(this.medals, this.fresh, this.unlocked, this.badges, this.freshBadges);
 }
 
 class Progress {
   final Store store;
   late List<Level> custom;
-  late final Map<String, dynamic> _builds, _balls, _medals, _recs, _bests;
+  late final Map<String, dynamic> _builds, _balls, _medals, _recs, _bests, _badges, _tries;
   late final Set<String> _done;
 
   Progress(this.store) {
@@ -28,6 +39,8 @@ class Progress {
     _medals = Map<String, dynamic>.from(store.get<Map>('medals', {}));
     _recs = Map<String, dynamic>.from(store.get<Map>('recs', {}));
     _bests = Map<String, dynamic>.from(store.get<Map>('bests', {}));
+    _badges = Map<String, dynamic>.from(store.get<Map>('badges', {}));
+    _tries = Map<String, dynamic>.from(store.get<Map>('tries', {}));
     _done = store.get<List>('done', []).whereType<String>().toSet();
   }
 
@@ -48,9 +61,10 @@ class Progress {
 
   /// Fases prontas abrem em sequência: a seguinte libera quando a anterior é concluída.
   /// Fases próprias e importadas estão sempre abertas.
+  /// Uma fase já concluída continua aberta, mesmo que entre uma fase nova antes dela.
   bool isUnlocked(String id) {
     final i = kBuiltin.indexWhere((l) => l.id == id);
-    return i <= 0 || _done.contains(kBuiltin[i - 1].id);
+    return i <= 0 || _done.contains(kBuiltin[i - 1].id) || _done.contains(id);
   }
 
   /// A fase que precisa ser concluída para liberar [id].
@@ -90,6 +104,19 @@ class Progress {
   /// Melhor solução guardada: {parts, ball, time}.
   Map<String, dynamic>? bestOf(String id) => _bests[id] is Map ? Map<String, dynamic>.from(_bests[id]) : null;
 
+  /// Desafios extras já ganhos na fase.
+  Set<String> badgesOf(String id) => _badges[id] is List ? (_badges[id] as List).whereType<String>().toSet() : {};
+
+  /// Conta uma tentativa (vale para o desafio "De primeira") e devolve quantas já houve.
+  int addTry(String id) {
+    final n = ((_tries[id] as num?) ?? 0).toInt() + 1;
+    _tries[id] = n;
+    store.set('tries', _tries);
+    return n;
+  }
+
+  int triesOf(String id) => ((_tries[id] as num?) ?? 0).toInt();
+
   /// Registra uma vitória: fase concluída, recordes, medalhas e melhor solução.
   WinRecord recordWin(Level lv, double t, List<Part> parts, Pt ball) {
     final id = lv.id!, n = parts.length, c = costOf(parts), tg = lv.targets;
@@ -122,7 +149,17 @@ class Progress {
     final unlocked = kBuiltin.where((l) => isUnlocked(l.id!)).length > unlockedBefore
         ? kBuiltin.firstWhere((l) => isUnlocked(l.id!) && !_done.contains(l.id))
         : null;
-    return WinRecord(m, fresh, unlocked);
+    // desafios extras
+    final had = badgesOf(id);
+    final now = {
+      if (!parts.any((q) => q.isRod)) 'norod',
+      if (!parts.any((q) => q.isWheel && q.k != 'free')) 'nomotor',
+      if (triesOf(id) <= 1) 'first',
+    };
+    final all = {...had, ...now};
+    _badges[id] = [for (final c in kChallenges) if (all.contains(c.$1)) c.$1];
+    store.set('badges', _badges);
+    return WinRecord(m, fresh, unlocked, all, now.difference(had));
   }
 
   // ---------- fases próprias ----------
@@ -141,9 +178,11 @@ class Progress {
     _saveCustom();
     final id = lv.id!;
     _done.remove(id);
-    for (final m in [_balls, _medals, _recs, _bests]) {
+    for (final m in [_balls, _medals, _recs, _bests, _badges, _tries]) {
       m.remove(id);
     }
+    store.set('badges', _badges);
+    store.set('tries', _tries);
     store.set('done', _done.toList());
     store.set('balls', _balls);
     store.set('medals', _medals);

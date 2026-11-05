@@ -20,11 +20,21 @@ mixin _BuildTools on GameState {
     return selBall ? 'Bola selecionada' : 'Nada selecionado';
   }
 
+  /// A fase atual deixa usar a peça da ferramenta [t]? (Mover, Selecionar e Apagar sempre.)
+  bool toolAllowed(String t) => !kPieceTools.contains(t) || level.allowed == null || level.allowed!.contains(t);
+
   @override
   void setTool(String t) {
+    if (!toolAllowed(t)) return tell('Esta fase não permite ${kPieceNames[t]}.');
     tool = t;
     say(kHints[t]!);
     notifyListeners();
+  }
+
+  /// Ao trocar de fase, sai de uma ferramenta que a fase nova não permite.
+  void _fitTool() {
+    if (toolAllowed(tool)) return;
+    tool = kPieceTools.firstWhere(toolAllowed, orElse: () => 'move');
   }
 
   void toggleSnap() {
@@ -72,7 +82,9 @@ mixin _BuildTools on GameState {
 
   void loadSample() {
     final s = sampleFor(level, ball0);
-    if (s == null) {
+    if (s != null && !s.every((q) => toolAllowed(toolOf(q)))) {
+      say('O exemplo usa peças que esta fase não permite.');
+    } else if (s == null) {
       say('O exemplo não cabe na área de construção nesta posição da bola.');
     } else {
       _pushUndo();
@@ -309,6 +321,7 @@ mixin _BuildTools on GameState {
       return;
     }
     if (parts.length >= kLimit) return say('Limite de 150 peças atingido.');
+    if (!toolAllowed(tool)) return say('Esta fase não permite ${kPieceNames[tool]}.');
     final isRod = tool == 'rod' || tool == 'water';
     final s = _snapOr(p, endsOnly: !isRod);
     if (!level.zone.contains(s)) return say('Construa dentro da área verde.');
@@ -410,6 +423,9 @@ mixin _BuildTools on GameState {
           _pushUndo();
           d.r = d.r.roundToDouble();
           parts.add(d);
+          if (d.isWheel && d.k != 'free' && !hubConnected(d, parts, ball0)) {
+            say('O motor só gira com o centro da roda preso: ligue uma barra, outra peça ou a bola no eixo.');
+          }
         }
         _saveBuild();
     }

@@ -23,12 +23,25 @@ mixin _RunControl on GameState {
 
   void replay() {
     final b = progress.bestOf(level.id!);
-    if (b == null || mode != Mode.build) return;
+    if (b == null || mode == Mode.edit) return;
     final ps = (b['parts'] as List).map((q) => Part.fromJson(q)).whereType<Part>().toList();
     start(ps, Pt.fromJson(b['ball']) ?? level.ball.copy(), true);
   }
 
+  /// Peças da engenhoca que esta fase não permite (nomes, sem repetir).
+  List<String> forbiddenIn(List<Part> ps) {
+    final ok = level.allowed;
+    if (ok == null) return [];
+    return {for (final q in ps) if (!ok.contains(toolOf(q))) kPieceNames[toolOf(q)]!}.toList();
+  }
+
   void start(List<Part> ps, Pt b, bool isReplay) {
+    final bad = isReplay ? <String>[] : forbiddenIn(ps);
+    if (bad.isNotEmpty) {
+      tell('Esta fase não permite ${bad.join(', ')}. Apague essas peças para rodar.');
+      return;
+    }
+    if (!isReplay) progress.addTry(level.id!);
     sim?.dispose();
     sim = Sim(level, ps.map((q) => q.copy()).toList(), b.copy());
     mode = Mode.run;
@@ -43,7 +56,12 @@ mixin _RunControl on GameState {
       ..add(b.copy());
     _clearSel();
     final time = isReplay ? (progress.bestOf(level.id!)!['time'] as num).toDouble() : 0.0;
-    say(isReplay ? 'Replay da melhor solução (${fmt(time)} s).' : 'Rodando. Leve a bola amarela até a área vermelha.');
+    final idle = ps.where((q) => q.isWheel && q.k != 'free' && !motorOn(q, ps, b)).length;
+    say(isReplay
+        ? 'Replay da melhor solução (${fmt(time)} s).'
+        : idle > 0
+            ? 'Rodando. ${idle == 1 ? 'Uma roda com motor está' : '$idle rodas com motor estão'} com o centro solto e não vai${idle == 1 ? '' : 'o'} girar (seta apagada).'
+            : 'Rodando. Leve a bola amarela até a área vermelha.');
     notifyListeners();
   }
 
@@ -123,6 +141,29 @@ mixin _RunControl on GameState {
     }
   }
 
+  /// Próxima fase pronta depois da atual, se existir e já estiver liberada.
+  Level? get nextLevel {
+    final i = kBuiltin.indexWhere((l) => l.id == level.id);
+    if (i < 0 || i + 1 >= kBuiltin.length) return null;
+    final n = kBuiltin[i + 1];
+    return progress.isUnlocked(n.id!) ? n : null;
+  }
+
+  // ---------- ações da tela de vitória ----------
+  /// Roda de novo, do começo: a mesma engenhoca, ou o mesmo replay.
+  void retry() => replaying ? replay() : start(parts, ball0, false);
+
+  /// Volta à construção para melhorar a engenhoca.
+  void improve() => stop();
+
+  /// Vai para a próxima fase pronta.
+  void goNext() {
+    final n = nextLevel;
+    if (n == null) return;
+    stop();
+    selectLevel(n.id!);
+  }
+
   void _onWin() {
     final s = sim!;
     if (replaying) {
@@ -134,7 +175,9 @@ mixin _RunControl on GameState {
     var msg = 'Fase concluída em ${fmt(s.t)} s, com ${s.n} ${s.n == 1 ? 'peça' : 'peças'} e custo \$${s.cost}.';
     if (r.fresh.isNotEmpty) msg += ' Nova medalha: ${r.fresh.join(', ')}!';
     if (r.unlocked != null) msg += ' Fase liberada: ${r.unlocked!.name}.';
-    winInfo = WinInfo(false, s.t, s.n, s.cost, Map.of(r.medals), r.fresh, level.targets, unlocked: r.unlocked?.name);
+    if (r.freshBadges.isNotEmpty) msg += ' Desafio: ${r.freshBadges.map(challengeName).join(', ')}!';
+    winInfo = WinInfo(false, s.t, s.n, s.cost, Map.of(r.medals), r.fresh, level.targets,
+        unlocked: r.unlocked?.name, badges: r.badges, freshBadges: r.freshBadges, next: nextLevel);
     say(msg, true);
   }
 }

@@ -80,7 +80,8 @@ class Ink {
 
   /// Roda; as com motor ganham uma seta circular com o sentido do giro.
   /// [arrow] falso deixa a seta para quem desenha (a roda da simulação a mantém parada).
-  void wheel(double x, double y, double r, String kind, double rot, [double a = 1, bool arrow = true]) {
+  /// [arrowA] < 1 apaga a seta: roda com motor cujo centro não está preso, que não vai girar.
+  void wheel(double x, double y, double r, String kind, double rot, [double a = 1, bool arrow = true, double arrowA = 1]) {
     cv.drawCircle(Offset(x, y), r, fill(c.wheel(kind), a));
     cv.drawCircle(Offset(x, y), r, stroke(c.ink, 2, a));
     final sp = stroke(c.paper, 2.5, .85 * a);
@@ -88,7 +89,7 @@ class Ink {
       final an = rot + i * math.pi / 2;
       line(x, y, x + math.cos(an) * r * .8, y + math.sin(an) * r * .8, sp);
     }
-    if (arrow) wheelArrow(x, y, r, kind, a);
+    if (arrow) wheelArrow(x, y, r, kind, a * arrowA);
     joint(x, y, a);
     for (var i = 0; i < 4; i++) {
       final an = rot + i * math.pi / 2;
@@ -272,7 +273,7 @@ class Ink {
       if (q.isRod) rod(q.a!.x, q.a!.y, q.b!.x, q.b!.y, q.k);
     }
     for (final q in list) {
-      if (q.isWheel) wheel(q.c!.x, q.c!.y, q.r, q.k, q.rot);
+      if (q.isWheel) wheel(q.c!.x, q.c!.y, q.r, q.k, q.rot, 1, true, q.k == 'free' || motorOn(q, list, g.ball0) ? 1 : .3);
     }
     for (final q in list) {
       if (q.isMag) {
@@ -325,25 +326,6 @@ class Ink {
     final dot = fill(c.accent, a);
     for (var k = 0; k < pts.length; k += 15) {
       cv.drawCircle(Offset(pts[k].x, pts[k].y), 3.5 / math.sqrt(z), dot);
-    }
-  }
-
-  void winBanner(WinInfo i) {
-    final unlocked = i.unlocked;
-    final w = 660.0, h = unlocked != null ? 230.0 : 190.0, x = (kW - w) / 2, y = 60.0;
-    final r = Rect.fromLTWH(x, y, w, h);
-    cv.drawRect(r, fill(c.paper, .95));
-    cv.drawRect(r, stroke(c.goal, 4));
-    text(i.replay ? 'REPLAY CONCLUÍDO' : 'FASE CONCLUÍDA!', kW / 2, y + 62, c.goal, size: 52, family: display, w: FontWeight.w700, center: true);
-    text('${fmt(i.t)} s · ${i.n} ${i.n == 1 ? 'peça' : 'peças'} · \$${i.c}', kW / 2, y + 112, c.ink, size: 30, center: true);
-    if (!i.replay) {
-      const names = {'t': 'tempo', 'n': 'peças', 'c': 'custo'};
-      final tg = {'t': i.tg.t, 'n': i.tg.n, 'c': i.tg.c};
-      final bits = ['t', 'n', 'c']
-          .where((k) => tg[k] != null)
-          .map((k) => '${i.m[k] == true ? '★ ' : '☆ '}${names[k]}${i.fresh.contains(names[k]) ? ' (nova!)' : ''}');
-      text(bits.join('   '), kW / 2, y + 160, c.ink, size: 26, center: true);
-      if (unlocked != null) text('Fase liberada: $unlocked', kW / 2, y + 205, c.zone, size: 26, center: true);
     }
   }
 }
