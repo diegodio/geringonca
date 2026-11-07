@@ -7,6 +7,7 @@ import '../game/controller.dart';
 import '../game/palette.dart';
 import 'game_page.dart';
 import 'how_to_play.dart';
+import 'logo.dart';
 import 'widgets.dart';
 
 /// Menu inicial: continuar, escolher fase, criar fase e como jogar.
@@ -52,8 +53,12 @@ class MenuPage extends StatelessWidget {
                 child: ConstrainedBox(
                   constraints: const BoxConstraints(maxWidth: 1040),
                   child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-                    Text('Geringonça', style: GoogleFonts.chakraPetch(fontSize: low ? 34 : 52, height: 1.05, fontWeight: FontWeight.w700, color: c.ink)),
-                    const SizedBox(height: 6),
+                    // o nome montado com as peças; encolhe se a tela for estreita
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: FittedBox(fit: BoxFit.scaleDown, child: LogoWord(height: low ? 56 : 100)),
+                    ),
+                    SizedBox(height: low ? 8 : 12),
                     Text('Monte engenhocas com barras, rodas e ímãs e leve a bola até a meta.',
                         style: GoogleFonts.ibmPlexSans(fontSize: 16, color: c.muted)),
                     SizedBox(height: low ? 10 : 20),
