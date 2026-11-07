@@ -45,17 +45,18 @@ class MenuPage extends StatelessWidget {
             final stars = kBuiltin.fold(0, (s, l) => s + pr.starsOf(l.id!));
             final maxStars = kBuiltin.fold(0, (s, l) => s + _targetCount(l));
             final started = done > 0 || pr.savedParts(g.level.id!) != null;
+            final low = MediaQuery.of(context).size.height < 500; // celular deitado
             return SingleChildScrollView(
-              padding: const EdgeInsets.fromLTRB(16, 28, 16, 40),
+              padding: EdgeInsets.fromLTRB(16, low ? 12 : 28, 16, 40),
               child: Center(
                 child: ConstrainedBox(
                   constraints: const BoxConstraints(maxWidth: 1040),
                   child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-                    Text('Geringonça', style: GoogleFonts.chakraPetch(fontSize: 52, height: 1.05, fontWeight: FontWeight.w700, color: c.ink)),
+                    Text('Geringonça', style: GoogleFonts.chakraPetch(fontSize: low ? 34 : 52, height: 1.05, fontWeight: FontWeight.w700, color: c.ink)),
                     const SizedBox(height: 6),
                     Text('Monte engenhocas com barras, rodas e ímãs e leve a bola até a meta.',
                         style: GoogleFonts.ibmPlexSans(fontSize: 16, color: c.muted)),
-                    const SizedBox(height: 20),
+                    SizedBox(height: low ? 10 : 20),
                     Wrap(spacing: 10, runSpacing: 10, crossAxisAlignment: WrapCrossAlignment.center, children: [
                       TB(
                         c: c,

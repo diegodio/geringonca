@@ -2,11 +2,12 @@
     "name": "Geringonça",
     "short_name": "Geringonça",
     "start_url": ".",
-    "display": "standalone",
-    "background_color": "#0175C2",
-    "theme_color": "#0175C2",
+    "display": "fullscreen",
+    "display_override": ["fullscreen", "standalone"],
+    "background_color": "#e7edef",
+    "theme_color": "#1b2a32",
     "description": "Geringonça: jogo de física",
-    "orientation": "portrait-primary",
+    "orientation": "any",
     "prefer_related_applications": false,
     "icons": [
         {
