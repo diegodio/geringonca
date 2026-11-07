@@ -38,13 +38,13 @@ mixin _RunControl on GameState {
   void start(List<Part> ps, Pt b, bool isReplay) {
     final bad = isReplay ? <String>[] : forbiddenIn(ps);
     if (bad.isNotEmpty) {
-      tell('Esta fase não permite ${bad.join(', ')}. Apague essas peças para rodar.');
-      return;
+      _deny('Esta fase não permite ${bad.join(', ')}. Apague essas peças para rodar.');
+      return notifyListeners();
     }
     final budget = level.budget;
     if (!isReplay && budget != null && costOf(ps) > budget) {
-      tell('A engenhoca custa \$${costOf(ps)}, mas o orçamento desta fase é \$$budget.');
-      return;
+      _deny('A engenhoca custa \$${costOf(ps)}, mas o orçamento desta fase é \$$budget.');
+      return notifyListeners();
     }
     if (!isReplay) progress.addTry(level.id!);
     sim?.dispose();
@@ -60,6 +60,7 @@ mixin _RunControl on GameState {
       ..clear()
       ..add(b.copy());
     _clearSel();
+    fx(Sfx.start);
     final time = isReplay ? (progress.bestOf(level.id!)!['time'] as num).toDouble() : 0.0;
     final idle = ps.where((q) => q.isWheel && q.k != 'free' && !motorOn(q, ps, level.looseBall ? null : b)).length;
     say(isReplay
@@ -70,8 +71,10 @@ mixin _RunControl on GameState {
     notifyListeners();
   }
 
+  /// Para a simulação. [quiet] sem o som de parar (ao trocar de fase).
   @override
-  void stop() {
+  void stop({bool quiet = false}) {
+    if (mode == Mode.run && !quiet) fx(Sfx.stop);
     sim?.dispose();
     sim = null;
     mode = Mode.build;
@@ -81,7 +84,8 @@ mixin _RunControl on GameState {
     paused = false;
     lastTrail = List.of(trail);
     trail.clear();
-    setTool(tool);
+    say(kHints[tool]!);
+    notifyListeners();
   }
 
   void _clearTrail() {
@@ -165,7 +169,7 @@ mixin _RunControl on GameState {
   void goNext() {
     final n = nextLevel;
     if (n == null) return;
-    stop();
+    stop(quiet: true);
     selectLevel(n.id!);
   }
 
@@ -174,6 +178,7 @@ mixin _RunControl on GameState {
     if (replaying) {
       winInfo = WinInfo(true, s.t, s.n, s.cost, {}, [], level.targets);
       say('Replay: meta alcançada em ${fmt(s.t)} s.', true);
+      fx(Sfx.win);
       return;
     }
     final r = progress.recordWin(level, s.t, s.parts, s.ball0);
@@ -184,5 +189,6 @@ mixin _RunControl on GameState {
     winInfo = WinInfo(false, s.t, s.n, s.cost, Map.of(r.medals), r.fresh, level.targets,
         unlocked: r.unlocked?.name, badges: r.badges, freshBadges: r.freshBadges, next: nextLevel);
     say(msg, true);
+    fx(r.fresh.isNotEmpty || r.freshBadges.isNotEmpty ? Sfx.medal : Sfx.win);
   }
 }

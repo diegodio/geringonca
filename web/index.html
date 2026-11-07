@@ -31,8 +31,41 @@
 
   <title>Geringonça</title>
   <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#1b2a32">
+
+  <!-- Tela de carregamento: o logotipo (com o pingo do I quicando) até o primeiro quadro do jogo -->
+  <style>
+    :root { --bg: #e7edef; --muted: #5a6e78; --line: #c3d1d7; --rod: #8b5a2b; }
+    @media (prefers-color-scheme: dark) { :root { --bg: #0e1a22; --muted: #91a7b1; --line: #27414f; --rod: #c18a52; } }
+    html, body { margin: 0; background: var(--bg); }
+    #carregando {
+      position: fixed; inset: 0; z-index: 10; display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 28px; padding: 16px; box-sizing: border-box; background: var(--bg); color: var(--muted);
+      font: 15px/1.4 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; transition: opacity .35s ease;
+    }
+    #carregando img { width: min(78vw, 520px); height: auto; }
+    #carregando .barra { width: min(50vw, 220px); height: 6px; border-radius: 3px; background: var(--line); overflow: hidden; }
+    #carregando .barra i { display: block; width: 40%; height: 100%; border-radius: 3px; background: var(--rod); animation: vai 1.3s ease-in-out infinite; }
+    @keyframes vai { from { transform: translateX(-100%); } to { transform: translateX(250%); } }
+    @media (prefers-reduced-motion: reduce) { #carregando .barra i { animation: none; width: 100%; opacity: .5; } }
+    #carregando.saindo { opacity: 0; pointer-events: none; }
+  </style>
 </head>
 <body>
+  <div id="carregando" role="status" aria-live="polite">
+    <img src="logo.svg" alt="Geringonça" width="520" height="128">
+    <div class="barra" aria-hidden="true"><i></i></div>
+    <span>Carregando a oficina…</span>
+  </div>
+  <script>
+    // some quando o jogo desenha o primeiro quadro
+    window.addEventListener('flutter-first-frame', function () {
+      var el = document.getElementById('carregando');
+      if (!el) return;
+      el.classList.add('saindo');
+      setTimeout(function () { el.remove(); }, 400);
+    });
+  </script>
   <!--
     You can customize the "flutter_bootstrap.js" script.
     This is useful to provide a custom configuration to the Flutter loader

@@ -6,25 +6,69 @@ import '../game/palette.dart';
 
 /// Logotipo: "GERINGONÇA" montado com as peças do jogo (barras de madeira com
 /// juntas, rodas, borracha e a bola), no mesmo traço da bancada.
-class LogoWord extends StatelessWidget {
+/// Só o pingo do I se mexe: a bola quica em cima da letra de tempos em tempos.
+class LogoWord extends StatefulWidget {
   final double height;
   const LogoWord({super.key, this.height = 64});
 
   @override
+  State<LogoWord> createState() => _LogoWordState();
+}
+
+class _LogoWordState extends State<LogoWord> with SingleTickerProviderStateMixin {
+  static final _word = LogoArt.word();
+  late final AnimationController _anim = AnimationController(vsync: this, duration: const Duration(milliseconds: 2600));
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // quem pede menos movimento no aparelho vê a bola parada
+    if (MediaQuery.disableAnimationsOf(context)) {
+      _anim.stop();
+      _anim.value = .99;
+    } else if (!_anim.isAnimating) {
+      _anim.repeat();
+    }
+  }
+
+  @override
+  void dispose() {
+    _anim.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final c = Palette.of(context);
-    final word = LogoArt.word();
     return Semantics(
       label: 'Geringonça',
       header: true,
       child: ExcludeSemantics(
         child: SizedBox(
-          height: height,
-          child: AspectRatio(aspectRatio: word.bounds.width / word.bounds.height, child: CustomPaint(painter: LogoPainter(word, c))),
+          height: widget.height,
+          child: AspectRatio(
+            aspectRatio: _word.bounds.width / _word.bounds.height,
+            child: RepaintBoundary(child: CustomPaint(painter: LogoPainter(_word, c, bounce: _anim))),
+          ),
         ),
       ),
     );
   }
+}
+
+/// Quique do pingo no instante [t] do ciclo (0 a 1): altura acima da letra e
+/// achatamento (0 a 1) no toque. Um pulo alto, um baixinho, e a bola descansa.
+(double, double) pingoAt(double t) {
+  double arc(double u, double h) => h * 4 * u * (1 - u);
+  final lift = t < .34
+      ? arc(t / .34, LogoArt.jump)
+      : t < .5
+          ? arc((t - .34) / .16, LogoArt.jump * .28)
+          : 0.0;
+  // achata logo depois de cada toque no I
+  double squash(double since, double amount) => since >= 0 && since < .05 ? amount * (1 - since / .05) : 0;
+  final sq = math.max(squash(t - .34, 1), squash(t - .5, .5));
+  return (lift, sq);
 }
 
 /// Peça de um desenho do logotipo, em coordenadas próprias (letra com 100 de altura).
@@ -48,7 +92,8 @@ class LWheel extends LogoPiece {
 class LBall extends LogoPiece {
   final Offset c;
   final double r;
-  LBall(this.c, this.r);
+  final bool pingo; // a bola que quica no logotipo
+  LBall(this.c, this.r, {this.pingo = false});
 }
 
 /// Um desenho pronto: as peças e o retângulo que as contém (com folga para o traço).
@@ -57,6 +102,9 @@ class LogoArt {
   final Rect bounds;
   final double rodW;
   LogoArt(this.pieces, this.rodW) : bounds = _bounds(pieces, rodW);
+
+  /// Altura do pulo do pingo; a moldura já reserva esse espaço.
+  static const jump = 30.0;
 
   static Rect _bounds(List<LogoPiece> ps, double w) {
     var r = Rect.zero;
@@ -72,8 +120,9 @@ class LogoArt {
           add(Rect.fromPoints(a, b).inflate(w / 2 + 1));
         case LWheel(:final c, :final r):
           add(Rect.fromCircle(center: c, radius: r + 3));
-        case LBall(:final c, :final r):
+        case LBall(:final c, :final r, :final pingo):
           add(Rect.fromCircle(center: c, radius: r + 2));
+          if (pingo) add(Rect.fromCircle(center: c.translate(0, -jump), radius: r + 2));
       }
     }
     return r;
@@ -112,7 +161,7 @@ class LogoArt {
     x += 60 + gap;
     // I: a bola faz o pingo
     rods(const [Offset(0, 0), Offset(0, 100)]);
-    ps.add(LBall(Offset(x, -24), 13));
+    ps.add(LBall(Offset(x, -19.5), 13, pingo: true)); // apoiada no topo da barra
     x += gap;
     n();
     g();
@@ -145,7 +194,8 @@ class LogoArt {
 class LogoPainter extends CustomPainter {
   final LogoArt art;
   final Palette c;
-  LogoPainter(this.art, this.c);
+  final Animation<double>? bounce;
+  LogoPainter(this.art, this.c, {this.bounce}) : super(repaint: bounce);
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -155,12 +205,14 @@ class LogoPainter extends CustomPainter {
     canvas.translate((size.width - b.width * s) / 2, (size.height - b.height * s) / 2);
     canvas.scale(s);
     canvas.translate(-b.left, -b.top);
-    paintArt(canvas, art, c);
+    final (lift, squash) = bounce == null ? (0.0, 0.0) : pingoAt(bounce!.value);
+    paintArt(canvas, art, c, lift: lift, squash: squash);
     canvas.restore();
   }
 
   /// Desenha as peças: primeiro a madeira e a borracha, depois rodas, bola e juntas por cima.
-  static void paintArt(Canvas cv, LogoArt art, Palette c) {
+  /// [lift] e [squash]: posição do pingo do I no quique (veja [pingoAt]).
+  static void paintArt(Canvas cv, LogoArt art, Palette c, {double lift = 0, double squash = 0}) {
     final w = art.rodW;
     Paint stroke(Color col, double sw) => Paint()
       ..color = col
@@ -195,9 +247,13 @@ class LogoPainter extends CustomPainter {
             final an = rot + i * math.pi / 2;
             joint(o + Offset(math.cos(an), math.sin(an)) * r);
           }
-        case LBall(c: final o, :final r):
-          cv.drawCircle(o, r, Paint()..color = c.ball);
-          cv.drawCircle(o, r, stroke(c.ink, w * .25));
+        case LBall(c: final o, :final r, :final pingo):
+          // o pingo sobe e, ao tocar o I, achata um pouco com a base apoiada
+          final sx = pingo ? 1 + .16 * squash : 1.0, sy = pingo ? 1 - .16 * squash : 1.0;
+          final bottom = o.dy + r - (pingo ? lift : 0);
+          final oval = Rect.fromCenter(center: Offset(o.dx, bottom - r * sy), width: 2 * r * sx, height: 2 * r * sy);
+          cv.drawOval(oval, Paint()..color = c.ball);
+          cv.drawOval(oval, stroke(c.ink, w * .25));
         case LRod():
           break;
       }

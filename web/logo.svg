@@ -1,0 +1,117 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-7 -64.5 816 201.5" role="img" aria-label="Geringonça">
+<style>svg{--rod:#8b5a2b;--rub:#4f9fd8;--ink:#1b2a32;--paper:#f3f6f6;--ball:#f2bb12;--cw:#e57421;--ccw:#6a48cc;--free:#557885}@media (prefers-color-scheme:dark){svg{--rod:#c18a52;--rub:#6cb6ee;--ink:#e2ecf0;--paper:#12222c;--ball:#ffd03a;--cw:#f4913f;--ccw:#9a7ef0;--free:#7fa3b0}}.r{stroke:var(--rod);stroke-width:12.0;stroke-linecap:round;fill:none}.u{stroke:var(--rub);stroke-width:12.0;stroke-linecap:round;fill:none}.j{fill:var(--paper);stroke:var(--ink);stroke-width:2.04}.o{stroke:var(--ink);stroke-width:3.36}.s{stroke:var(--paper);stroke-opacity:.85;stroke-width:3.6;stroke-linecap:round}.cw{fill:var(--cw)}.ccw{fill:var(--ccw)}.free{fill:var(--free)}.b{fill:var(--ball);stroke:var(--ink);stroke-width:3}.p{transform-box:fill-box;transform-origin:50% 100%;animation:q 2.6s linear infinite}@keyframes q{0%{transform:translateY(0px) scale(1,1)}2%{transform:translateY(-6.64px) scale(1,1)}4%{transform:translateY(-12.46px) scale(1,1)}6%{transform:translateY(-17.44px) scale(1,1)}8%{transform:translateY(-21.59px) scale(1,1)}10%{transform:translateY(-24.91px) scale(1,1)}12%{transform:translateY(-27.4px) scale(1,1)}14%{transform:translateY(-29.07px) scale(1,1)}16%{transform:translateY(-29.9px) scale(1,1)}18%{transform:translateY(-29.9px) scale(1,1)}20%{transform:translateY(-29.07px) scale(1,1)}22%{transform:translateY(-27.4px) scale(1,1)}24%{transform:translateY(-24.91px) scale(1,1)}26%{transform:translateY(-21.59px) scale(1,1)}28%{transform:translateY(-17.44px) scale(1,1)}30%{transform:translateY(-12.46px) scale(1,1)}32%{transform:translateY(-6.64px) scale(1,1)}34%{transform:translateY(0px) scale(1.16,0.84)}36%{transform:translateY(-3.67px) scale(1.1,0.9)}38%{transform:translateY(-6.3px) scale(1.03,0.97)}40%{transform:translateY(-7.88px) scale(1,1)}42%{transform:translateY(-8.4px) scale(1,1)}44%{transform:translateY(-7.88px) scale(1,1)}46%{transform:translateY(-6.3px) scale(1,1)}48%{transform:translateY(-3.68px) scale(1,1)}50%{transform:translateY(0px) scale(1.08,0.92)}52%{transform:translateY(0px) scale(1.05,0.95)}54%{transform:translateY(0px) scale(1.02,0.98)}56%{transform:translateY(0px) scale(1,1)}58%{transform:translateY(0px) scale(1,1)}60%{transform:translateY(0px) scale(1,1)}62%{transform:translateY(0px) scale(1,1)}64%{transform:translateY(0px) scale(1,1)}66%{transform:translateY(0px) scale(1,1)}68%{transform:translateY(0px) scale(1,1)}70%{transform:translateY(0px) scale(1,1)}72%{transform:translateY(0px) scale(1,1)}74%{transform:translateY(0px) scale(1,1)}76%{transform:translateY(0px) scale(1,1)}78%{transform:translateY(0px) scale(1,1)}80%{transform:translateY(0px) scale(1,1)}82%{transform:translateY(0px) scale(1,1)}84%{transform:translateY(0px) scale(1,1)}86%{transform:translateY(0px) scale(1,1)}88%{transform:translateY(0px) scale(1,1)}90%{transform:translateY(0px) scale(1,1)}92%{transform:translateY(0px) scale(1,1)}94%{transform:translateY(0px) scale(1,1)}96%{transform:translateY(0px) scale(1,1)}98%{transform:translateY(0px) scale(1,1)}100%{transform:translateY(0px) scale(1,1)}}@media (prefers-reduced-motion:reduce){.p{animation:none}}</style>
+<line class="r" x1="60" y1="0" x2="18" y2="0"/>
+<line class="r" x1="18" y1="0" x2="0" y2="18"/>
+<line class="r" x1="0" y1="18" x2="0" y2="82"/>
+<line class="r" x1="0" y1="82" x2="18" y2="100"/>
+<line class="r" x1="18" y1="100" x2="60" y2="100"/>
+<line class="r" x1="60" y1="100" x2="60" y2="52"/>
+<line class="r" x1="60" y1="52" x2="34" y2="52"/>
+<line class="r" x1="142" y1="0" x2="86" y2="0"/>
+<line class="r" x1="86" y1="0" x2="86" y2="100"/>
+<line class="r" x1="86" y1="100" x2="142" y2="100"/>
+<line class="r" x1="86" y1="50" x2="128" y2="50"/>
+<line class="r" x1="168" y1="100" x2="168" y2="0"/>
+<line class="r" x1="168" y1="0" x2="198" y2="0"/>
+<line class="r" x1="168" y1="52" x2="198" y2="52"/>
+<line class="r" x1="198" y1="52" x2="228" y2="100"/>
+<line class="r" x1="254" y1="0" x2="254" y2="100"/>
+<line class="r" x1="280" y1="100" x2="280" y2="0"/>
+<line class="r" x1="280" y1="0" x2="336" y2="100"/>
+<line class="r" x1="336" y1="100" x2="336" y2="0"/>
+<line class="r" x1="422" y1="0" x2="380" y2="0"/>
+<line class="r" x1="380" y1="0" x2="362" y2="18"/>
+<line class="r" x1="362" y1="18" x2="362" y2="82"/>
+<line class="r" x1="362" y1="82" x2="380" y2="100"/>
+<line class="r" x1="380" y1="100" x2="422" y2="100"/>
+<line class="r" x1="422" y1="100" x2="422" y2="52"/>
+<line class="r" x1="422" y1="52" x2="396" y2="52"/>
+<line class="r" x1="574" y1="100" x2="574" y2="0"/>
+<line class="r" x1="574" y1="0" x2="630" y2="100"/>
+<line class="r" x1="630" y1="100" x2="630" y2="0"/>
+<line class="r" x1="716" y1="0" x2="674" y2="0"/>
+<line class="r" x1="674" y1="0" x2="656" y2="18"/>
+<line class="r" x1="656" y1="18" x2="656" y2="82"/>
+<line class="r" x1="656" y1="82" x2="674" y2="100"/>
+<line class="r" x1="674" y1="100" x2="716" y2="100"/>
+<line class="u" x1="688" y1="100" x2="698" y2="116"/>
+<line class="u" x1="698" y1="116" x2="682" y2="130"/>
+<line class="r" x1="742" y1="100" x2="772" y2="0"/>
+<line class="r" x1="772" y1="0" x2="802" y2="100"/>
+<line class="u" x1="753.4" y1="62" x2="790.6" y2="62"/>
+<circle class="ccw o" cx="198" cy="26" r="26"/>
+<line class="s" x1="198" y1="26" x2="218.8" y2="26"/>
+<line class="s" x1="198" y1="26" x2="198" y2="46.8"/>
+<line class="s" x1="198" y1="26" x2="177.2" y2="26"/>
+<line class="s" x1="198" y1="26" x2="198" y2="5.2"/>
+<path d="M209.78 34.56A14.56 14.56 0 1 0 183.62 28.28" stroke="#fff" stroke-width="2.6" stroke-linecap="round" fill="none"/>
+<polygon fill="#fff" points="184.57,34.29 179.95,28.86 187.29,27.7"/>
+<circle class="b p" cx="254" cy="-19.5" r="13"/>
+<circle class="cw o" cx="498" cy="50" r="50"/>
+<line class="s" x1="498" y1="50" x2="526.28" y2="78.28"/>
+<line class="s" x1="498" y1="50" x2="469.72" y2="78.28"/>
+<line class="s" x1="498" y1="50" x2="469.72" y2="21.72"/>
+<line class="s" x1="498" y1="50" x2="526.28" y2="21.72"/>
+<path d="M475.35 66.46A28 28 0 1 1 525.66 54.38" stroke="#fff" stroke-width="5" stroke-linecap="round" fill="none"/>
+<polygon fill="#fff" points="523.82,65.94 532.72,55.5 518.59,53.26"/>
+<circle class="j" cx="60" cy="0" r="5.04"/>
+<circle class="j" cx="18" cy="0" r="5.04"/>
+<circle class="j" cx="0" cy="18" r="5.04"/>
+<circle class="j" cx="0" cy="82" r="5.04"/>
+<circle class="j" cx="18" cy="100" r="5.04"/>
+<circle class="j" cx="60" cy="100" r="5.04"/>
+<circle class="j" cx="60" cy="52" r="5.04"/>
+<circle class="j" cx="34" cy="52" r="5.04"/>
+<circle class="j" cx="142" cy="0" r="5.04"/>
+<circle class="j" cx="86" cy="0" r="5.04"/>
+<circle class="j" cx="86" cy="100" r="5.04"/>
+<circle class="j" cx="142" cy="100" r="5.04"/>
+<circle class="j" cx="86" cy="50" r="5.04"/>
+<circle class="j" cx="128" cy="50" r="5.04"/>
+<circle class="j" cx="168" cy="100" r="5.04"/>
+<circle class="j" cx="168" cy="0" r="5.04"/>
+<circle class="j" cx="198" cy="0" r="5.04"/>
+<circle class="j" cx="168" cy="52" r="5.04"/>
+<circle class="j" cx="198" cy="52" r="5.04"/>
+<circle class="j" cx="228" cy="100" r="5.04"/>
+<circle class="j" cx="254" cy="0" r="5.04"/>
+<circle class="j" cx="254" cy="100" r="5.04"/>
+<circle class="j" cx="280" cy="100" r="5.04"/>
+<circle class="j" cx="280" cy="0" r="5.04"/>
+<circle class="j" cx="336" cy="100" r="5.04"/>
+<circle class="j" cx="336" cy="0" r="5.04"/>
+<circle class="j" cx="422" cy="0" r="5.04"/>
+<circle class="j" cx="380" cy="0" r="5.04"/>
+<circle class="j" cx="362" cy="18" r="5.04"/>
+<circle class="j" cx="362" cy="82" r="5.04"/>
+<circle class="j" cx="380" cy="100" r="5.04"/>
+<circle class="j" cx="422" cy="100" r="5.04"/>
+<circle class="j" cx="422" cy="52" r="5.04"/>
+<circle class="j" cx="396" cy="52" r="5.04"/>
+<circle class="j" cx="574" cy="100" r="5.04"/>
+<circle class="j" cx="574" cy="0" r="5.04"/>
+<circle class="j" cx="630" cy="100" r="5.04"/>
+<circle class="j" cx="630" cy="0" r="5.04"/>
+<circle class="j" cx="716" cy="0" r="5.04"/>
+<circle class="j" cx="674" cy="0" r="5.04"/>
+<circle class="j" cx="656" cy="18" r="5.04"/>
+<circle class="j" cx="656" cy="82" r="5.04"/>
+<circle class="j" cx="674" cy="100" r="5.04"/>
+<circle class="j" cx="716" cy="100" r="5.04"/>
+<circle class="j" cx="688" cy="100" r="5.04"/>
+<circle class="j" cx="698" cy="116" r="5.04"/>
+<circle class="j" cx="682" cy="130" r="5.04"/>
+<circle class="j" cx="742" cy="100" r="5.04"/>
+<circle class="j" cx="772" cy="0" r="5.04"/>
+<circle class="j" cx="802" cy="100" r="5.04"/>
+<circle class="j" cx="753.4" cy="62" r="5.04"/>
+<circle class="j" cx="790.6" cy="62" r="5.04"/>
+<circle class="j" cx="198" cy="26" r="5.04"/>
+<circle class="j" cx="224" cy="26" r="5.04"/>
+<circle class="j" cx="172" cy="26" r="5.04"/>
+<circle class="j" cx="498" cy="50" r="5.04"/>
+<circle class="j" cx="533.36" cy="85.36" r="5.04"/>
+<circle class="j" cx="462.64" cy="85.36" r="5.04"/>
+<circle class="j" cx="462.64" cy="14.64" r="5.04"/>
+<circle class="j" cx="533.36" cy="14.64" r="5.04"/>
+</svg>

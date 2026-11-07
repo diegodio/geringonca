@@ -8,6 +8,7 @@ import '../game/palette.dart';
 import 'game_page.dart';
 import 'how_to_play.dart';
 import 'logo.dart';
+import 'options.dart';
 import 'widgets.dart';
 
 /// Menu inicial: continuar, escolher fase, criar fase e como jogar.
@@ -54,10 +55,20 @@ class MenuPage extends StatelessWidget {
                   constraints: const BoxConstraints(maxWidth: 1040),
                   child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
                     // o nome montado com as peças; encolhe se a tela for estreita
-                    Align(
-                      alignment: Alignment.centerLeft,
-                      child: FittedBox(fit: BoxFit.scaleDown, child: LogoWord(height: low ? 56 : 100)),
-                    ),
+                    Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                      Expanded(
+                        child: Align(
+                          alignment: Alignment.centerLeft,
+                          child: FittedBox(fit: BoxFit.scaleDown, child: LogoWord(height: low ? 64 : 112)),
+                        ),
+                      ),
+                      // opções num canto discreto: sons, vibração e posição do painel
+                      IconButton(
+                        tooltip: 'Opções',
+                        icon: Icon(Icons.tune, color: c.muted, size: 22),
+                        onPressed: () => showOptions(context, g),
+                      ),
+                    ]),
                     SizedBox(height: low ? 8 : 12),
                     Text('Monte engenhocas com barras, rodas e ímãs e leve a bola até a meta.',
                         style: GoogleFonts.ibmPlexSans(fontSize: 16, color: c.muted)),
