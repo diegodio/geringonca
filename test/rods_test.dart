@@ -74,6 +74,22 @@ void main() {
     s.dispose();
   });
 
+  test('roda que começa perto de uma barra solta não a atravessa', () {
+    final s = _run([
+      Part.rod('solid', Pt(300, 495), Pt(500, 495)), // no chão, topo em 491
+      Part.wheel('free', Pt(400, 461), 28), // base a 2 px da barra
+    ], 1);
+    // a roda para em cima da barra, sem atravessá-la até o chão
+    expect(s.pose(s.bodies[1].body).y, closeTo(463, 2));
+    s.dispose();
+  });
+
+  test('roda com barra de madeira presa no eixo anda sem travar', () {
+    final s = _run([Part.wheel('cw', Pt(400, 460), 40), Part.rod('solid', Pt(400, 460), Pt(370, 420))], 1);
+    expect(s.pose(s.bodies[0].body).x, greaterThan(600));
+    s.dispose();
+  });
+
   group('motor só gira com o centro preso', () {
     double xAfter(List<Part> parts) {
       final s = _run(parts, 1);

@@ -301,12 +301,17 @@ class Sim {
       bodies.add(SimPart(q, b, halfLen, powered: motorOn(q, parts, lv.looseBall ? null : ball0)));
     }
 
-    // Rodas e ímãs passam por cima de barras sólidas, menos as que já começam encostadas.
+    // Rodas e ímãs batem em toda barra de madeira, menos nas presas a eles (no centro
+    // ou na borda) e nas que já começam por cima deles; senão a engenhoca travaria.
     final rods = bodies.where((s) => s.part.isRod && s.part.k == 'solid').toList();
     final circs = bodies.where((s) => !s.part.isRod).toList();
     for (final c in circs) {
+      final q = c.part;
+      final pins = [q.c!, if (q.isWheel) ...q.perim];
       for (final r in rods) {
-        if (segDist(c.part.c!, r.part.a!, r.part.b!) < c.part.r + 8) _noCollide(shapeOf[c.body]!, shapeOf[r.body]!);
+        final rp = r.part;
+        final pinned = rp.points.any((p) => pins.any((w) => dist(p, w) < .75));
+        if (pinned || segDist(q.c!, rp.a!, rp.b!) < q.r + 3) _noCollide(shapeOf[c.body]!, shapeOf[r.body]!);
       }
     }
     // Madeira bate em madeira, menos nas barras que já começam encostadas
