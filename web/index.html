@@ -39,7 +39,7 @@
     @media (prefers-color-scheme: dark) { :root { --bg: #0e1a22; --muted: #91a7b1; --line: #27414f; --rod: #c18a52; } }
     html, body { margin: 0; background: var(--bg); }
     #carregando {
-      position: fixed; inset: 0; z-index: 10; display: flex; flex-direction: column; align-items: center; justify-content: center;
+      position: fixed; inset: 0; z-index: 2147483647; display: flex; flex-direction: column; align-items: center; justify-content: center;
       gap: 28px; padding: 16px; box-sizing: border-box; background: var(--bg); color: var(--muted);
       font: 15px/1.4 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; transition: opacity .35s ease;
     }
@@ -58,12 +58,18 @@
     <span>Carregando a oficina…</span>
   </div>
   <script>
-    // some quando o jogo desenha o primeiro quadro
+    // some quando o jogo desenha o primeiro quadro, mas deixa a palavra terminar
+    // de ser montada (a duração vem de tool/make_icons_test.dart)
+    var montagem = /*montagem*/2732;
     window.addEventListener('flutter-first-frame', function () {
       var el = document.getElementById('carregando');
       if (!el) return;
-      el.classList.add('saindo');
-      setTimeout(function () { el.remove(); }, 400);
+      var calmo = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+      var falta = calmo ? 0 : Math.max(0, montagem + 250 - performance.now());
+      setTimeout(function () {
+        el.classList.add('saindo');
+        setTimeout(function () { el.remove(); }, 400);
+      }, falta);
     });
   </script>
   <!--

@@ -27,7 +27,13 @@ void main() {
       await _png('$out/icons/Icon-maskable-$s.png', s, s, (cv) => paintAppIcon(cv, s.toDouble(), c, maskable: true));
     }
     await _png('$out/favicon.png', 64, 64, (cv) => paintAppIcon(cv, 64, c));
-    File('$out/logo.svg').writeAsStringSync(_svg(LogoArt.word()));
+    final (svg, buildMs) = _svg(LogoArt.word());
+    File('$out/logo.svg').writeAsStringSync(svg);
+    // a tela de carregamento espera a montagem terminar antes de sumir
+    if (out == 'web') {
+      final idx = File('web/index.html');
+      idx.writeAsStringSync(idx.readAsStringSync().replaceFirst(RegExp(r'/\*montagem\*/\d+'), '/*montagem*/$buildMs'));
+    }
     // prévia da palavra (só quando gera em outra pasta; não vai para o app)
     if (out == 'web') return;
     final word = LogoArt.word();
@@ -47,19 +53,55 @@ void main() {
 String _hex(Color c) => '#${(c.toARGB32() & 0xffffff).toRadixString(16).padLeft(6, '0')}';
 String _n(double v) => (v * 100).round() / 100 == (v * 100).round() ~/ 100 ? '${(v * 100).round() ~/ 100}' : ((v * 100).round() / 100).toString();
 
-/// O logotipo em SVG, com as cores do tema claro e do escuro e o pingo do I
-/// quicando em CSS (os quadros vêm de [pingoAt], o mesmo quique do menu).
-String _svg(LogoArt art) {
+/// O logotipo em SVG para a tela de carregamento, com as cores do tema claro e
+/// do escuro. A palavra é montada peça por peça, como alguém construindo na
+/// bancada: cada barra é puxada de uma ponta à outra, as juntas estalam quando
+/// a barra chega nelas, as rodas crescem do centro e, por último, a bola cai no
+/// I e emenda no quique de [pingoAt] (o mesmo do menu).
+/// Devolve o SVG e quanto tempo (ms) a montagem leva.
+(String, int) _svg(LogoArt art) {
   final b = art.bounds, w = art.rodW;
   final o = StringBuffer();
-  final joints = <Offset>[];
-  void joint(Offset p) {
-    if (!joints.any((q) => (q - p).distance < .5)) joints.add(p);
+  String cls(String k) => k == 'cw' ? 'cw' : k == 'ccw' ? 'ccw' : 'free';
+  String d(double s) => 'animation-delay:${_n(s)}s';
+
+  // ---- linha do tempo: barras e rodas na ordem das letras; a bola no fim ----
+  const rodDur = .14, rodStep = .038, wheelDur = .32, wheelStep = .16, dropDur = .42;
+  var clock = .2;
+  final rodAt = <LRod, double>{}, wheelAt = <LWheel, double>{};
+  final jointAt = <(Offset, double)>[]; // posição e quando aparece
+  void joint(Offset p, double t) {
+    final i = jointAt.indexWhere((j) => (j.$1 - p).distance < .5);
+    if (i < 0) {
+      jointAt.add((p, t));
+    } else if (t < jointAt[i].$2) {
+      jointAt[i] = (p, t);
+    }
   }
 
-  String cls(String k) => k == 'cw' ? 'cw' : k == 'ccw' ? 'ccw' : 'free';
+  for (final p in art.pieces) {
+    switch (p) {
+      case LRod():
+        rodAt[p] = clock;
+        joint(p.a, clock);
+        joint(p.b, clock + rodDur);
+        clock += rodStep;
+      case LWheel(c: final c, :final r, :final rot, :final rimJoints):
+        clock += .08;
+        wheelAt[p] = clock;
+        joint(c, clock);
+        for (var i = 0; i < (rimJoints ? 4 : 0); i++) {
+          final an = rot + i * math.pi / 2;
+          joint(c + Offset(math.cos(an), math.sin(an)) * r, clock + wheelDur * .8);
+        }
+        clock += wheelStep;
+      case LBall():
+        break;
+    }
+  }
+  final dropAt = clock + .15, buildEnd = dropAt + dropDur;
+
   o.writeln('<svg xmlns="http://www.w3.org/2000/svg" viewBox="${_n(b.left)} ${_n(b.top)} ${_n(b.width)} ${_n(b.height)}" role="img" aria-label="Geringonça">');
-  // cores dos dois temas
   String vars(Palette p) => '--rod:${_hex(p.rod)};--rub:${_hex(p.water)};--ink:${_hex(p.ink)};--paper:${_hex(p.paper)};'
       '--ball:${_hex(p.ball)};--cw:${_hex(p.cw)};--ccw:${_hex(p.ccw)};--free:${_hex(p.free)}';
   final frames = StringBuffer();
@@ -68,23 +110,35 @@ String _svg(LogoArt art) {
     frames.write('$i%{transform:translateY(${_n(-lift)}px) scale(${_n(1 + .16 * sq)},${_n(1 - .16 * sq)})}');
   }
   o.writeln('<style>svg{${vars(Palette.light)}}@media (prefers-color-scheme:dark){svg{${vars(Palette.dark)}}}'
-      '.r{stroke:var(--rod);stroke-width:$w;stroke-linecap:round;fill:none}.u{stroke:var(--rub);stroke-width:$w;stroke-linecap:round;fill:none}'
-      '.j{fill:var(--paper);stroke:var(--ink);stroke-width:${_n(w * .17)}}.o{stroke:var(--ink);stroke-width:${_n(w * .28)}}'
+      // barra puxada de uma ponta à outra (o traço cobre a linha inteira no fim)
+      '.r,.u{stroke-width:$w;stroke-linecap:round;fill:none;stroke-dasharray:1 1;animation:puxa ${rodDur}s ease-out both}'
+      '.r{stroke:var(--rod)}.u{stroke:var(--rub)}'
+      '@keyframes puxa{0%{stroke-dashoffset:1;opacity:0}1%{opacity:1}100%{stroke-dashoffset:0;opacity:1}}'
+      // junta e roda: aparecem crescendo, com um leve passo além do tamanho
+      '.j,.w{transform-box:fill-box;transform-origin:50% 50%}'
+      '.j{fill:var(--paper);stroke:var(--ink);stroke-width:${_n(w * .17)};animation:estala .22s ease-out both}'
+      '.w{animation:cresce ${wheelDur}s cubic-bezier(.3,1.5,.6,1) both}'
+      '@keyframes estala{0%{transform:scale(0)}60%{transform:scale(1.35)}100%{transform:scale(1)}}'
+      '@keyframes cresce{0%{transform:scale(0)}100%{transform:scale(1)}}'
+      '.o{stroke:var(--ink);stroke-width:${_n(w * .28)}}'
       '.s{stroke:var(--paper);stroke-opacity:.85;stroke-width:${_n(w * .3)};stroke-linecap:round}'
       '.cw{fill:var(--cw)}.ccw{fill:var(--ccw)}.free{fill:var(--free)}'
+      // a bola cai no I e emenda no quique
       '.b{fill:var(--ball);stroke:var(--ink);stroke-width:${_n(w * .25)}}'
-      '.p{transform-box:fill-box;transform-origin:50% 100%;animation:q 2.6s linear infinite}'
-      '@keyframes q{$frames}@media (prefers-reduced-motion:reduce){.p{animation:none}}</style>');
+      '.p{transform-box:fill-box;transform-origin:50% 100%;'
+      'animation:cai ${dropDur}s cubic-bezier(.55,0,1,.45) ${_n(dropAt)}s both,q 2.6s linear ${_n(buildEnd)}s infinite}'
+      '@keyframes cai{0%{transform:translateY(-140px);opacity:0}15%{opacity:1}100%{transform:translateY(0);opacity:1}}'
+      '@keyframes q{$frames}'
+      '@media (prefers-reduced-motion:reduce){.r,.u,.j,.w,.p{animation:none}}</style>');
   for (final p in art.pieces) {
     if (p is LRod) {
-      o.writeln('<line class="${p.rubber ? 'u' : 'r'}" x1="${_n(p.a.dx)}" y1="${_n(p.a.dy)}" x2="${_n(p.b.dx)}" y2="${_n(p.b.dy)}"/>');
-      joint(p.a);
-      joint(p.b);
+      o.writeln('<line class="${p.rubber ? 'u' : 'r'}" pathLength="1" style="${d(rodAt[p]!)}" x1="${_n(p.a.dx)}" y1="${_n(p.a.dy)}" x2="${_n(p.b.dx)}" y2="${_n(p.b.dy)}"/>');
     }
   }
   for (final p in art.pieces) {
     switch (p) {
-      case LWheel(c: final c, :final r, :final kind, :final rot, :final rimJoints):
+      case LWheel(c: final c, :final r, :final kind, :final rot):
+        o.writeln('<g class="w" style="${d(wheelAt[p]!)}">');
         o.writeln('<circle class="${cls(kind)} o" cx="${_n(c.dx)}" cy="${_n(c.dy)}" r="${_n(r)}"/>');
         for (var i = 0; i < 4; i++) {
           final an = rot + i * math.pi / 2;
@@ -101,20 +155,16 @@ String _svg(LogoArt art) {
           final pts = [e + t * head * .9, e + n * head * .55, e - n * head * .55];
           o.writeln('<polygon fill="#fff" points="${pts.map((q) => '${_n(q.dx)},${_n(q.dy)}').join(' ')}"/>');
         }
-        joint(c);
-        for (var i = 0; i < (rimJoints ? 4 : 0); i++) {
-          final an = rot + i * math.pi / 2;
-          joint(c + Offset(math.cos(an), math.sin(an)) * r);
-        }
+        o.writeln('</g>');
       case LBall(c: final c, :final r, :final pingo):
         o.writeln('<circle class="b${pingo ? ' p' : ''}" cx="${_n(c.dx)}" cy="${_n(c.dy)}" r="${_n(r)}"/>');
       case LRod():
         break;
     }
   }
-  for (final p in joints) {
-    o.writeln('<circle class="j" cx="${_n(p.dx)}" cy="${_n(p.dy)}" r="${_n(w * .42)}"/>');
+  for (final (p, t) in jointAt) {
+    o.writeln('<circle class="j" style="${d(t)}" cx="${_n(p.dx)}" cy="${_n(p.dy)}" r="${_n(w * .42)}"/>');
   }
   o.writeln('</svg>');
-  return o.toString();
+  return (o.toString(), (buildEnd * 1000).round());
 }
