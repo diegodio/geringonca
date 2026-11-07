@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:forge2d/forge2d.dart';
 
 import 'game/controller.dart';
+import 'game/fx.dart';
 import 'game/palette.dart';
 import 'game/storage.dart';
 import 'ui/menu_page.dart';
@@ -10,7 +11,7 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await initializeForge2D(); // na web, carrega o Box2D em WebAssembly
   final store = await Store.open();
-  runApp(GeringoncaApp(controller: GameController(store)));
+  runApp(GeringoncaApp(controller: GameController(store)..fxOut = playFx));
 }
 
 class GeringoncaApp extends StatelessWidget {

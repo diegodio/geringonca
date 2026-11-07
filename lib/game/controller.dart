@@ -18,6 +18,7 @@ import '../core/levels.dart';
 import '../core/model.dart';
 import '../core/share.dart';
 import '../core/sim.dart';
+import 'fx.dart';
 import 'progress.dart';
 import 'storage.dart';
 
@@ -27,6 +28,10 @@ part 'level_editor.dart';
 part 'run_control.dart';
 
 enum Mode { build, run, edit }
+
+/// Onde ficam as peças e as ferramentas: automático (na lateral com a tela deitada),
+/// sempre na lateral ou sempre embaixo.
+enum PanelSide { auto, side, bottom }
 
 const kHints = {
   'rod': 'Arraste para criar uma barra. Solte perto de uma junta para conectar.',
@@ -110,6 +115,37 @@ abstract class GameState extends ChangeNotifier {
 
   Level get cur => mode == Mode.edit ? editLevel! : level;
 
+  // ---------- opções (ficam salvas no aparelho) ----------
+  late PanelSide panelSide = PanelSide.values.firstWhere((v) => v.name == store.get<String>('ui-panel', 'auto'), orElse: () => PanelSide.auto);
+  late bool soundOn = store.get<bool>('sound', true);
+  late bool vibeOn = store.get<bool>('vibe', true);
+
+  void setPanelSide(PanelSide v) {
+    panelSide = v;
+    store.set('ui-panel', v.name);
+    notifyListeners();
+  }
+
+  void setSound(bool on) {
+    soundOn = on;
+    store.set('sound', on);
+    if (on) fx(Sfx.tap);
+    notifyListeners();
+  }
+
+  void setVibe(bool on) {
+    vibeOn = on;
+    store.set('vibe', on);
+    if (on) fx(Sfx.tap);
+    notifyListeners();
+  }
+
+  /// Saída de sons e vibração; a interface liga (nos testes fica muda).
+  void Function(Sfx s, {required bool sound, required bool vibe})? fxOut;
+  void fx(Sfx s) {
+    if (soundOn || vibeOn) fxOut?.call(s, sound: soundOn, vibe: vibeOn);
+  }
+
   /// A bola conta como eixo e ponto de encaixe? Não numa fase com bola solta.
   Pt? get hubBall => level.looseBall ? null : ball0;
 
@@ -122,6 +158,12 @@ abstract class GameState extends ChangeNotifier {
   void tell(String msg) {
     say(msg);
     notifyListeners();
+  }
+
+  /// Recusa uma ação: mensagem e o som de erro.
+  void _deny(String msg) {
+    say(msg);
+    fx(Sfx.error);
   }
 
   void _saveBuild() => progress.saveBuild(level.id!, parts, ball0);
@@ -184,7 +226,7 @@ class GameController extends GameState with _BuildTools, _CameraInput, _RunContr
   void chooseLevel(String id) {
     final b = progress.blocker(id);
     if (b != null) {
-      say('Fase bloqueada: conclua "${b.name}" para liberar.');
+      _deny('Fase bloqueada: conclua "${b.name}" para liberar.');
       return notifyListeners();
     }
     if (mode == Mode.run) stop();
@@ -213,7 +255,7 @@ class GameController extends GameState with _BuildTools, _CameraInput, _RunContr
     try {
       o = decodeShare(code);
     } catch (_) {
-      say('Código inválido. Cole o texto completo, começando por OG1:');
+      _deny('Código inválido. Cole o texto completo, começando por OG1:');
       return notifyListeners();
     }
     if (mode == Mode.run) stop();

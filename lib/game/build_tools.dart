@@ -25,7 +25,11 @@ mixin _BuildTools on GameState {
 
   @override
   void setTool(String t) {
-    if (!toolAllowed(t)) return tell('Esta fase não permite ${kPieceNames[t]}.');
+    if (!toolAllowed(t)) {
+      _deny('Esta fase não permite ${kPieceNames[t]}.');
+      return notifyListeners();
+    }
+    if (t != tool) fx(Sfx.tap);
     tool = t;
     say(kHints[t]!);
     notifyListeners();
@@ -40,6 +44,7 @@ mixin _BuildTools on GameState {
   void toggleSnap() {
     snapOn = !snapOn;
     store.set('snap', snapOn);
+    fx(Sfx.tap);
     say(snapOn
         ? 'Encaixe ligado: pontas perto de uma junta, roda, ímã ou da bola se conectam a ela.'
         : 'Encaixe desligado: a ponta fica exatamente onde você soltar.');
@@ -62,6 +67,7 @@ mixin _BuildTools on GameState {
 
   void undo() {
     if (_undo.isEmpty) return;
+    fx(Sfx.undo);
     final o = jsonDecode(_undo.removeLast()) as Map;
     parts = (o['parts'] as List).map((q) => Part.fromJson(q)).whereType<Part>().toList();
     ball0 = Pt.fromJson(o['ball'])!;
@@ -77,6 +83,7 @@ mixin _BuildTools on GameState {
     _clearSel();
     _saveBuild();
     say('Bancada limpa. Use Desfazer para recuperar.');
+    fx(Sfx.remove);
     notifyListeners();
   }
 
@@ -87,15 +94,16 @@ mixin _BuildTools on GameState {
     if (!hasSample) return tell('O exemplo só existe na primeira fase. Aqui, a engenhoca é com você!');
     final s = sampleFor(level, ball0);
     if (s != null && !s.every((q) => toolAllowed(toolOf(q)))) {
-      say('O exemplo usa peças que esta fase não permite.');
+      _deny('O exemplo usa peças que esta fase não permite.');
     } else if (s == null) {
-      say('O exemplo não cabe na área de construção nesta posição da bola.');
+      _deny('O exemplo não cabe na área de construção nesta posição da bola.');
     } else {
       _pushUndo();
       parts = s;
       _clearSel();
       _saveBuild();
       say('Exemplo carregado: carrinho com gaiola para a bola.');
+      fx(Sfx.place);
     }
     notifyListeners();
   }
@@ -121,7 +129,7 @@ mixin _BuildTools on GameState {
 
   void deleteSel() {
     if (sel.isEmpty) {
-      say('Nada selecionado para apagar.');
+      _deny('Nada selecionado para apagar.');
     } else {
       _pushUndo();
       parts = parts.where((q) => !sel.contains(q)).toList();
@@ -134,11 +142,11 @@ mixin _BuildTools on GameState {
   void duplicateSel() {
     final list = sel.toList();
     if (list.isEmpty) {
-      say('Selecione peças para duplicar. A bola não é duplicada.');
+      _deny('Selecione peças para duplicar. A bola não é duplicada.');
       return notifyListeners();
     }
     if (parts.length + list.length > kLimit) {
-      say('A cópia passaria do limite de 150 peças.');
+      _deny('A cópia passaria do limite de 150 peças.');
       return notifyListeners();
     }
     const offs = [[40, -40], [40, 40], [-40, -40], [-40, 40], [80, 0], [-80, 0], [0, -80], [0, 80], [20, -20], [-20, 20]];
@@ -159,16 +167,17 @@ mixin _BuildTools on GameState {
       selBall = false;
       _saveBuild();
       say('Cópia criada e selecionada. Arraste para posicionar.');
+      fx(Sfx.place);
       return notifyListeners();
     }
-    say('Não há espaço na área verde para a cópia. Mova ou gire a seleção antes.');
+    _deny('Não há espaço na área verde para a cópia. Mova ou gire a seleção antes.');
     notifyListeners();
   }
 
   void rotateSel(double deg) {
     final pts = _selPoints();
     if (sel.isEmpty) {
-      say('Selecione peças para girar.');
+      _deny('Selecione peças para girar.');
       return notifyListeners();
     }
     final bb = _bbox(pts), cx = (bb.x0 + bb.x1) / 2, cy = (bb.y0 + bb.y1) / 2;
@@ -178,7 +187,7 @@ mixin _BuildTools on GameState {
       return Pt(rnd(cx + dx * cs - dy * sn), rnd(cy + dx * sn + dy * cs));
     }).toList();
     if (!next.every(level.zone.contains)) {
-      say('Girando, a seleção sairia da área verde. Mova antes de girar.');
+      _deny('Girando, a seleção sairia da área verde. Mova antes de girar.');
       return notifyListeners();
     }
     _pushUndo();
@@ -191,6 +200,7 @@ mixin _BuildTools on GameState {
     }
     _saveBuild();
     say('Seleção girada ${deg.abs().round()}° no sentido ${deg > 0 ? 'horário.' : 'anti-horário.'}');
+    fx(Sfx.tap);
     notifyListeners();
   }
 
@@ -270,6 +280,7 @@ mixin _BuildTools on GameState {
         sel.remove(parts[i]);
         parts.removeAt(i);
         _saveBuild();
+        fx(Sfx.remove);
       }
       return;
     }
@@ -330,11 +341,11 @@ mixin _BuildTools on GameState {
       }
       return;
     }
-    if (parts.length >= kLimit) return say('Limite de 150 peças atingido.');
-    if (!toolAllowed(tool)) return say('Esta fase não permite ${kPieceNames[tool]}.');
+    if (parts.length >= kLimit) return _deny('Limite de 150 peças atingido.');
+    if (!toolAllowed(tool)) return _deny('Esta fase não permite ${kPieceNames[tool]}.');
     final isRod = tool == 'rod' || tool == 'water';
     final s = _snapOr(p, endsOnly: !isRod);
-    if (!level.zone.contains(s)) return say('Construa dentro da área verde.');
+    if (!level.zone.contains(s)) return _deny('Construa dentro da área verde.');
     final Part d;
     if (isRod) {
       d = Part.rod(tool == 'rod' ? 'solid' : 'water', s, s.copy());
@@ -426,13 +437,15 @@ mixin _BuildTools on GameState {
         final d = a.d!;
         if (d.isRod) {
           if (dist(d.a!, d.b!) < 14) return;
-          if (!level.zone.contains(d.b!)) return say('As duas pontas precisam ficar na área verde.');
+          if (!level.zone.contains(d.b!)) return _deny('As duas pontas precisam ficar na área verde.');
           _pushUndo();
           parts.add(d);
+          fx(Sfx.place);
         } else {
           _pushUndo();
           d.r = d.r.roundToDouble();
           parts.add(d);
+          fx(Sfx.place);
           if (d.isWheel && d.k != 'free' && !hubConnected(d, parts, hubBall)) {
             say('O motor só gira com o centro da roda preso: ligue uma barra, outra peça ou a bola no eixo.');
           }

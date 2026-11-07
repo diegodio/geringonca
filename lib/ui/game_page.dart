@@ -2,7 +2,8 @@
 //   barra superior  voltar, fase (abre a lista), medalhas (abre as metas) e menu ⋮
 //   bancada         ocupa todo o espaço que sobra, sem rolar a página
 //   dock            muda com o momento: construir, rodar ou a tela de vitória
-// No celular deitado o dock vai para a lateral, para a bancada usar a altura toda.
+// Com a tela deitada o dock vai para a lateral, para a bancada usar a altura toda
+// (nas Opções dá para fixar sempre na lateral ou sempre embaixo).
 import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -15,6 +16,7 @@ import '../game/oficina_game.dart';
 import '../game/palette.dart';
 import '../game/progress.dart';
 import 'how_to_play.dart';
+import 'options.dart';
 import 'widgets.dart';
 import 'win_panel.dart';
 
@@ -103,8 +105,12 @@ class _GamePageState extends State<GamePage> {
           child: ListenableBuilder(
             listenable: g,
             builder: (context, _) => LayoutBuilder(builder: (context, box) {
-              // celular deitado: pouca altura e tela larga
-              final side = box.maxWidth > box.maxHeight * 1.3 && box.maxHeight < 560;
+              // tela deitada: peças e ferramentas na lateral (a menos que a opção diga outra coisa)
+              final side = switch (g.panelSide) {
+                PanelSide.side => true,
+                PanelSide.bottom => false,
+                PanelSide.auto => box.maxWidth > box.maxHeight * 1.15,
+              };
               return Center(
                 child: ConstrainedBox(
                   constraints: const BoxConstraints(maxWidth: 1200),
@@ -204,6 +210,8 @@ class _GamePageState extends State<GamePage> {
         'edit' => g.editCurrent(),
         'new' => g.newLevel(),
         'help' => _howTo(c),
+        'sound' => g.setSound(!g.soundOn),
+        'options' => showOptions(context, g),
         _ => null,
       },
       itemBuilder: (_) => [
@@ -223,6 +231,9 @@ class _GamePageState extends State<GamePage> {
         item('edit', Icons.edit_outlined, 'Editar esta fase', enabled: build),
         item('new', Icons.add_box_outlined, 'Criar fase nova', enabled: build),
         item('help', Icons.help_outline, 'Como jogar'),
+        const PopupMenuDivider(),
+        item('sound', g.soundOn ? Icons.volume_up_outlined : Icons.volume_off_outlined, 'Sons', check: g.soundOn),
+        item('options', Icons.tune, 'Opções…'),
       ],
     );
   }
@@ -263,16 +274,15 @@ class _GamePageState extends State<GamePage> {
     ]);
   }
 
-  /// Celular deitado: bancada à esquerda, dock à direita.
-  /// Celular deitado: a bancada usa a altura toda; o painel lateral reúne a barra
+  /// Tela deitada: a bancada usa a altura toda; o painel lateral reúne a barra
   /// (voltar, fase, medalhas, menu), as peças ou os controles e a dica.
   Widget _sideLayout(Palette c, BoxConstraints box) => Row(children: [
         Expanded(child: Padding(padding: const EdgeInsets.fromLTRB(6, 6, 6, 6), child: _benchArea(c, floatAction: true))),
         Container(
-          width: box.maxWidth < 720 ? 240 : 260,
+          width: box.maxWidth < 720 ? 240 : (box.maxWidth < 1100 ? 260 : 300),
           decoration: BoxDecoration(color: c.paper, border: Border(left: BorderSide(color: c.line))),
           child: Column(children: [
-            _topBar(c, compact: true, narrow: true),
+            _topBar(c, compact: true, narrow: box.maxHeight < 560 || box.maxWidth < 1100),
             Divider(height: 1, color: c.line),
             Expanded(
               child: SingleChildScrollView(
