@@ -108,10 +108,12 @@ class _GamePageState extends State<GamePage> {
               return Center(
                 child: ConstrainedBox(
                   constraints: const BoxConstraints(maxWidth: 1200),
-                  child: Column(children: [
-                    _topBar(c, compact: side || box.maxWidth < 600),
-                    Expanded(child: side ? _sideLayout(c, box) : _stackedLayout(c, box)),
-                  ]),
+                  child: side
+                      ? _sideLayout(c, box)
+                      : Column(children: [
+                          _topBar(c, compact: box.maxWidth < 600),
+                          Expanded(child: _stackedLayout(c, box)),
+                        ]),
                 ),
               );
             }),
@@ -122,7 +124,7 @@ class _GamePageState extends State<GamePage> {
   }
 
   // ---------- barra superior ----------
-  Widget _topBar(Palette c, {required bool compact}) {
+  Widget _topBar(Palette c, {required bool compact, bool narrow = false}) {
     final lv = g.cur, idx = kBuiltin.indexWhere((l) => l.id == lv.id);
     final m = g.progress.medalsOf(g.level.id!);
     final tg = g.level.targets;
@@ -130,19 +132,19 @@ class _GamePageState extends State<GamePage> {
     return Padding(
       padding: const EdgeInsets.fromLTRB(4, 4, 4, 4),
       child: Row(children: [
-        IconBtn(c: c, icon: Icons.arrow_back, tooltip: 'Menu', onTap: _backToMenu),
-        const SizedBox(width: 4),
+        IconBtn(c: c, icon: Icons.arrow_back, tooltip: 'Menu', size: narrow ? 40 : 44, onTap: _backToMenu),
+        SizedBox(width: narrow ? 0 : 4),
         Expanded(
           child: InkWell(
             borderRadius: BorderRadius.circular(10),
             onTap: g.mode == Mode.edit ? null : () => _levelSheet(c),
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+              padding: EdgeInsets.symmetric(horizontal: narrow ? 2 : 6, vertical: narrow ? 2 : 4),
               child: Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisSize: MainAxisSize.min, children: [
                 Text(g.mode == Mode.edit ? 'Editando: ${lv.name}' : lv.name,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: GoogleFonts.chakraPetch(fontSize: compact ? 19 : 22, fontWeight: FontWeight.w700, color: c.ink)),
+                    style: GoogleFonts.chakraPetch(fontSize: narrow ? 16 : (compact ? 19 : 22), fontWeight: FontWeight.w700, color: c.ink)),
                 if (g.mode != Mode.edit)
                   Row(children: [
                     Text(idx >= 0 ? 'Fase ${(idx + 1).toString().padLeft(2, '0')}' : 'Minha fase',
@@ -160,9 +162,9 @@ class _GamePageState extends State<GamePage> {
               borderRadius: BorderRadius.circular(10),
               onTap: () => _infoSheet(c),
               child: Padding(
-                padding: const EdgeInsets.all(8),
+                padding: EdgeInsets.all(narrow ? 4 : 8),
                 child: Row(children: [
-                  for (final on in stars) Icon(on ? Icons.star : Icons.star_border, size: 22, color: on ? c.medal : c.muted),
+                  for (final on in stars) Icon(on ? Icons.star : Icons.star_border, size: narrow ? 16 : 22, color: on ? c.medal : c.muted),
                 ]),
               ),
             ),
@@ -262,24 +264,42 @@ class _GamePageState extends State<GamePage> {
   }
 
   /// Celular deitado: bancada à esquerda, dock à direita.
+  /// Celular deitado: a bancada usa a altura toda; o painel lateral reúne a barra
+  /// (voltar, fase, medalhas, menu), as peças ou os controles e a dica.
   Widget _sideLayout(Palette c, BoxConstraints box) => Row(children: [
-        Expanded(
+        Expanded(child: Padding(padding: const EdgeInsets.fromLTRB(6, 6, 6, 6), child: _benchArea(c, floatAction: true))),
+        Container(
+          width: box.maxWidth < 720 ? 240 : 260,
+          decoration: BoxDecoration(color: c.paper, border: Border(left: BorderSide(color: c.line))),
           child: Column(children: [
-            Expanded(child: Padding(padding: const EdgeInsets.only(left: 8), child: _benchArea(c))),
-            _hintLine(c),
+            _topBar(c, compact: true, narrow: true),
+            Divider(height: 1, color: c.line),
+            Expanded(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.fromLTRB(8, 8, 8, 8),
+                child: g.mode == Mode.edit ? _editorPanel(c) : _dockBody(c, true),
+              ),
+            ),
+            if (g.winInfo == null && g.hint.isNotEmpty) ...[
+              Divider(height: 1, color: c.line),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(10, 6, 10, 6),
+                child: Text(g.hint,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: GoogleFonts.ibmPlexSans(
+                        fontSize: 12, height: 1.25, color: g.hintWin ? c.goal : c.muted, fontWeight: g.hintWin ? FontWeight.w600 : FontWeight.w400)),
+              ),
+            ],
           ]),
-        ),
-        SizedBox(
-          width: 250,
-          child: g.mode == Mode.edit
-              ? SingleChildScrollView(padding: const EdgeInsets.all(8), child: _editorPanel(c))
-              : _dock(c, vertical: true, maxHeight: box.maxHeight),
         ),
       ]);
 
   // ---------- bancada ----------
   /// A bancada (jogo Flame) no maior tamanho que cabe, com a barra de seleção por cima.
-  Widget _benchArea(Palette c) => LayoutBuilder(builder: (context, box) {
+  /// [floatAction]: Rodar e Parar flutuam no canto da bancada (celular deitado),
+  /// para ficarem sempre à mão mesmo com o painel lateral cheio.
+  Widget _benchArea(Palette c, {bool floatAction = false}) => LayoutBuilder(builder: (context, box) {
         final w = box.maxWidth < box.maxHeight * kW / kH ? box.maxWidth : box.maxHeight * kW / kH;
         return Center(
           child: SizedBox(
@@ -295,7 +315,15 @@ class _GamePageState extends State<GamePage> {
                     child: GameWidget(game: _game),
                   ),
                 ),
-                if (g.showSelBar) Positioned(left: 6, right: 6, bottom: 6, child: _selectionBar(c)),
+                if (g.showSelBar) Positioned(left: 6, right: floatAction ? 76 : 6, bottom: 6, child: _selectionBar(c)),
+                if (floatAction && g.mode != Mode.edit && g.winInfo == null)
+                  Positioned(
+                    right: 8,
+                    bottom: 8,
+                    child: g.mode == Mode.run
+                        ? RoundAction(c: c, icon: Icons.stop_rounded, tooltip: 'Parar e voltar a construir', danger: true, onTap: g.togglePlay)
+                        : RoundAction(c: c, icon: Icons.play_arrow_rounded, tooltip: 'Rodar', onTap: g.togglePlay),
+                  ),
                 if (g.cam.z > 1.01 || g.panMode)
                   Positioned(
                     right: 6,
@@ -350,12 +378,14 @@ class _GamePageState extends State<GamePage> {
       );
 
   // ---------- dock ----------
+  Widget _dockBody(Palette c, bool vertical) => switch (g.mode) {
+        Mode.run when g.winInfo != null => WinPanel(g: g, c: c, onMenu: _backToMenu),
+        Mode.run => _runControls(c, vertical),
+        _ => _buildControls(c, vertical),
+      };
+
   Widget _dock(Palette c, {required bool vertical, required double maxHeight}) {
-    final Widget body = switch (g.mode) {
-      Mode.run when g.winInfo != null => WinPanel(g: g, c: c, onMenu: _backToMenu),
-      Mode.run => _runControls(c, vertical),
-      _ => _buildControls(c, vertical),
-    };
+    final body = _dockBody(c, vertical);
     return Container(
       constraints: BoxConstraints(maxHeight: maxHeight),
       decoration: BoxDecoration(
@@ -405,15 +435,16 @@ class _GamePageState extends State<GamePage> {
       ];
       return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
         note,
+        Padding(
+          padding: const EdgeInsets.only(bottom: 6),
+          child: Text(g.countText, style: GoogleFonts.ibmPlexMono(fontSize: 11, color: c.muted)),
+        ),
         LayoutBuilder(builder: (context, box) {
           final w = (box.maxWidth - 6) / 2;
           return Wrap(spacing: 6, runSpacing: 6, children: [for (final s in small) SizedBox(width: w, child: s)]);
         }),
         const SizedBox(height: 8),
-        Row(crossAxisAlignment: CrossAxisAlignment.center, children: [
-          Expanded(child: Wrap(spacing: 0, runSpacing: 0, children: tools)),
-          play,
-        ]),
+        Wrap(spacing: 0, runSpacing: 0, children: tools),
       ]);
     }
     return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
@@ -462,11 +493,7 @@ class _GamePageState extends State<GamePage> {
     ];
     final stop = RoundAction(c: c, icon: Icons.stop_rounded, tooltip: 'Parar e voltar a construir', danger: true, onTap: g.togglePlay);
     if (vertical) {
-      return Column(children: [
-        Wrap(alignment: WrapAlignment.center, crossAxisAlignment: WrapCrossAlignment.center, spacing: 2, runSpacing: 6, children: controls),
-        const SizedBox(height: 12),
-        stop,
-      ]);
+      return Wrap(alignment: WrapAlignment.center, crossAxisAlignment: WrapCrossAlignment.center, spacing: 2, runSpacing: 6, children: controls);
     }
     return Row(children: [...controls, const Spacer(), stop]);
   }
