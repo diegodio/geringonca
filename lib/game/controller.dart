@@ -14,6 +14,7 @@ import 'dart:math' as math;
 import 'package:flutter/foundation.dart';
 
 import '../core/detmath.dart';
+import '../core/i18n.dart';
 import '../core/levels.dart';
 import '../core/model.dart';
 import '../core/share.dart';
@@ -60,7 +61,11 @@ const kEHints = {
   'edel': 'Toque num elemento do cenário para apagar.',
 };
 
-String fmt(double n, [int d = 2]) => n.toStringAsFixed(d).replaceAll('.', ',');
+/// Número com [d] casas: vírgula em português, ponto em inglês.
+String fmt(double n, [int d = 2]) {
+  final s = n.toStringAsFixed(d);
+  return lang == Lang.pt ? s.replaceAll('.', ',') : s;
+}
 
 class Cam {
   double x, y, z;
@@ -119,6 +124,32 @@ abstract class GameState extends ChangeNotifier {
   late PanelSide panelSide = PanelSide.values.firstWhere((v) => v.name == store.get<String>('ui-panel', 'auto'), orElse: () => PanelSide.auto);
   late bool soundOn = store.get<bool>('sound', true);
   late bool vibeOn = store.get<bool>('vibe', true);
+
+  /// Idioma: 'auto' (o do aparelho), 'pt' ou 'en'.
+  late String langPref = store.get<String>('lang', 'auto');
+
+  /// Idioma do aparelho (os testes trocam para não depender da máquina).
+  static String Function() deviceLanguage = () => PlatformDispatcher.instance.locale.languageCode;
+
+  /// Aplica a opção de idioma; [device] é o código do idioma do aparelho.
+  void applyLang([String? device]) {
+    lang = switch (langPref) {
+      'pt' => Lang.pt,
+      'en' => Lang.en,
+      _ => langFor(device ?? deviceLanguage()),
+    };
+  }
+
+  void setLang(String pref) {
+    langPref = pref;
+    store.set('lang', pref);
+    applyLang();
+    // a dica da linha de baixo passa para o idioma novo
+    say(mode == Mode.edit ? tr(kEHints[etoolName] ?? '') : tr(kHints[tool]!));
+    notifyListeners();
+  }
+
+  String get etoolName;
 
   void setPanelSide(PanelSide v) {
     panelSide = v;
@@ -186,12 +217,14 @@ abstract class GameState extends ChangeNotifier {
 
 class GameController extends GameState with _BuildTools, _CameraInput, _RunControl, _LevelEditor {
   GameController(super.store) {
+    applyLang();
     final id = progress.currentId;
     final lv = id == null ? null : progress.find(id);
     selectLevel(lv != null && progress.isUnlocked(lv.id!) ? lv.id! : 'l1');
   }
 
-  String get countText => mode == Mode.edit ? 'editando fase' : '${parts.length}/$kLimit peças · custo \$${costOf(parts)}';
+  String get countText =>
+      mode == Mode.edit ? tr('editando fase') : tr('{n}/{max} peças · custo \${c}', {'n': parts.length, 'max': kLimit, 'c': costOf(parts)});
 
   Map<String, dynamic>? get best => progress.bestOf(level.id!);
 
@@ -199,9 +232,12 @@ class GameController extends GameState with _BuildTools, _CameraInput, _RunContr
   List<(bool, String, String)> get medalChips {
     final tg = level.targets, m = progress.medalsOf(level.id!), r = progress.recordOf(level.id!);
     final out = <(bool, String, String)>[];
-    if (tg.t != null) out.add((m['t'] ?? false, 'Tempo ≤ ${fmt(tg.t!, 1)} s', r['t'] != null ? 'Seu recorde: ${fmt((r['t'] as num).toDouble())} s' : 'Ainda sem recorde'));
-    if (tg.n != null) out.add((m['n'] ?? false, 'Peças ≤ ${tg.n}', r['n'] != null ? 'Seu recorde: ${r['n']} peças' : 'Ainda sem recorde'));
-    if (tg.c != null) out.add((m['c'] ?? false, 'Custo ≤ \$${tg.c}', r['c'] != null ? 'Seu recorde: \$${r['c']}' : 'Ainda sem recorde'));
+    final none = tr('Ainda sem recorde');
+    if (tg.t != null) {
+      out.add((m['t'] ?? false, tr('Tempo ≤ {v} s', {'v': fmt(tg.t!, 1)}), r['t'] != null ? tr('Seu recorde: {v} s', {'v': fmt((r['t'] as num).toDouble())}) : none));
+    }
+    if (tg.n != null) out.add((m['n'] ?? false, tr('Peças ≤ {v}', {'v': tg.n}), r['n'] != null ? tr('Seu recorde: {v} peças', {'v': r['n']}) : none));
+    if (tg.c != null) out.add((m['c'] ?? false, tr('Custo ≤ \${v}', {'v': tg.c}), r['c'] != null ? tr('Seu recorde: \${v}', {'v': r['c']}) : none));
     return out;
   }
 
@@ -218,7 +254,7 @@ class GameController extends GameState with _BuildTools, _CameraInput, _RunContr
     _clearTrail();
     _fitTool();
     cam = Cam();
-    say(level.tip.isNotEmpty ? level.tip : kHints[tool]!);
+    say(level.tip.isNotEmpty ? tr(level.tip) : tr(kHints[tool]!));
     notifyListeners();
   }
 
@@ -226,7 +262,7 @@ class GameController extends GameState with _BuildTools, _CameraInput, _RunContr
   void chooseLevel(String id) {
     final b = progress.blocker(id);
     if (b != null) {
-      _deny('Fase bloqueada: conclua "${b.name}" para liberar.');
+      _deny(tr('Fase bloqueada: conclua "{b}" para liberar.', {'b': tr(b.name)}));
       return notifyListeners();
     }
     if (mode == Mode.run) stop();
@@ -250,13 +286,21 @@ class GameController extends GameState with _BuildTools, _CameraInput, _RunContr
 
   String currentCode() => encodeShare(level, parts, ball0);
 
-  void importCode(String code) {
+  /// Link para esta fase e a engenhoca atual (o código vai depois do #, não sai do aparelho
+  /// até alguém abrir o link).
+  String linkFor(String pageUrl) => '$pageUrl#c=${linkCode(level, parts, ball0)}';
+
+  /// Abre um código ou link recebido. Verdadeiro quando a fase ficou aberta na bancada.
+  bool importCode(String code) {
+    final i = code.indexOf('#c=');
+    if (i >= 0) code = Uri.decodeComponent(code.substring(i + 3));
     Map<String, dynamic> o;
     try {
       o = decodeShare(code);
     } catch (_) {
-      _deny('Código inválido. Cole o texto completo, começando por OG1:');
-      return notifyListeners();
+      _deny(tr('Código inválido. Cole o link ou o código completo (começa por OG1:).'));
+      notifyListeners();
+      return false;
     }
     if (mode == Mode.run) stop();
     final ref = o['ref'];
@@ -271,12 +315,14 @@ class GameController extends GameState with _BuildTools, _CameraInput, _RunContr
     shareOpen = false;
     final blocker = progress.blocker(id);
     if (blocker != null) {
-      say('A engenhoca de "${lv.name}" ficou guardada, mas a fase ainda está bloqueada: conclua "${blocker.name}" para liberar.');
-      return notifyListeners();
+      say(tr('A engenhoca de "{lv}" ficou guardada, mas a fase ainda está bloqueada: conclua "{b}" para liberar.', {'lv': tr(lv.name), 'b': tr(blocker.name)}));
+      notifyListeners();
+      return false;
     }
     selectLevel(id);
-    say('Código importado: fase "${lv.name}"${hasParts ? ' com a engenhoca. Toque em Rodar.' : '.'}');
+    say(tr(hasParts ? 'Código importado: fase "{lv}" com a engenhoca. Toque em Rodar.' : 'Código importado: fase "{lv}".', {'lv': tr(lv.name)}));
     notifyListeners();
+    return true;
   }
 
   @override

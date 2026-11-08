@@ -32,18 +32,18 @@ mixin _RunControl on GameState {
   List<String> forbiddenIn(List<Part> ps) {
     final ok = level.allowed;
     if (ok == null) return [];
-    return {for (final q in ps) if (!ok.contains(toolOf(q))) kPieceNames[toolOf(q)]!}.toList();
+    return {for (final q in ps) if (!ok.contains(toolOf(q))) tr(kPieceNames[toolOf(q)]!)}.toList();
   }
 
   void start(List<Part> ps, Pt b, bool isReplay) {
     final bad = isReplay ? <String>[] : forbiddenIn(ps);
     if (bad.isNotEmpty) {
-      _deny('Esta fase não permite ${bad.join(', ')}. Apague essas peças para rodar.');
+      _deny(tr('Esta fase não permite {p}. Apague essas peças para rodar.', {'p': bad.join(', ')}));
       return notifyListeners();
     }
     final budget = level.budget;
     if (!isReplay && budget != null && costOf(ps) > budget) {
-      _deny('A engenhoca custa \$${costOf(ps)}, mas o orçamento desta fase é \$$budget.');
+      _deny(tr('A engenhoca custa \${c}, mas o orçamento desta fase é \${b}.', {'c': costOf(ps), 'b': budget}));
       return notifyListeners();
     }
     if (!isReplay) progress.addTry(level.id!);
@@ -64,10 +64,11 @@ mixin _RunControl on GameState {
     final time = isReplay ? (progress.bestOf(level.id!)!['time'] as num).toDouble() : 0.0;
     final idle = ps.where((q) => q.isWheel && q.k != 'free' && !motorOn(q, ps, level.looseBall ? null : b)).length;
     say(isReplay
-        ? 'Replay da melhor solução (${fmt(time)} s).'
+        ? tr('Replay da melhor solução ({t} s).', {'t': fmt(time)})
         : idle > 0
-            ? 'Rodando. ${idle == 1 ? 'Uma roda com motor está' : '$idle rodas com motor estão'} com o centro solto e não vai${idle == 1 ? '' : 'o'} girar (seta apagada).'
-            : 'Rodando. Leve a bola amarela até a área vermelha.');
+            ? trN(idle, 'Rodando. Uma roda com motor está com o centro solto e não vai girar (seta apagada).',
+                'Rodando. {n} rodas com motor estão com o centro solto e não vão girar (seta apagada).')
+            : tr('Rodando. Leve a bola amarela até a área vermelha.'));
     notifyListeners();
   }
 
@@ -84,7 +85,7 @@ mixin _RunControl on GameState {
     paused = false;
     lastTrail = List.of(trail);
     trail.clear();
-    say(kHints[tool]!);
+    say(tr(kHints[tool]!));
     notifyListeners();
   }
 
@@ -97,7 +98,7 @@ mixin _RunControl on GameState {
   void togglePause() {
     if (mode != Mode.run) return;
     paused = !paused;
-    say(paused ? 'Pausado. Toque em Avançar para ver passo a passo, ou em Continuar.' : 'Rodando.');
+    say(paused ? tr('Pausado. Toque em Avançar para ver passo a passo, ou em Continuar.') : tr('Rodando.'));
     notifyListeners();
   }
 
@@ -112,14 +113,14 @@ mixin _RunControl on GameState {
 
   void setSpeed(double s) {
     speed = s;
-    say(s == 1 ? 'Velocidade normal.' : 'Câmera lenta: ${s == .5 ? 'metade' : 'um quarto'} da velocidade.');
+    say(tr(s == 1 ? 'Velocidade normal.' : s == .5 ? 'Câmera lenta: metade da velocidade.' : 'Câmera lenta: um quarto da velocidade.'));
     notifyListeners();
   }
 
   void toggleTrail() {
     trailOn = !trailOn;
     store.set('trail', trailOn);
-    say(trailOn ? 'Rastro ligado: o caminho da bola aparece na bancada.' : 'Rastro desligado.');
+    say(tr(trailOn ? 'Rastro ligado: o caminho da bola aparece na bancada.' : 'Rastro desligado.'));
     notifyListeners();
   }
 
@@ -177,15 +178,16 @@ mixin _RunControl on GameState {
     final s = sim!;
     if (replaying) {
       winInfo = WinInfo(true, s.t, s.n, s.cost, {}, [], level.targets);
-      say('Replay: meta alcançada em ${fmt(s.t)} s.', true);
+      say(tr('Replay: meta alcançada em {t} s.', {'t': fmt(s.t)}), true);
       fx(Sfx.win);
       return;
     }
     final r = progress.recordWin(level, s.t, s.parts, s.ball0);
-    var msg = 'Fase concluída em ${fmt(s.t)} s, com ${s.n} ${s.n == 1 ? 'peça' : 'peças'} e custo \$${s.cost}.';
-    if (r.fresh.isNotEmpty) msg += ' Nova medalha: ${r.fresh.join(', ')}!';
-    if (r.unlocked != null) msg += ' Fase liberada: ${r.unlocked!.name}.';
-    if (r.freshBadges.isNotEmpty) msg += ' Desafio: ${r.freshBadges.map(challengeName).join(', ')}!';
+    var msg = trN(s.n, 'Fase concluída em {t} s, com 1 peça e custo \${c}.', 'Fase concluída em {t} s, com {n} peças e custo \${c}.',
+        {'t': fmt(s.t), 'c': s.cost});
+    if (r.fresh.isNotEmpty) msg += tr(' Nova medalha: {m}!', {'m': r.fresh.map(tr).join(', ')});
+    if (r.unlocked != null) msg += tr(' Fase liberada: {lv}.', {'lv': tr(r.unlocked!.name)});
+    if (r.freshBadges.isNotEmpty) msg += tr(' Desafio: {c}!', {'c': r.freshBadges.map((b) => tr(challengeName(b))).join(', ')});
     winInfo = WinInfo(false, s.t, s.n, s.cost, Map.of(r.medals), r.fresh, level.targets,
         unlocked: r.unlocked?.name, badges: r.badges, freshBadges: r.freshBadges, next: nextLevel);
     say(msg, true);

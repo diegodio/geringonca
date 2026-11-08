@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
@@ -17,22 +18,45 @@ class LogoWord extends StatefulWidget {
 
 class _LogoWordState extends State<LogoWord> with SingleTickerProviderStateMixin {
   static final _word = LogoArt.word();
-  late final AnimationController _anim = AnimationController(vsync: this, duration: const Duration(milliseconds: 2600));
+  // Só os pulos são animados (o começo do ciclo de [pingoAt]); no descanso nenhum
+  // quadro é desenhado, para o menu não gastar bateria à toa.
+  static const _cycle = 2600, _bounce = .56; // até o fim do último achatamento
+  late final AnimationController _anim = AnimationController(vsync: this, duration: Duration(milliseconds: (_cycle * _bounce).round()));
+  late final Animation<double> _t = _anim.drive(Tween(begin: 0, end: _bounce));
+  Timer? _rest;
+  bool _calm = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _anim.addStatusListener((s) {
+      if (s == AnimationStatus.completed && !_calm) {
+        _rest = Timer(Duration(milliseconds: (_cycle * (1 - _bounce)).round()), _jump);
+      }
+    });
+  }
+
+  void _jump() {
+    if (mounted && !_calm) _anim.forward(from: 0);
+  }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     // quem pede menos movimento no aparelho vê a bola parada
-    if (MediaQuery.disableAnimationsOf(context)) {
+    _calm = MediaQuery.disableAnimationsOf(context);
+    if (_calm) {
+      _rest?.cancel();
       _anim.stop();
-      _anim.value = .99;
-    } else if (!_anim.isAnimating) {
-      _anim.repeat();
+      _anim.value = 1; // descansando no I
+    } else if (!_anim.isAnimating && _rest?.isActive != true) {
+      _jump();
     }
   }
 
   @override
   void dispose() {
+    _rest?.cancel();
     _anim.dispose();
     super.dispose();
   }
@@ -48,7 +72,7 @@ class _LogoWordState extends State<LogoWord> with SingleTickerProviderStateMixin
           height: widget.height,
           child: AspectRatio(
             aspectRatio: _word.bounds.width / _word.bounds.height,
-            child: RepaintBoundary(child: CustomPaint(painter: LogoPainter(_word, c, bounce: _anim))),
+            child: RepaintBoundary(child: CustomPaint(painter: LogoPainter(_word, c, bounce: _t))),
           ),
         ),
       ),

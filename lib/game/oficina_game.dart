@@ -13,6 +13,7 @@ import 'package:flame/game.dart';
 import 'package:flutter/services.dart';
 import 'package:forge2d/forge2d.dart' show Body;
 
+import '../core/i18n.dart';
 import '../core/model.dart';
 import '../core/sim.dart';
 import 'controller.dart';
@@ -26,7 +27,35 @@ class OficinaGame extends FlameGame {
       : ink = Ink(g, Palette.light, mono: mono, display: display),
         super(camera: CameraComponent.withFixedResolution(width: kW, height: kH));
 
-  set palette(Palette p) => ink.c = p;
+  set palette(Palette p) {
+    if (identical(p, ink.c)) return;
+    ink.c = p;
+    wake();
+  }
+
+  // ---------- descanso: parada, a bancada não redesenha ----------
+  // Construindo e sem tocar na tela, nada se mexe: depois de alguns quadros o laço
+  // do jogo para (poupa bateria e deixa o celular frio). Qualquer mudança no
+  // controlador ou toque na bancada acorda.
+  int _still = 0;
+  bool _asleep = false;
+
+  void wake() {
+    _still = 0;
+    if (_asleep) {
+      _asleep = false;
+      resumeEngine();
+    }
+  }
+
+  void _maybeSleep() {
+    if (g.mode == Mode.run || g.action != null) {
+      _still = 0;
+    } else if (++_still > 20 && !_asleep) {
+      _asleep = true;
+      pauseEngine();
+    }
+  }
 
   Sim? _shownSim;
   final List<Component> _runParts = [];
@@ -38,9 +67,13 @@ class OficinaGame extends FlameGame {
   Future<void> onLoad() async {
     camera.viewfinder.anchor = Anchor.topLeft;
     world.addAll([
-      _Layer(this, 0, (i) => i.grid()),
-      _Layer(this, 1, (i) => i.zones(g.cur)),
-      _Layer(this, 2, (i) => i.scenery(g.cur, g.mode == Mode.run ? g.sim : null)),
+      // quadriculado, zonas e cenário parado: desenhados uma vez e reaproveitados
+      _CachedLayer(this, 0, () => 'grade|${g.cam.z}', (i) => i.grid()),
+      _CachedLayer(this, 1, () => g.mode == Mode.edit ? null : 'zonas|${_levelKey()}|${g.mode == Mode.run && g.won}',
+          (i) => i.zones(g.cur)),
+      // rodando, só dá para guardar se nada do cenário se mexe (elevador, gangorra, porta, botão)
+      _CachedLayer(this, 2, () => g.mode == Mode.edit || (g.mode == Mode.run && _movingScenery) ? null : 'cenario|${_levelKey()}',
+          (i) => i.scenery(g.cur, g.mode == Mode.run ? g.sim : null)),
       // rastro da tentativa atual, ou o da última tentativa (mais claro) enquanto se constrói
       _Layer(this, 4, (i) {
         if (!g.trailOn || g.mode == Mode.edit) return;
@@ -49,6 +82,21 @@ class OficinaGame extends FlameGame {
       _BuildLayer(this),
     ]);
     camera.viewport.addAll([_InputLayer(this), _Hud(this)]);
+    g.addListener(wake);
+  }
+
+  /// Identifica a fase na tela (muda ao trocar de fase ou depois de editá-la).
+  String _levelKey() => '${identityHashCode(g.cur)}|${g.editRev}';
+
+  bool get _movingScenery {
+    final lv = g.cur;
+    return lv.lifts.isNotEmpty || lv.seesaws.isNotEmpty || lv.doors.isNotEmpty || lv.buttons.isNotEmpty;
+  }
+
+  @override
+  void onRemove() {
+    g.removeListener(wake);
+    super.onRemove();
   }
 
   @override
@@ -60,6 +108,7 @@ class OficinaGame extends FlameGame {
     vf.position = Vector2(g.cam.x, g.cam.y);
     vf.zoom = g.cam.z;
     super.update(dt);
+    _maybeSleep();
   }
 
   /// Cria um componente por corpo quando uma tentativa começa e os remove quando ela termina.
@@ -101,6 +150,41 @@ class _Layer extends Component {
   _Layer(this.game, int priority, this.draw) : super(priority: priority);
   @override
   void render(Canvas canvas) => draw(game.ink.on(canvas));
+}
+
+/// Camada que não muda a cada quadro: o desenho é gravado uma vez e repetido
+/// enquanto a chave for a mesma (a paleta entra na chave). Chave nula: desenha
+/// direto (no editor, ou com peças do cenário se mexendo).
+class _CachedLayer extends Component {
+  final OficinaGame game;
+  final String? Function() cacheKey;
+  final void Function(Ink) draw;
+  _CachedLayer(this.game, int priority, this.cacheKey, this.draw) : super(priority: priority);
+
+  Picture? _pic;
+  String? _picKey;
+
+  @override
+  void render(Canvas canvas) {
+    final k0 = cacheKey();
+    if (k0 == null) return draw(game.ink.on(canvas));
+    final k = '$k0|${identityHashCode(game.ink.c)}|${lang.name}';
+    if (k != _picKey || _pic == null) {
+      _pic?.dispose();
+      final rec = PictureRecorder();
+      draw(game.ink.on(Canvas(rec)));
+      _pic = rec.endRecording();
+      _picKey = k;
+    }
+    canvas.drawPicture(_pic!);
+  }
+
+  @override
+  void onRemove() {
+    _pic?.dispose();
+    _pic = null;
+    super.onRemove();
+  }
 }
 
 /// Engenhoca em construção, rascunhos e a bola parada (fora da simulação).
@@ -221,7 +305,7 @@ class _Hud extends Component {
     final i = game.ink.on(canvas);
     final hs = clampD((14 * kW / math.max(1, game.size.x)).roundToDouble(), 14, 30);
     i.text('t = ${fmt(s.t)} s', 16, 12 + hs * 1.2, i.c.ink, size: hs);
-    i.text('v(bola) = ${fmt(s.ballSpeed)} m/s', 16, 12 + hs * 2.5, i.c.ink, size: hs);
+    i.text(tr('v(bola) = {v} m/s', {'v': fmt(s.ballSpeed)}), 16, 12 + hs * 2.5, i.c.ink, size: hs);
     var line = 3.8;
     if (g.replaying) {
       i.text('REPLAY', 16, 12 + hs * line, i.c.accent, size: hs);
@@ -229,7 +313,7 @@ class _Hud extends Component {
     }
     if (g.paused || g.speed != 1) {
       final sp = g.speed == 1 ? '' : g.speed == .5 ? '½×' : '¼×';
-      i.text([if (g.paused) 'PAUSADO', if (sp.isNotEmpty) 'CÂMERA LENTA $sp'].join(' · '), 16, 12 + hs * line, i.c.goal, size: hs);
+      i.text([if (g.paused) tr('PAUSADO'), if (sp.isNotEmpty) tr('CÂMERA LENTA {s}', {'s': sp})].join(' · '), 16, 12 + hs * line, i.c.goal, size: hs);
     }
   }
 }
@@ -252,6 +336,7 @@ class _InputLayer extends PositionComponent with TapCallbacks, DragCallbacks, Sc
 
   @override
   void onTapDown(TapDownEvent e) {
+    game.wake();
     _taps[e.pointerId] = e.localPosition.clone();
     g.pointerDown(e.pointerId, _pt(e.localPosition));
   }
@@ -269,6 +354,7 @@ class _InputLayer extends PositionComponent with TapCallbacks, DragCallbacks, Sc
 
   @override
   void onDragStart(DragStartEvent e) {
+    game.wake();
     super.onDragStart(e);
     // o toque livre mais próximo do início do arraste
     int? best;
@@ -291,6 +377,7 @@ class _InputLayer extends PositionComponent with TapCallbacks, DragCallbacks, Sc
 
   @override
   void onDragUpdate(DragUpdateEvent e) {
+    game.wake();
     final id = _dragToTap[e.pointerId];
     if (id != null) g.pointerMove(id, _pt(e.localEndPosition));
   }
@@ -306,6 +393,7 @@ class _InputLayer extends PositionComponent with TapCallbacks, DragCallbacks, Sc
 
   @override
   void onScroll(ScrollEvent e) {
+    game.wake();
     final k = HardwareKeyboard.instance;
     if (k.isControlPressed || k.isMetaPressed) g.zoomAt(_pt(e.localPosition), math.exp(-e.scrollDelta.y * .01));
   }

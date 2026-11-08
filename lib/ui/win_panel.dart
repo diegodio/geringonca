@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import '../core/i18n.dart';
 import '../game/controller.dart';
 import '../game/palette.dart';
 import '../game/progress.dart';
@@ -23,13 +24,14 @@ class WinPanel extends StatelessWidget {
         if (goal == null) return;
         String f(double v) => d == 0 ? v.round().toString() : fmt(v, d);
         final ok = got <= goal + 1e-9;
-        final detail = ok ? 'meta ≤ ${unit == '\$' ? '\$' : ''}${f(goal)}${unit == 's' ? ' s' : ''}' : 'faltou ${unit == '\$' ? '\$' : ''}${f(got - goal)}${unit == 's' ? ' s' : ''}';
+        String v(double x) => '${unit == '\$' ? '\$' : ''}${f(x)}${unit == 's' ? ' s' : ''}';
+        final detail = ok ? tr('meta ≤ {v}', {'v': v(goal)}) : tr('faltou {v}', {'v': v(got - goal)});
         rows.add(Padding(
           padding: const EdgeInsets.symmetric(vertical: 2),
           child: Row(children: [
             Icon(have ? Icons.star : Icons.star_border, size: 18, color: have ? c.medal : c.muted),
             const SizedBox(width: 8),
-            SizedBox(width: 64, child: Text(name, style: GoogleFonts.ibmPlexSans(fontSize: 14, fontWeight: FontWeight.w600, color: c.ink))),
+            SizedBox(width: 64, child: Text(tr(name), style: GoogleFonts.ibmPlexSans(fontSize: 14, fontWeight: FontWeight.w600, color: c.ink))),
             Text('${unit == '\$' ? '\$' : ''}${f(got)}${unit == 's' ? ' s' : ''}', style: GoogleFonts.ibmPlexMono(fontSize: 13, color: c.ink)),
             const SizedBox(width: 8),
             Expanded(
@@ -51,9 +53,9 @@ class WinPanel extends StatelessWidget {
         const SizedBox(width: 8),
         Expanded(
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text(i.replay ? 'Replay concluído' : 'Fase concluída!',
+            Text(tr(i.replay ? 'Replay concluído' : 'Fase concluída!'),
                 style: GoogleFonts.chakraPetch(fontSize: 22, fontWeight: FontWeight.w700, color: c.goal)),
-            Text('${fmt(i.t)} s · ${i.n} ${i.n == 1 ? 'peça' : 'peças'} · \$${i.c}', style: GoogleFonts.ibmPlexMono(fontSize: 12.5, color: c.muted)),
+            Text('${fmt(i.t)} s · ${trN(i.n, '1 peça', '{n} peças')} · \$${i.c}', style: GoogleFonts.ibmPlexMono(fontSize: 12.5, color: c.muted)),
           ]),
         ),
       ]),
@@ -67,7 +69,7 @@ class WinPanel extends StatelessWidget {
               child: Chip(
                 visualDensity: VisualDensity.compact,
                 avatar: Icon(Icons.verified_outlined, size: 16, color: c.zone),
-                label: Text(i.freshBadges.contains(b.$1) ? '${b.$2} · novo!' : b.$2,
+                label: Text(i.freshBadges.contains(b.$1) ? tr('{c} · novo!', {'c': tr(b.$2)}) : tr(b.$2),
                     style: GoogleFonts.ibmPlexSans(fontSize: 12.5, color: c.ink)),
                 backgroundColor: c.bg,
                 side: BorderSide(color: c.line),
@@ -78,7 +80,7 @@ class WinPanel extends StatelessWidget {
         Row(children: [
           Icon(Icons.lock_open, size: 18, color: c.zone),
           const SizedBox(width: 6),
-          Text('Fase liberada: ${i.unlocked}', style: GoogleFonts.ibmPlexSans(fontSize: 14, fontWeight: FontWeight.w600, color: c.zone)),
+          Text(tr('Fase liberada: {lv}', {'lv': tr(i.unlocked!)}), style: GoogleFonts.ibmPlexSans(fontSize: 14, fontWeight: FontWeight.w600, color: c.zone)),
         ]),
       Wrap(spacing: 8, runSpacing: 8, children: [
         if (i.next != null && !i.replay) TB(c: c, primary: true, icon: Icons.arrow_forward, label: 'Próxima fase', onTap: g.goNext),

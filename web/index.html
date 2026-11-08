@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="pt-BR">
 <head>
   <!--
     If you are serving your web app in a path other than the root, change the
@@ -18,16 +18,16 @@
 
   <meta charset="UTF-8">
   <meta content="IE=Edge" http-equiv="X-UA-Compatible">
-  <meta name="description" content="Geringonça: jogo de física">
+  <meta name="description" content="Geringonça: jogo de física / physics puzzle game">
 
   <!-- iOS meta tags & icons -->
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
   <meta name="apple-mobile-web-app-title" content="Geringonça">
-  <link rel="apple-touch-icon" href="icons/Icon-192.png">
+  <link rel="apple-touch-icon" href="icons/geringonca-v2-192.png">
 
   <!-- Favicon -->
-  <link rel="icon" type="image/png" href="favicon.png"/>
+  <link rel="icon" type="image/png" href="favicon-v2.png"/>
 
   <title>Geringonça</title>
   <link rel="manifest" href="manifest.json">
@@ -61,6 +61,20 @@
     <span id="carregando-texto">Carregando a oficina…</span>
   </div>
   <script>
+    // idioma da tela de carregamento: a opção salva no jogo (og-lang) ou o do aparelho
+    var ingles = (function () {
+      try {
+        var v = localStorage.getItem('flutter.og-lang');
+        while (typeof v === 'string' && v.charAt(0) === '"') v = JSON.parse(v);
+        if (v === 'pt' || v === 'en') return v === 'en';
+      } catch (e) {}
+      return !/^pt\b/i.test(navigator.language || '');
+    })();
+    if (ingles) {
+      document.documentElement.lang = 'en';
+      document.getElementById('carregando-texto').textContent = 'Loading the workshop…';
+    }
+
     // some quando o jogo desenha o primeiro quadro, mas deixa a palavra terminar
     // de ser montada (a duração vem de tool/make_icons_test.dart)
     var montagem = /*montagem*/2732;
@@ -83,7 +97,7 @@
       if (falta > 0) {
         // o jogo já carregou: um toque (ou Enter/Espaço/Esc) pula o resto da montagem
         el.classList.add('pronto');
-        document.getElementById('carregando-texto').textContent = 'Toque para pular';
+        document.getElementById('carregando-texto').textContent = ingles ? 'Tap to skip' : 'Toque para pular';
         el.addEventListener('click', sai);
         document.addEventListener('keydown', tecla);
       }

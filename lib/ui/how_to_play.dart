@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import '../core/i18n.dart';
 import '../game/palette.dart';
 
 /// "Como jogar": aparece embaixo da bancada e no menu inicial.
@@ -26,9 +27,9 @@ class HowToPlay extends StatelessWidget {
           SizedBox(
             width: 300,
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Text(h, style: GoogleFonts.chakraPetch(fontSize: 17, fontWeight: FontWeight.w700, color: c.ink)),
+              Text(tr(h), style: GoogleFonts.chakraPetch(fontSize: 17, fontWeight: FontWeight.w700, color: c.ink)),
               const SizedBox(height: 6),
-              Text(p, style: GoogleFonts.ibmPlexSans(fontSize: 14, color: c.ink, height: 1.5)),
+              Text(tr(p), style: GoogleFonts.ibmPlexSans(fontSize: 14, color: c.ink, height: 1.5)),
             ]),
           ),
       ]);

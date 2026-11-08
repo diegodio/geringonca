@@ -3,6 +3,8 @@ part of 'controller.dart';
 /// Editor de fases: desenhar cenário, metas das medalhas, salvar e excluir.
 mixin _LevelEditor on GameState {
   String etool = 'block';
+  @override
+  String get etoolName => etool;
   final List<String> _editUndo = [];
 
   /// Incrementado quando o editor precisa reler nome e metas (desfazer).
@@ -16,7 +18,7 @@ mixin _LevelEditor on GameState {
     _editUndo.clear();
     mode = Mode.edit;
     action = null;
-    say(kEHints[etool]!);
+    say(tr(kEHints[etool]!));
     notifyListeners();
   }
 
@@ -24,7 +26,7 @@ mixin _LevelEditor on GameState {
     final lv = level.copy();
     if (!progress.isCustom(level.id)) {
       lv.id = null;
-      lv.name = 'Cópia de ${level.name}';
+      lv.name = tr('Cópia de {n}', {'n': tr(level.name)});
     }
     _enterEdit(lv);
   }
@@ -39,7 +41,7 @@ mixin _LevelEditor on GameState {
 
   void setETool(String t) {
     etool = t;
-    say(kEHints[t]!);
+    say(tr(kEHints[t]!));
     notifyListeners();
   }
 
@@ -80,7 +82,7 @@ mixin _LevelEditor on GameState {
   void toggleAllowed(String t) {
     final lv = editLevel!;
     final now = [for (final k in kPieceTools) if (k == t ? !editAllows(k) : editAllows(k)) k];
-    if (now.isEmpty) return tell('A fase precisa permitir pelo menos uma peça.');
+    if (now.isEmpty) return tell(tr('A fase precisa permitir pelo menos uma peça.'));
     _pushEU();
     lv.allowed = now.length == kPieceTools.length ? null : now;
     notifyListeners();
@@ -97,21 +99,21 @@ mixin _LevelEditor on GameState {
 
   void cancelEdit() {
     _exitEdit();
-    say(level.tip.isNotEmpty ? level.tip : kHints[tool]!);
+    say(level.tip.isNotEmpty ? tr(level.tip) : tr(kHints[tool]!));
     notifyListeners();
   }
 
   void saveEdit() {
     final lv = editLevel!;
     if (!lv.zone.contains(lv.ball)) {
-      say('Coloque a bola dentro da área de construção antes de salvar.');
+      say(tr('Coloque a bola dentro da área de construção antes de salvar.'));
       return notifyListeners();
     }
-    lv.name = lv.name.trim().isEmpty ? 'Fase sem nome' : lv.name.trim();
+    lv.name = lv.name.trim().isEmpty ? tr('Fase sem nome') : lv.name.trim();
     final id = progress.saveLevel(lv);
     _exitEdit();
     selectLevel(id);
-    say('Fase "${lv.name}" salva. Monte uma engenhoca e teste.');
+    say(tr('Fase "{n}" salva. Monte uma engenhoca e teste.', {'n': lv.name}));
     notifyListeners();
   }
 
@@ -119,7 +121,7 @@ mixin _LevelEditor on GameState {
     progress.deleteLevel(editLevel!.id!);
     _exitEdit();
     selectLevel('l1');
-    say('Fase excluída.');
+    say(tr('Fase excluída.'));
     notifyListeners();
   }
 
@@ -186,7 +188,7 @@ mixin _LevelEditor on GameState {
     final lv = editLevel!;
     final t = d.et!;
     if (t == 'plat' || t == 'seesaw' || t == 'lift') {
-      if (dist(d.a!, d.b!) < (t == 'seesaw' ? 60 : 20)) return say('Arraste um pouco mais para desenhar.');
+      if (dist(d.a!, d.b!) < (t == 'seesaw' ? 60 : 20)) return say(tr('Arraste um pouco mais para desenhar.'));
       _pushEU();
       if (t == 'plat') {
         lv.plats.add(Seg(d.a!, d.b!));

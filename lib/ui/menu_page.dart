@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import '../core/i18n.dart';
 import '../core/levels.dart';
 import '../core/model.dart';
 import '../game/controller.dart';
@@ -27,7 +28,7 @@ class MenuPage extends StatelessWidget {
     if (blocker != null) {
       ScaffoldMessenger.of(context)
         ..hideCurrentSnackBar()
-        ..showSnackBar(SnackBar(content: Text('Conclua "${blocker.name}" para liberar "${lv.name}".')));
+        ..showSnackBar(SnackBar(content: Text(tr('Conclua "{b}" para liberar "{lv}".', {'b': tr(blocker.name), 'lv': tr(lv.name)}))));
       return;
     }
     _play(context, () => g.chooseLevel(lv.id!));
@@ -70,21 +71,21 @@ class MenuPage extends StatelessWidget {
                       ),
                     ]),
                     SizedBox(height: low ? 8 : 12),
-                    Text('Monte engenhocas com barras, rodas e ímãs e leve a bola até a meta.',
+                    Text(tr('Monte engenhocas com barras, rodas e ímãs e leve a bola até a meta.'),
                         style: GoogleFonts.ibmPlexSans(fontSize: 16, color: c.muted)),
                     SizedBox(height: low ? 10 : 20),
                     Wrap(spacing: 10, runSpacing: 10, crossAxisAlignment: WrapCrossAlignment.center, children: [
                       TB(
                         c: c,
                         primary: true,
-                        label: started ? '▶ Continuar: ${g.level.name}' : '▶ Começar',
+                        label: started ? tr('▶ Continuar: {n}', {'n': tr(g.level.name)}) : tr('▶ Começar'),
                         onTap: () => _play(context, () => g.chooseLevel(g.level.id!)),
                       ),
                       TB(c: c, label: 'Criar fase', onTap: () => _play(context, g.newLevel)),
                       TB(c: c, label: 'Como jogar', onTap: () => _howTo(context, c)),
                     ]),
                     const SizedBox(height: 14),
-                    Text('$done de ${kBuiltin.length} fases concluídas · $stars de $maxStars medalhas',
+                    Text(tr('{d} de {t} fases concluídas · {s} de {m} medalhas', {'d': done, 't': kBuiltin.length, 's': stars, 'm': maxStars}),
                         style: GoogleFonts.ibmPlexMono(fontSize: 13, color: c.muted)),
                     const SizedBox(height: 26),
                     // um bloco por capítulo, em ordem de dificuldade
@@ -95,7 +96,7 @@ class MenuPage extends StatelessWidget {
                         final levels = kBuiltin.skip(first).take(count).toList();
                         final doneHere = levels.where((l) => pr.isDone(l.id!)).length;
                         return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-                          _section(c, 'Capítulo ${ci + 1} · $title', '$sub · $doneHere de $count concluídas'),
+                          _section(c, tr('Capítulo {n} · {t}', {'n': ci + 1, 't': tr(title)}), tr('{s} · {d} de {c} concluídas', {'s': tr(sub), 'd': doneHere, 'c': count})),
                           const SizedBox(height: 12),
                           _grid([
                             for (final (i, lv) in levels.indexed)
@@ -106,7 +107,7 @@ class MenuPage extends StatelessWidget {
                     ],
                     if (pr.custom.isNotEmpty) ...[
                       const SizedBox(height: 26),
-                      _section(c, 'Minhas fases', 'Criadas no editor ou recebidas por código. Estão sempre liberadas.'),
+                      _section(c, tr('Minhas fases'), tr('Criadas no editor ou recebidas por código. Estão sempre liberadas.')),
                       const SizedBox(height: 12),
                       _grid([
                         for (final lv in pr.custom) (w) => _LevelCard(c: c, g: g, lv: lv, width: w, onTap: () => _openLevel(context, lv)),
@@ -142,9 +143,9 @@ class MenuPage extends StatelessWidget {
         context: context,
         builder: (ctx) => AlertDialog(
           backgroundColor: c.paper,
-          title: Text('Como jogar', style: GoogleFonts.chakraPetch(fontWeight: FontWeight.w700, color: c.ink)),
+          title: Text(tr('Como jogar'), style: GoogleFonts.chakraPetch(fontWeight: FontWeight.w700, color: c.ink)),
           content: SingleChildScrollView(child: HowToPlay(c: c)),
-          actions: [TextButton(onPressed: () => Navigator.of(ctx).pop(), child: const Text('Fechar'))],
+          actions: [TextButton(onPressed: () => Navigator.of(ctx).pop(), child: Text(tr('Fechar')))],
         ),
       );
 }
@@ -166,7 +167,7 @@ class _LevelCard extends StatelessWidget {
     final medals = [if (tg.t != null) m['t'] == true, if (tg.n != null) m['n'] == true, if (tg.c != null) m['c'] == true];
     final current = g.level.id == id;
     // bloqueada: aponta a fase anterior pelo número, que cabe no cartão
-    final status = !open ? 'Conclua a ${(number! - 1).toString().padLeft(2, '0')}' : done ? 'Concluída' : 'Nova';
+    final status = !open ? tr('Conclua a {n}', {'n': (number! - 1).toString().padLeft(2, '0')}) : tr(done ? 'Concluída' : 'Nova');
     return SizedBox(
       width: width,
       child: Opacity(
@@ -192,7 +193,7 @@ class _LevelCard extends StatelessWidget {
                   if (open && done) Icon(Icons.check_circle_outline, size: 18, color: c.zone),
                 ]),
                 const SizedBox(height: 4),
-                Text(lv.name,
+                Text(tr(lv.name),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: GoogleFonts.ibmPlexSans(fontSize: 15, fontWeight: FontWeight.w600, color: c.ink)),
@@ -203,7 +204,7 @@ class _LevelCard extends StatelessWidget {
                   if (pr.badgesOf(id).isNotEmpty) ...[
                     const SizedBox(width: 4),
                     Tooltip(
-                      message: 'Desafios extras ganhos',
+                      message: tr('Desafios extras ganhos'),
                       child: Row(mainAxisSize: MainAxisSize.min, children: [
                         Icon(Icons.verified, size: 16, color: c.zone),
                         Text('${pr.badgesOf(id).length}', style: GoogleFonts.ibmPlexMono(fontSize: 11.5, color: c.zone)),

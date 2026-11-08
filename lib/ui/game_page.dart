@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import '../core/i18n.dart';
 import '../core/levels.dart';
 import '../core/model.dart';
 import '../game/controller.dart';
@@ -17,6 +18,7 @@ import '../game/palette.dart';
 import '../game/progress.dart';
 import 'how_to_play.dart';
 import 'options.dart';
+import 'platform/link.dart';
 import 'widgets.dart';
 import 'win_panel.dart';
 
@@ -81,7 +83,7 @@ class _GamePageState extends State<GamePage> {
 
   /// Volta ao menu. Rodando, para a simulação; no editor, pede para salvar ou cancelar antes.
   void _backToMenu() {
-    if (g.mode == Mode.edit) return g.tell('Salve ou cancele a fase antes de voltar ao menu.');
+    if (g.mode == Mode.edit) return g.tell(tr('Salve ou cancele a fase antes de voltar ao menu.'));
     if (g.mode == Mode.run) g.stop();
     Navigator.of(context).maybePop();
   }
@@ -147,13 +149,13 @@ class _GamePageState extends State<GamePage> {
             child: Padding(
               padding: EdgeInsets.symmetric(horizontal: narrow ? 2 : 6, vertical: narrow ? 2 : 4),
               child: Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisSize: MainAxisSize.min, children: [
-                Text(g.mode == Mode.edit ? 'Editando: ${lv.name}' : lv.name,
+                Text(g.mode == Mode.edit ? tr('Editando: {n}', {'n': lv.name}) : tr(lv.name),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: GoogleFonts.chakraPetch(fontSize: narrow ? 16 : (compact ? 19 : 22), fontWeight: FontWeight.w700, color: c.ink)),
                 if (g.mode != Mode.edit)
                   Row(children: [
-                    Text(idx >= 0 ? 'Fase ${(idx + 1).toString().padLeft(2, '0')}' : 'Minha fase',
+                    Text(idx >= 0 ? tr('Fase {n}', {'n': (idx + 1).toString().padLeft(2, '0')}) : tr('Minha fase'),
                         style: GoogleFonts.ibmPlexMono(fontSize: 11.5, color: c.muted)),
                     Icon(Icons.expand_more, size: 16, color: c.muted),
                   ]),
@@ -163,7 +165,7 @@ class _GamePageState extends State<GamePage> {
         ),
         if (g.mode != Mode.edit && stars.isNotEmpty)
           Tooltip(
-            message: 'Metas e desafios',
+            message: tr('Metas e desafios'),
             child: InkWell(
               borderRadius: BorderRadius.circular(10),
               onTap: () => _infoSheet(c),
@@ -188,12 +190,12 @@ class _GamePageState extends State<GamePage> {
           child: Row(children: [
             Icon(icon, size: 20, color: enabled ? c.ink : c.muted),
             const SizedBox(width: 12),
-            Expanded(child: Text(text)),
+            Expanded(child: Text(tr(text))),
             if (check != null) Icon(check ? Icons.toggle_on : Icons.toggle_off_outlined, color: check ? c.zone : c.muted),
           ]),
         );
     return PopupMenuButton<String>(
-      tooltip: 'Mais opções',
+      tooltip: tr('Mais opções'),
       icon: Icon(Icons.more_vert, color: c.ink),
       color: c.paper,
       onSelected: (v) => switch (v) {
@@ -227,7 +229,7 @@ class _GamePageState extends State<GamePage> {
         item('zone', Icons.center_focus_strong_outlined, 'Aproximar a área verde'),
         item('fit', Icons.fit_screen_outlined, 'Ver a bancada inteira'),
         const PopupMenuDivider(),
-        item('share', Icons.ios_share, 'Compartilhar ou abrir código', enabled: build),
+        item('share', Icons.ios_share, 'Compartilhar ou abrir link', enabled: build),
         item('edit', Icons.edit_outlined, 'Editar esta fase', enabled: build),
         item('new', Icons.add_box_outlined, 'Criar fase nova', enabled: build),
         item('help', Icons.help_outline, 'Como jogar'),
@@ -264,7 +266,7 @@ class _GamePageState extends State<GamePage> {
                 child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
                   Icon(Icons.screen_rotation_outlined, size: 20, color: c.muted),
                   const SizedBox(width: 8),
-                  Flexible(child: Text('Gire o celular para ver a bancada maior.', style: GoogleFonts.ibmPlexSans(fontSize: 13, color: c.muted))),
+                  Flexible(child: Text(tr('Gire o celular para ver a bancada maior.'), style: GoogleFonts.ibmPlexSans(fontSize: 13, color: c.muted))),
                 ]),
               ),
           ]),
@@ -475,9 +477,9 @@ class _GamePageState extends State<GamePage> {
 
   /// Regras especiais da fase, em frases curtas.
   List<String> _rules(Level lv) => [
-        if (lv.allowed != null) 'Só algumas peças liberadas',
-        if (lv.looseBall) 'Bola solta: nada se prende a ela',
-        if (lv.budget != null) 'Orçamento: \$${lv.budget} (gasto: \$${costOf(g.parts)})',
+        if (lv.allowed != null) tr('Só algumas peças liberadas'),
+        if (lv.looseBall) tr('Bola solta: nada se prende a ela'),
+        if (lv.budget != null) tr('Orçamento: \${b} (gasto: \${g})', {'b': lv.budget, 'g': costOf(g.parts)}),
       ];
 
   Widget _runControls(Palette c, bool vertical) {
@@ -510,7 +512,7 @@ class _GamePageState extends State<GamePage> {
 
   // ---------- editor de fases ----------
   Widget _num(Palette c, String k, String text) => Row(mainAxisSize: MainAxisSize.min, children: [
-        Text(text, style: GoogleFonts.ibmPlexSans(fontSize: 13, color: c.muted)),
+        Text(tr(text), style: GoogleFonts.ibmPlexSans(fontSize: 13, color: c.muted)),
         const SizedBox(width: 6),
         SizedBox(
           width: 70,
@@ -536,7 +538,7 @@ class _GamePageState extends State<GamePage> {
             maxLength: 40,
             onChanged: g.setEditName,
             style: GoogleFonts.ibmPlexSans(fontSize: 15, color: c.ink),
-            decoration: InputDecoration(labelText: 'Nome da fase', counterText: '', isDense: true, border: OutlineInputBorder(borderSide: BorderSide(color: c.line))),
+            decoration: InputDecoration(labelText: tr('Nome da fase'), counterText: '', isDense: true, border: OutlineInputBorder(borderSide: BorderSide(color: c.line))),
           ),
         ),
         const SizedBox(width: 8),
@@ -563,7 +565,7 @@ class _GamePageState extends State<GamePage> {
         for (final (id, name, _, sw) in _pieces(c))
           FilterChip(
             avatar: sw,
-            label: Text(name, style: GoogleFonts.ibmPlexSans(fontSize: 13, color: c.ink)),
+            label: Text(tr(name), style: GoogleFonts.ibmPlexSans(fontSize: 13, color: c.ink)),
             selected: g.editAllows(id),
             selectedColor: c.zone.withValues(alpha: .18),
             checkmarkColor: c.zone,
@@ -576,8 +578,8 @@ class _GamePageState extends State<GamePage> {
       Wrap(spacing: 10, runSpacing: 6, crossAxisAlignment: WrapCrossAlignment.center, children: [
         FilterChip(
           avatar: Icon(Icons.sports_baseball_outlined, size: 18, color: c.ink),
-          label: Text('Bola solta', style: GoogleFonts.ibmPlexSans(fontSize: 13, color: c.ink)),
-          tooltip: 'Nada pode ser preso à bola, e ela não liga motor de roda',
+          label: Text(tr('Bola solta'), style: GoogleFonts.ibmPlexSans(fontSize: 13, color: c.ink)),
+          tooltip: tr('Nada pode ser preso à bola, e ela não liga motor de roda'),
           selected: lv.looseBall,
           selectedColor: c.zone.withValues(alpha: .18),
           checkmarkColor: c.zone,
@@ -586,7 +588,7 @@ class _GamePageState extends State<GamePage> {
           onSelected: (_) => g.toggleLooseBall(),
         ),
         Row(mainAxisSize: MainAxisSize.min, children: [
-          Text('Orçamento (\$)', style: GoogleFonts.ibmPlexSans(fontSize: 13, color: c.muted)),
+          Text(tr('Orçamento (\$)'), style: GoogleFonts.ibmPlexSans(fontSize: 13, color: c.muted)),
           const SizedBox(width: 6),
           SizedBox(
             width: 80,
@@ -595,7 +597,7 @@ class _GamePageState extends State<GamePage> {
               keyboardType: TextInputType.number,
               onChanged: g.setBudget,
               style: GoogleFonts.ibmPlexSans(fontSize: 14, color: c.ink),
-              decoration: InputDecoration(hintText: 'sem', isDense: true, border: OutlineInputBorder(borderSide: BorderSide(color: c.line))),
+              decoration: InputDecoration(hintText: tr('sem'), isDense: true, border: OutlineInputBorder(borderSide: BorderSide(color: c.line))),
             ),
           ),
         ]),
@@ -635,7 +637,7 @@ class _GamePageState extends State<GamePage> {
             child: SingleChildScrollView(
               padding: EdgeInsets.fromLTRB(20, 0, 20, 20 + MediaQuery.of(ctx).viewInsets.bottom),
               child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-                Text(title, style: GoogleFonts.chakraPetch(fontSize: 22, fontWeight: FontWeight.w700, color: c.ink)),
+                Text(tr(title), style: GoogleFonts.chakraPetch(fontSize: 22, fontWeight: FontWeight.w700, color: c.ink)),
                 const SizedBox(height: 12),
                 body(ctx),
               ]),
@@ -651,7 +653,7 @@ class _GamePageState extends State<GamePage> {
             contentPadding: EdgeInsets.zero,
             selected: l.id == g.level.id,
             leading: Text(number, style: GoogleFonts.chakraPetch(fontSize: 18, fontWeight: FontWeight.w700, color: pr.isDone(l.id!) ? c.zone : c.muted)),
-            title: Text(l.name, style: GoogleFonts.ibmPlexSans(fontSize: 15, fontWeight: FontWeight.w600, color: open ? c.ink : c.muted)),
+            title: Text(tr(l.name), style: GoogleFonts.ibmPlexSans(fontSize: 15, fontWeight: FontWeight.w600, color: open ? c.ink : c.muted)),
             trailing: open
                 ? Row(mainAxisSize: MainAxisSize.min, children: [
                     for (var k = 0; k < 3; k++) Icon(k < stars ? Icons.star : Icons.star_border, size: 18, color: k < stars ? c.medal : c.line),
@@ -677,7 +679,7 @@ class _GamePageState extends State<GamePage> {
         final lv = g.level, badges = g.progress.badgesOf(lv.id!);
         return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           if (lv.tip.isNotEmpty) ...[
-            Text(lv.tip, style: GoogleFonts.ibmPlexSans(fontSize: 14.5, height: 1.4, color: c.ink)),
+            Text(tr(lv.tip), style: GoogleFonts.ibmPlexSans(fontSize: 14.5, height: 1.4, color: c.ink)),
             const SizedBox(height: 14),
           ],
           label(c, 'Medalhas'),
@@ -693,62 +695,91 @@ class _GamePageState extends State<GamePage> {
               contentPadding: EdgeInsets.zero,
               dense: true,
               leading: Icon(badges.contains(id) ? Icons.verified : Icons.verified_outlined, color: badges.contains(id) ? c.zone : c.muted),
-              title: Text(name, style: GoogleFonts.ibmPlexSans(fontSize: 14, fontWeight: FontWeight.w600, color: c.ink)),
-              subtitle: Text(desc, style: GoogleFonts.ibmPlexSans(fontSize: 13, color: c.muted)),
+              title: Text(tr(name), style: GoogleFonts.ibmPlexSans(fontSize: 14, fontWeight: FontWeight.w600, color: c.ink)),
+              subtitle: Text(tr(desc), style: GoogleFonts.ibmPlexSans(fontSize: 13, color: c.muted)),
             ),
           if (lv.allowed != null) ...[
             const SizedBox(height: 10),
             label(c, 'Peças liberadas nesta fase'),
             const SizedBox(height: 6),
-            Text(lv.allowed!.map((t) => kPieceNames[t]).join(', '), style: GoogleFonts.ibmPlexSans(fontSize: 14, color: c.ink)),
+            Text(lv.allowed!.map((t) => tr(kPieceNames[t]!)).join(', '), style: GoogleFonts.ibmPlexSans(fontSize: 14, color: c.ink)),
           ],
           if (lv.looseBall || lv.budget != null) ...[
             const SizedBox(height: 10),
             label(c, 'Regras desta fase'),
             const SizedBox(height: 6),
             if (lv.looseBall)
-              Text('Bola solta: nenhuma peça pode ser presa à bola, e ela não liga o motor de uma roda.',
+              Text(tr('Bola solta: nenhuma peça pode ser presa à bola, e ela não liga o motor de uma roda.'),
                   style: GoogleFonts.ibmPlexSans(fontSize: 14, color: c.ink)),
             if (lv.budget != null)
-              Text('Orçamento: a engenhoca pode custar no máximo \$${lv.budget}.', style: GoogleFonts.ibmPlexSans(fontSize: 14, color: c.ink)),
+              Text(tr('Orçamento: a engenhoca pode custar no máximo \${b}.', {'b': lv.budget}), style: GoogleFonts.ibmPlexSans(fontSize: 14, color: c.ink)),
           ],
         ]);
       });
 
+  /// Compartilhar: um link que abre o jogo direto nesta fase com a engenhoca montada.
+  /// Embaixo, um campo para colar um link ou código recebido (e o código antigo, OG1:).
   void _shareSheet(Palette c) {
-    final code = TextEditingController(text: g.currentCode());
+    final link = g.linkFor(pageUrl());
+    final paste = TextEditingController();
+    Future<void> copy(BuildContext ctx, String text, String msg) async {
+      await Clipboard.setData(ClipboardData(text: text));
+      if (ctx.mounted) Navigator.of(ctx).pop();
+      g.tell(msg);
+    }
+
+    final sub = GoogleFonts.ibmPlexSans(fontSize: 13.5, color: c.muted);
     _sheet(c, 'Compartilhar', (ctx) => Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-          Text('Este código leva a fase e a sua engenhoca. Para abrir um código recebido, apague este, cole o novo e toque em Abrir.',
-              style: GoogleFonts.ibmPlexSans(fontSize: 13.5, color: c.muted)),
+          Text(tr('O link abre o jogo nesta fase com a sua engenhoca montada. Mande para alguém tentar bater o seu tempo.'), style: sub),
           const SizedBox(height: 10),
-          TextField(
-            controller: code,
-            minLines: 3,
-            maxLines: 6,
-            style: GoogleFonts.ibmPlexMono(fontSize: 12, color: c.ink),
-            decoration: InputDecoration(filled: true, fillColor: c.bg, border: OutlineInputBorder(borderSide: BorderSide(color: c.line))),
+          Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(color: c.bg, borderRadius: BorderRadius.circular(8), border: Border.all(color: c.line)),
+            child: Text(link, maxLines: 2, overflow: TextOverflow.ellipsis, style: GoogleFonts.ibmPlexMono(fontSize: 12, color: c.ink)),
           ),
           const SizedBox(height: 10),
           Wrap(spacing: 8, runSpacing: 8, children: [
             TB(
                 c: c,
-                icon: Icons.copy,
-                label: 'Copiar',
+                primary: true,
+                icon: Icons.ios_share,
+                label: 'Compartilhar link',
                 onTap: () async {
-                  await Clipboard.setData(ClipboardData(text: code.text));
+                  final ok = await systemShare(link, 'Geringonça: ${tr(g.level.name)}');
+                  if (!ok && ctx.mounted) return copy(ctx, link, tr('Link copiado. Cole numa conversa para compartilhar.'));
                   if (ctx.mounted) Navigator.of(ctx).pop();
-                  g.tell('Código copiado.');
                 }),
-            TB(
+            TB(c: c, icon: Icons.link, label: 'Copiar link', onTap: () => copy(ctx, link, tr('Link copiado.'))),
+            TB(c: c, icon: Icons.copy, label: 'Copiar código', onTap: () => copy(ctx, g.currentCode(), tr('Código copiado.'))),
+          ]),
+          const SizedBox(height: 18),
+          Text(tr('Recebeu um link ou código? Cole aqui:'), style: sub),
+          const SizedBox(height: 8),
+          TextField(
+            controller: paste,
+            minLines: 1,
+            maxLines: 4,
+            style: GoogleFonts.ibmPlexMono(fontSize: 12, color: c.ink),
+            decoration: InputDecoration(
+                hintText: tr('https://…#c=…  ou  OG1:…'),
+                filled: true,
+                fillColor: c.bg,
+                border: OutlineInputBorder(borderSide: BorderSide(color: c.line))),
+          ),
+          const SizedBox(height: 8),
+          Align(
+            alignment: Alignment.centerLeft,
+            child: TB(
                 c: c,
                 icon: Icons.file_open_outlined,
                 label: 'Abrir',
                 onTap: () {
+                  if (paste.text.trim().isEmpty) return;
                   Navigator.of(ctx).pop();
-                  g.importCode(code.text);
+                  g.importCode(paste.text);
                 }),
-          ]),
-        ])).whenComplete(code.dispose);
+          ),
+        ])).whenComplete(paste.dispose);
   }
 
   void _howTo(Palette c) => _sheet(c, 'Como jogar', (_) => HowToPlay(c: c));
