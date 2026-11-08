@@ -49,13 +49,16 @@
     @keyframes vai { from { transform: translateX(-100%); } to { transform: translateX(250%); } }
     @media (prefers-reduced-motion: reduce) { #carregando .barra i { animation: none; width: 100%; opacity: .5; } }
     #carregando.saindo { opacity: 0; pointer-events: none; }
+    /* jogo pronto: a barra some e um toque pula o resto da montagem */
+    #carregando.pronto { cursor: pointer; }
+    #carregando.pronto .barra { visibility: hidden; }
   </style>
 </head>
 <body>
   <div id="carregando" role="status" aria-live="polite">
     <img src="logo.svg" alt="Geringonça" width="520" height="128">
     <div class="barra" aria-hidden="true"><i></i></div>
-    <span>Carregando a oficina…</span>
+    <span id="carregando-texto">Carregando a oficina…</span>
   </div>
   <script>
     // some quando o jogo desenha o primeiro quadro, mas deixa a palavra terminar
@@ -66,10 +69,25 @@
       if (!el) return;
       var calmo = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
       var falta = calmo ? 0 : Math.max(0, montagem + 250 - performance.now());
-      setTimeout(function () {
+      var feito = false;
+      function sai() {
+        if (feito) return;
+        feito = true;
+        document.removeEventListener('keydown', tecla);
         el.classList.add('saindo');
         setTimeout(function () { el.remove(); }, 400);
-      }, falta);
+      }
+      function tecla(e) {
+        if (e.key === 'Enter' || e.key === ' ' || e.key === 'Escape') sai();
+      }
+      if (falta > 0) {
+        // o jogo já carregou: um toque (ou Enter/Espaço/Esc) pula o resto da montagem
+        el.classList.add('pronto');
+        document.getElementById('carregando-texto').textContent = 'Toque para pular';
+        el.addEventListener('click', sai);
+        document.addEventListener('keydown', tecla);
+      }
+      setTimeout(sai, falta);
     });
   </script>
   <!--
