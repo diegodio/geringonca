@@ -2,11 +2,12 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import '../core/i18n.dart';
 import '../game/palette.dart';
 
 /// Rótulo pequeno em caixa alta.
 Widget label(Palette c, String s) =>
-    Text(s.toUpperCase(), style: GoogleFonts.ibmPlexMono(fontSize: 11, letterSpacing: 1, color: c.muted));
+    Text(tr(s).toUpperCase(), style: GoogleFonts.ibmPlexMono(fontSize: 11, letterSpacing: 1, color: c.muted));
 
 /// Amostras de cor das peças.
 class Sw extends StatelessWidget {
@@ -85,7 +86,7 @@ class TB extends StatelessWidget {
               child: Row(mainAxisSize: MainAxisSize.min, children: [
                 if (icon != null) ...[Icon(icon, size: 18, color: fg), const SizedBox(width: 6)],
                 if (leading != null) ...[leading!, const SizedBox(width: 8)],
-                Text(primary ? label.toUpperCase() : label, style: style),
+                Text(primary ? tr(label).toUpperCase() : tr(label), style: style),
                 if (cost != null) ...[
                   const SizedBox(width: 6),
                   Text(cost!, style: GoogleFonts.ibmPlexMono(fontSize: 11.5, color: c.muted)),
@@ -96,7 +97,7 @@ class TB extends StatelessWidget {
         ),
       ),
     );
-    if (tooltip != null) btn = Tooltip(message: tooltip!, child: btn);
+    if (tooltip != null) btn = Tooltip(message: tr(tooltip!), child: btn);
     return btn;
   }
 }
@@ -118,7 +119,7 @@ class IconBtn extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Tooltip(
-        message: tooltip,
+        message: tr(tooltip),
         child: Opacity(
           opacity: onTap == null ? .35 : 1,
           child: Material(
@@ -152,7 +153,7 @@ class RoundAction extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Tooltip(
-        message: tooltip,
+        message: tr(tooltip),
         child: Material(
           color: danger ? c.goal : c.ink,
           shape: const CircleBorder(),
@@ -194,7 +195,7 @@ class PieceChip extends StatelessWidget {
               const SizedBox(width: 6),
               Expanded(
                 child: Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisAlignment: MainAxisAlignment.center, children: [
-                  Text(name,
+                  Text(tr(name),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: GoogleFonts.ibmPlexSans(fontSize: 12.5, height: 1.15, fontWeight: FontWeight.w600, color: selected ? c.paper : c.ink)),
@@ -218,7 +219,7 @@ class PieceChip extends StatelessWidget {
             child: Column(mainAxisSize: MainAxisSize.min, children: [
               SizedBox(height: 18, child: Center(child: swatch)),
               const SizedBox(height: 4),
-              Text(name, style: GoogleFonts.ibmPlexSans(fontSize: 12.5, fontWeight: FontWeight.w600, color: selected ? c.paper : c.ink)),
+              Text(tr(name), style: GoogleFonts.ibmPlexSans(fontSize: 12.5, fontWeight: FontWeight.w600, color: selected ? c.paper : c.ink)),
               Text(cost, style: GoogleFonts.ibmPlexMono(fontSize: 10.5, color: selected ? c.paper.withValues(alpha: .75) : c.muted)),
             ]),
           ),

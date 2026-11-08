@@ -1,3 +1,5 @@
+// Os ícones têm a versão no nome (v2): trocar o desenho pede um nome novo,
+// senão o Android não percebe e o app instalado mantém o ícone antigo.
 // Gera os ícones do app e o logotipo da tela de carregamento (logo.svg)
 // a partir do desenho em lib/ui/logo.dart.
 // Rodar: flutter test tool/make_icons_test.dart
@@ -23,10 +25,10 @@ void main() {
     const c = Palette.light;
     final out = Platform.environment['ICON_OUT'] ?? 'web';
     for (final s in [192, 512]) {
-      await _png('$out/icons/Icon-$s.png', s, s, (cv) => paintAppIcon(cv, s.toDouble(), c));
-      await _png('$out/icons/Icon-maskable-$s.png', s, s, (cv) => paintAppIcon(cv, s.toDouble(), c, maskable: true));
+      await _png('$out/icons/geringonca-v2-$s.png', s, s, (cv) => paintAppIcon(cv, s.toDouble(), c));
+      await _png('$out/icons/geringonca-v2-maskable-$s.png', s, s, (cv) => paintAppIcon(cv, s.toDouble(), c, maskable: true));
     }
-    await _png('$out/favicon.png', 64, 64, (cv) => paintAppIcon(cv, 64, c));
+    await _png('$out/favicon-v2.png', 64, 64, (cv) => paintAppIcon(cv, 64, c));
     final (svg, buildMs) = _svg(LogoArt.word());
     File('$out/logo.svg').writeAsStringSync(svg);
     // a tela de carregamento espera a montagem terminar antes de sumir

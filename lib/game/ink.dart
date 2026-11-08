@@ -2,6 +2,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 
+import '../core/i18n.dart';
 import '../core/model.dart';
 import '../core/sim.dart';
 import 'controller.dart';
@@ -56,12 +57,19 @@ class Ink {
     }
   }
 
+  /// Textos já montados, reaproveitados entre quadros (montar texto é caro).
+  final _texts = <String, TextPainter>{};
+
   void text(String s, double x, double y, Color col,
       {double size = 12, String? family, FontWeight w = FontWeight.w500, bool center = false, bool middle = false}) {
-    final tp = TextPainter(
+    final key = '$s|$size|${col.toARGB32()}|${family ?? mono}|${w.value}';
+    var tp = _texts.remove(key);
+    tp ??= TextPainter(
       text: TextSpan(text: s, style: TextStyle(color: col, fontSize: size, fontFamily: family ?? mono, fontWeight: w)),
       textDirection: TextDirection.ltr,
     )..layout();
+    _texts[key] = tp; // vai para o fim: os mais usados ficam
+    if (_texts.length > 160) _texts.remove(_texts.keys.first)!.dispose();
     // y é a linha de base, como no canvas do HTML (exceto quando middle)
     final dy = middle ? -tp.height / 2 : -tp.computeDistanceToActualBaseline(TextBaseline.alphabetic);
     tp.paint(cv, Offset(center ? x - tp.width / 2 : x, y + dy));
@@ -204,8 +212,8 @@ class Ink {
     cv.drawRect(gr, fill(c.goal, g.won && g.mode == Mode.run ? .4 : .18));
     dashRect(zr, stroke(c.zone, 1.5), 6, 5);
     dashRect(gr, stroke(c.goal, 1.5), 6, 5);
-    text('CONSTRUÇÃO', lv.zone.x + 6, lv.zone.y - 7, c.zone);
-    text('META', lv.goal.x + 6, lv.goal.y - 7, c.goal);
+    text(tr('CONSTRUÇÃO'), lv.zone.x + 6, lv.zone.y - 7, c.zone);
+    text(tr('META'), lv.goal.x + 6, lv.goal.y - 7, c.goal);
   }
 
   void scenery(Level lv, Sim? s) {

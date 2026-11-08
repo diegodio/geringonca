@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import '../core/i18n.dart';
 import '../game/controller.dart';
 import '../game/palette.dart';
 
@@ -10,15 +11,19 @@ Future<void> showOptions(BuildContext context, GameController g) {
   final c = Palette.of(context);
   return showDialog<void>(
     context: context,
-    builder: (ctx) => AlertDialog(
-      backgroundColor: c.paper,
-      title: Text('Opções', style: GoogleFonts.chakraPetch(fontWeight: FontWeight.w700, color: c.ink)),
-      contentPadding: const EdgeInsets.fromLTRB(8, 12, 8, 0),
-      content: SizedBox(
-        width: 380,
-        child: SingleChildScrollView(child: OptionsPanel(g: g, c: c)),
+    // reconstrói ao mudar uma opção: o idioma troca o título e o botão também
+    builder: (ctx) => ListenableBuilder(
+      listenable: g,
+      builder: (ctx, _) => AlertDialog(
+        backgroundColor: c.paper,
+        title: Text(tr('Opções'), style: GoogleFonts.chakraPetch(fontWeight: FontWeight.w700, color: c.ink)),
+        contentPadding: const EdgeInsets.fromLTRB(8, 12, 8, 0),
+        content: SizedBox(
+          width: 380,
+          child: SingleChildScrollView(child: OptionsPanel(g: g, c: c)),
+        ),
+        actions: [TextButton(onPressed: () => Navigator.of(ctx).pop(), child: Text(tr('Fechar')))],
       ),
-      actions: [TextButton(onPressed: () => Navigator.of(ctx).pop(), child: const Text('Fechar'))],
     ),
   );
 }
@@ -37,28 +42,28 @@ class OptionsPanel extends StatelessWidget {
           Widget side(PanelSide v, String t, String s) => RadioListTile<PanelSide>(
                 value: v,
                 dense: true,
-                title: Text(t, style: title.copyWith(fontWeight: FontWeight.w500)),
-                subtitle: Text(s, style: sub),
+                title: Text(tr(t), style: title.copyWith(fontWeight: FontWeight.w500)),
+                subtitle: Text(tr(s), style: sub),
               );
           return Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.stretch, children: [
             SwitchListTile(
               value: g.soundOn,
               onChanged: g.setSound,
               secondary: Icon(g.soundOn ? Icons.volume_up_outlined : Icons.volume_off_outlined, color: c.ink),
-              title: Text('Sons', style: title),
-              subtitle: Text('Peças, motor, vitória e avisos', style: sub),
+              title: Text(tr('Sons'), style: title),
+              subtitle: Text(tr('Peças, motor, vitória e avisos'), style: sub),
             ),
             SwitchListTile(
               value: g.vibeOn,
               onChanged: g.setVibe,
               secondary: Icon(g.vibeOn ? Icons.vibration : Icons.mobile_off_outlined, color: c.ink),
-              title: Text('Vibração', style: title),
-              subtitle: Text('Em celulares que vibram pelo navegador (Android)', style: sub),
+              title: Text(tr('Vibração'), style: title),
+              subtitle: Text(tr('Em celulares que vibram pelo navegador (Android)'), style: sub),
             ),
             const SizedBox(height: 8),
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 4, 16, 0),
-              child: Text('PEÇAS E FERRAMENTAS', style: GoogleFonts.ibmPlexMono(fontSize: 12, letterSpacing: 1, color: c.muted)),
+              child: Text(tr('PEÇAS E FERRAMENTAS'), style: GoogleFonts.ibmPlexMono(fontSize: 12, letterSpacing: 1, color: c.muted)),
             ),
             RadioGroup<PanelSide>(
               groupValue: g.panelSide,
@@ -67,6 +72,20 @@ class OptionsPanel extends StatelessWidget {
                 side(PanelSide.auto, 'Automático', 'Na lateral com a tela deitada; embaixo com ela em pé'),
                 side(PanelSide.side, 'Sempre na lateral', 'A bancada usa a altura toda'),
                 side(PanelSide.bottom, 'Sempre embaixo', 'A bancada usa a largura toda'),
+              ]),
+            ),
+            const SizedBox(height: 8),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 4, 16, 0),
+              child: Text('IDIOMA · LANGUAGE', style: GoogleFonts.ibmPlexMono(fontSize: 12, letterSpacing: 1, color: c.muted)),
+            ),
+            RadioGroup<String>(
+              groupValue: g.langPref,
+              onChanged: (v) => g.setLang(v ?? 'auto'),
+              child: Column(children: [
+                RadioListTile<String>(value: 'auto', dense: true, title: Text(tr('Automático (o do aparelho)'), style: title.copyWith(fontWeight: FontWeight.w500))),
+                RadioListTile<String>(value: 'pt', dense: true, title: Text('Português', style: title.copyWith(fontWeight: FontWeight.w500))),
+                RadioListTile<String>(value: 'en', dense: true, title: Text('English', style: title.copyWith(fontWeight: FontWeight.w500))),
               ]),
             ),
           ]);
