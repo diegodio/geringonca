@@ -82,7 +82,14 @@ class OficinaGame extends FlameGame {
       _BuildLayer(this),
     ]);
     camera.viewport.addAll([_InputLayer(this), _Hud(this)]);
-    g.addListener(wake);
+  }
+
+  /// A bancada pode ser recriada pela tela (por exemplo, ao ir do editor para o
+  /// teste com o celular em pé): ao voltar, ela acorda.
+  @override
+  void onMount() {
+    super.onMount();
+    wake();
   }
 
   /// Identifica a fase na tela (muda ao trocar de fase ou depois de editá-la).
@@ -91,12 +98,6 @@ class OficinaGame extends FlameGame {
   bool get _movingScenery {
     final lv = g.cur;
     return lv.lifts.isNotEmpty || lv.seesaws.isNotEmpty || lv.doors.isNotEmpty || lv.buttons.isNotEmpty;
-  }
-
-  @override
-  void onRemove() {
-    g.removeListener(wake);
-    super.onRemove();
   }
 
   @override
