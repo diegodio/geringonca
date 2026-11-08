@@ -196,12 +196,15 @@ class Lift extends Seg {
 
   /// Atraso em segundos: elevadores com atrasos diferentes andam fora de sincronia.
   double delay;
-  Lift(super.a, super.b, this.w, [this.delay = 0]);
+
+  /// Velocidade média em px/s (o editor ajusta; o padrão é [kLiftSpeed]).
+  double speed;
+  Lift(super.a, super.b, this.w, [this.delay = 0, this.speed = kLiftSpeed]);
   @override
-  Lift copy() => Lift(a.copy(), b.copy(), w, delay);
+  Lift copy() => Lift(a.copy(), b.copy(), w, delay, speed);
   @override
-  Map<String, dynamic> toJson() => {...super.toJson(), 'w': w, if (delay != 0) 'delay': delay};
-  double get period => math.max(3, 2 * dist(a, b) / kLiftSpeed);
+  Map<String, dynamic> toJson() => {...super.toJson(), 'w': w, if (delay != 0) 'delay': delay, if (speed != kLiftSpeed) 'speed': speed};
+  double get period => math.max(3, 2 * dist(a, b) / speed);
 
   /// Centro do elevador no instante [t]: vai de [a] a [b] e volta, suave nas pontas.
   Pt posAt(double t) {
@@ -263,6 +266,10 @@ class Level {
   /// Custo máximo da engenhoca; null = sem limite.
   int? budget;
 
+  /// Fase criada no editor que o autor já venceu do jeito que está (vai junto
+  /// no link de compartilhamento). Qualquer mudança no cenário ou nas regras desfaz.
+  bool verified;
+
   Level({
     this.id,
     required this.name,
@@ -282,6 +289,7 @@ class Level {
     this.allowed,
     this.looseBall = false,
     this.budget,
+    this.verified = false,
   })  : blocks = blocks ?? [],
         doors = doors ?? [],
         plats = plats ?? [],
@@ -312,6 +320,7 @@ class Level {
         if (allowed != null) 'allowed': allowed,
         if (looseBall) 'looseBall': true,
         if (budget != null) 'budget': budget,
+        if (verified) 'verified': true,
       };
 
   /// Lê uma fase com limites de tamanho, como a versão HTML (também serve para códigos importados).
@@ -334,7 +343,7 @@ class Level {
         final s = Seg.fromJson(l);
         if (s == null) return null;
         final w = numOr((l as Map)['w'], 0);
-        return Lift(s.a, s.b, clampD(w == 0 ? 160 : w, 40, 400), clampD(numOr(l['delay'], 0), 0, 60));
+        return Lift(s.a, s.b, clampD(w == 0 ? 160 : w, 40, 400), clampD(numOr(l['delay'], 0), 0, 60), clampD(numOr(l['speed'], kLiftSpeed), 30, 300));
       }),
       doors: arr(m['doors'], 20, R.fromJson),
       buttons: arr(m['buttons'], 20, Pt.fromJson),
@@ -346,11 +355,12 @@ class Level {
       allowed: m['allowed'] is List ? kPieceTools.where((t) => (m['allowed'] as List).contains(t)).toList() : null,
       looseBall: m['looseBall'] == true,
       budget: numOrNull(m['budget'])?.round(),
+      verified: m['verified'] == true,
     );
   }
 
   /// Assinatura para reconhecer uma fase importada que já existe.
-  String get signature => toJson(withId: false).toString();
+  String get signature => (toJson(withId: false)..remove('verified')).toString();
 }
 
 R zone0() => R(40, 270, 310, 220);

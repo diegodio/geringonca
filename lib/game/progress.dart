@@ -191,6 +191,14 @@ class Progress {
     return id;
   }
 
+  /// Fase própria vencida do jeito que está: marca como verificada.
+  void markVerified(String id) {
+    final lv = find(id);
+    if (lv == null || !isCustom(id)) return;
+    lv.verified = true;
+    _saveCustom();
+  }
+
   void deleteLevel(String id) {
     custom = custom.where((c) => c.id != id).toList();
     _saveCustom();

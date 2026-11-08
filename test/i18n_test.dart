@@ -27,6 +27,9 @@ Set<String> _sourceKeys() {
     RegExp(r'_sheet\(c,\s*' + lit),
     RegExp(r'\brow\(' + lit),
     RegExp(r"\b_num\(c,\s*'\w+',\s*" + lit),
+    RegExp(r'\bstepper\(' + lit),
+    RegExp(r'\blabel:\s*[^,()]*?\?\s*' + lit + r'\s*:\s*' + lit),
+    RegExp(r"'(?:block|door|plat|seesaw|lift|magnet|button|zone|goal|ball)':\s*" + lit),
     RegExp(r"\(\s*'\w+',\s*" + lit + r",\s*'\\\$\d+',"),
   ];
   final keys = <String>{};
@@ -49,7 +52,7 @@ void main() {
   test('todo texto do código tem tradução para o inglês', () {
     final keys = _sourceKeys();
     // o levantamento enxerga cada forma de uso (sanidade do próprio teste)
-    expect(keys, containsAll(['Tentar de novo', 'Barra', 'Opções…', 'Rodar', '1 peça', 'Cenário', 'Fases', 'Tempo', 'Bloco']));
+    expect(keys, containsAll(['Tentar de novo', 'Barra', 'Opções…', 'Rodar', '1 peça', 'Regras', 'Fases', 'Tempo', 'Bloco']));
     final missing = keys.where((k) => !kEn.containsKey(k)).toList();
     expect(missing, isEmpty, reason: 'sem tradução em i18n_en.dart');
   });
@@ -63,6 +66,7 @@ void main() {
       ...kEHints.values,
       for (final (_, n, d) in kChallenges) ...[n, d],
       blankLevel().name,
+      for (final (_, n, d, _) in kTemplates) ...[n, d],
     ];
     expect(need.where((k) => !kEn.containsKey(k)).toList(), isEmpty);
   });

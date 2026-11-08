@@ -47,6 +47,7 @@ const kHints = {
   'del': 'Toque numa peça para apagar.',
 };
 const kEHints = {
+  'eselect': 'Toque num elemento para selecionar. Arraste para mover; arraste as bolinhas para mudar o tamanho.',
   'block': 'Arraste para desenhar um bloco.',
   'plat': 'Arraste para desenhar uma plataforma. Inclinada, vira rampa.',
   'lift': 'Arraste do ponto de partida até o ponto de chegada do elevador.',
@@ -197,13 +198,22 @@ abstract class GameState extends ChangeNotifier {
     fx(Sfx.error);
   }
 
-  void _saveBuild() => progress.saveBuild(level.id!, parts, ball0);
+  /// Testando uma fase do editor: a bancada mostra o rascunho, sem guardar progresso.
+  bool testing = false;
+
+  void _saveBuild() {
+    if (!testing) progress.saveBuild(level.id!, parts, ball0);
+  }
 
   // implementados nas partes
   String get tool;
   void setTool(String t);
   void selectLevel(String id);
-  void stop();
+  void stop({bool quiet = false});
+  void _clearUndo();
+  void _clearTrail();
+  void _fitTool();
+  void _testWon(double t, int n, int c);
   double snapRadius();
   void _clearSel();
   void _cancelBuildAction();

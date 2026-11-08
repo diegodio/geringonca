@@ -86,7 +86,7 @@ class WinPanel extends StatelessWidget {
         if (i.next != null && !i.replay) TB(c: c, primary: true, icon: Icons.arrow_forward, label: 'Próxima fase', onTap: g.goNext),
         TB(c: c, icon: Icons.replay, label: i.replay ? 'Ver de novo' : 'Tentar de novo', onTap: g.retry),
         TB(c: c, icon: Icons.build_outlined, label: 'Melhorar', onTap: g.improve),
-        TB(c: c, icon: Icons.grid_view, label: 'Menu', onTap: onMenu),
+        TB(c: c, icon: g.testing ? Icons.edit_outlined : Icons.grid_view, label: g.testing ? 'Voltar ao editor' : 'Menu', onTap: onMenu),
       ]),
     ]);
   }
