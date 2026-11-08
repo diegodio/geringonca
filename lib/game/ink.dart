@@ -327,6 +327,58 @@ class Ink {
         } else {
           cv.drawRect(Rect.fromLTWH(r.x, r.y, r.w, r.h), fill(d.et == 'zone' ? c.zone : d.et == 'goal' ? c.goal : c.ground, al));
         }
+        if (dist(a, b) > 4) measure(r);
+        return;
+    }
+    if (dist(a, b) > 4) measure(Seg(a, b));
+  }
+
+  /// Elemento selecionado no editor: contorno, alças para redimensionar e, enquanto
+  /// arrasta, as medidas (em metros, como na bancada).
+  void editSelection() {
+    final o = g.selected;
+    if (o == null) return;
+    final acc = stroke(c.accent, 2 / z), soft = stroke(c.accent, 18, .25)..strokeCap = StrokeCap.round;
+    switch (o) {
+      case R r:
+        dashRect(Rect.fromLTWH(r.x - 4, r.y - 4, r.w + 8, r.h + 8), acc, 6 / z, 4 / z);
+      case Lift l:
+        line(l.a.x, l.a.y, l.b.x, l.b.y, soft);
+        cv.drawRect(Rect.fromCenter(center: Offset(l.a.x, l.a.y), width: l.w + 8, height: kLiftT + 8), acc);
+      case Seg s:
+        line(s.a.x, s.a.y, s.b.x, s.b.y, soft);
+      case FixedMag m:
+        cv.drawCircle(Offset(m.x, m.y), kFixR + 9, acc);
+      case Pt p:
+        final ball = identical(p, g.cur.ball);
+        cv.drawCircle(Offset(p.x, p.y - (ball ? 0 : 5)), ball ? kBallR + 8 : 32, acc);
+    }
+    for (final h in g.eHandles) {
+      cv.drawCircle(Offset(h.x, h.y), 8 / z, fill(c.paper));
+      cv.drawCircle(Offset(h.x, h.y), 8 / z, stroke(c.accent, 2.5 / z));
+    }
+    final a = g.action;
+    if (a != null && (a.type == 'emove' || a.type == 'eresize') && a.moved) measure(o);
+  }
+
+  /// Medidas de um elemento do cenário, centradas acima dele (abaixo, se não couber),
+  /// sempre dentro da bancada: largura × altura, comprimento e ângulo, ou a posição.
+  void measure(Object o) {
+    void at(String s, double cx, double top, double bottom) {
+      final x = clampD(cx, 70 / z, kW - 70 / z), y = top - 10 / z > 20 / z ? top - 10 / z : bottom + 22 / z;
+      text(s, x, y, c.ink, size: 13 / z, center: true);
+    }
+
+    switch (o) {
+      case R r:
+        at('${fmt(r.w / 100)} × ${fmt(r.h / 100)} m', r.x + r.w / 2, r.y, r.y + r.h);
+      case Seg s:
+        final ang = (math.atan2(s.a.y - s.b.y, s.b.x - s.a.x) * 180 / math.pi).round();
+        at('${fmt(dist(s.a, s.b) / 100)} m · $ang°', (s.a.x + s.b.x) / 2, math.min(s.a.y, s.b.y) - 6, math.max(s.a.y, s.b.y) + 6);
+      case FixedMag m:
+        at('${fmt(m.x / 100)}; ${fmt(m.y / 100)} m', m.x, m.y - kFixR - 6, m.y + kFixR + 6);
+      case Pt p:
+        at('${fmt(p.x / 100)}; ${fmt(p.y / 100)} m', p.x, p.y - 30, p.y + 10);
     }
   }
 

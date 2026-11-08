@@ -720,6 +720,112 @@ const kEn = <String, String>{
       'Cost',
   'Tempo (s)':
       'Time (s)',
+  'Comece de um modelo; dá para mudar tudo depois.':
+      'Start from a template; you can change everything later.',
+  'Testando: {n}':
+      'Testing: {n}',
+  'Fase de teste':
+      'Test level',
+  'Vertical e no nível do chão: abre um poço embaixo.':
+      'Vertical and at ground level: it opens a pit underneath.',
+  'Dica para quem joga':
+      'Hint for players',
+  'Voltar ao editor':
+      'Back to the editor',
+  'Testar':
+      'Test',
+  'Jogar a fase como está, sem sair do editor':
+      'Play the level as it is, without leaving the editor',
+  'Ajustar':
+      'Adjust',
+  'Grade':
+      'Grid',
+  'Encaixar de 20 em 20 cm (desligada: de 5 em 5)':
+      'Snap every 20 cm (off: every 5 cm)',
+  'Espelhar':
+      'Mirror',
+  'Inverter a fase da esquerda para a direita':
+      'Flip the level from left to right',
+  'Diminuir':
+      'Decrease',
+  'Aumentar':
+      'Increase',
+  'Deixar reto':
+      'Make level',
+  'Sugerir metas':
+      'Suggest goals',
+  'Pela sua melhor vitória no teste':
+      'From your best win in the test',
+  'Salvar como cópia':
+      'Save as a copy',
+  'Verificada: você venceu a fase do jeito que ela está.':
+      'Verified: you beat the level as it is.',
+  'Não verificada: toque em Testar e vença uma vez.':
+      'Not verified: tap Test and win once.',
+  'Venceu o teste! A fase está verificada. Volte ao editor para salvar.':
+      'You won the test! The level is verified. Go back to the editor to save it.',
+  'Vença a fase no teste para sugerir as metas.':
+      'Win the level in the test to suggest goals.',
+  'Metas sugeridas pela sua melhor vitória: tempo com 10% de folga, mesmas peças e custo.':
+      'Goals suggested from your best win: time with 10% slack, same parts and cost.',
+  'Fase espelhada.':
+      'Level mirrored.',
+  'Coloque a bola dentro da área de construção antes de testar.':
+      'Put the ball inside the build area before testing.',
+  'Testando: monte uma engenhoca e toque em Rodar. Vença uma vez para verificar a fase.':
+      'Testing: build a contraption and tap Run. Win once to verify the level.',
+  'Grade ligada: tudo encaixa de 20 em 20 cm.':
+      'Grid on: everything snaps every 20 cm.',
+  'Grade desligada: ajuste fino de 5 em 5 cm.':
+      'Grid off: fine adjustment every 5 cm.',
+  'Fase "{n}" salva e verificada.':
+      'Level "{n}" saved and verified.',
+  'De volta ao editor. A fase está verificada: você venceu do jeito que ela está.':
+      'Back in the editor. The level is verified: you beat it as it is.',
+  'De volta ao editor.':
+      'Back in the editor.',
+  'Toque num elemento para selecionar. Arraste para mover; arraste as bolinhas para mudar o tamanho.':
+      'Tap an item to select it. Drag to move it; drag the little circles to resize it.',
+  'Vazio com chão':
+      'Empty with ground',
+  'Chão, área de construção e meta.':
+      'Ground, build area and goal.',
+  'Sem chão':
+      'No ground',
+  'Só dois apoios: o resto é vazio.':
+      'Just two supports: the rest is empty.',
+  'Um vão no meio do caminho.':
+      'A gap halfway along.',
+  'Degraus até a meta.':
+      'Steps up to the goal.',
+  'Um elevador até um bloco alto.':
+      'An elevator up to a tall block.',
+  'Uma porta que abre com um botão.':
+      'A door that opens with a button.',
+  'Uma gangorra até um degrau.':
+      'A seesaw up to a step.',
+  'Posição x':
+      'Position x',
+  'Posição y':
+      'Position y',
+  'Largura':
+      'Width',
+  'Altura':
+      'Height',
+  'Velocidade':
+      'Speed',
+  'Atraso':
+      'Delay',
+  'Polo: norte':
+      'Pole: north',
+  'Polo: sul':
+      'Pole: south',
+  'Ímã fixo':
+      'Fixed magnet',
+  'Verificada: o autor venceu esta fase do jeito que ela está.':
+      'Verified: the author beat this level as it is.',
+  'Ainda não verificada: ninguém venceu esta fase do jeito que ela está.':
+      'Not verified yet: nobody has beaten this level as it is.',
   'Replay concluído':
       'Replay finished',
   'Fase concluída!':

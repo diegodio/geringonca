@@ -201,6 +201,7 @@ class _BuildLayer extends Component {
     final a = g.action;
     if (g.mode == Mode.edit) {
       if (a != null && a.type == 'edraft') i.editDraft(a);
+      i.editSelection();
       return;
     }
     i.parts(g.parts);

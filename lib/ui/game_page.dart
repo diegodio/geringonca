@@ -4,6 +4,8 @@
 //   dock            muda com o momento: construir, rodar ou a tela de vitória
 // Com a tela deitada o dock vai para a lateral, para a bancada usar a altura toda
 // (nas Opções dá para fixar sempre na lateral ou sempre embaixo).
+import 'dart:math' as math;
+
 import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -18,6 +20,7 @@ import '../game/palette.dart';
 import '../game/progress.dart';
 import 'how_to_play.dart';
 import 'options.dart';
+import 'templates.dart';
 import 'platform/link.dart';
 import 'widgets.dart';
 import 'win_panel.dart';
@@ -46,6 +49,8 @@ class _GamePageState extends State<GamePage> {
   final _name = TextEditingController();
   final _tg = {'t': TextEditingController(), 'n': TextEditingController(), 'c': TextEditingController()};
   final _budget = TextEditingController();
+  final _tip = TextEditingController();
+  int _edTab = 0; // aba do editor: desenhar, regras, fase
   Object? _editKey;
   DateTime _delArmed = DateTime(0);
 
@@ -65,6 +70,7 @@ class _GamePageState extends State<GamePage> {
     final lv = g.editLevel;
     if (lv == null) return;
     _name.text = lv.name;
+    _tip.text = lv.tip;
     _budget.text = lv.budget?.toString() ?? '';
     final tg = {'t': lv.targets.t, 'n': lv.targets.n, 'c': lv.targets.c};
     _tg.forEach((k, c) => c.text = tg[k] == null ? '' : tg[k].toString().replaceAll('.', ','));
@@ -74,6 +80,7 @@ class _GamePageState extends State<GamePage> {
   void dispose() {
     g.removeListener(_sync);
     _name.dispose();
+    _tip.dispose();
     _budget.dispose();
     for (final c in _tg.values) {
       c.dispose();
@@ -83,6 +90,7 @@ class _GamePageState extends State<GamePage> {
 
   /// Volta ao menu. Rodando, para a simulação; no editor, pede para salvar ou cancelar antes.
   void _backToMenu() {
+    if (g.testing) return g.backToEditor(); // no teste, voltar leva ao editor
     if (g.mode == Mode.edit) return g.tell(tr('Salve ou cancele a fase antes de voltar ao menu.'));
     if (g.mode == Mode.run) g.stop();
     Navigator.of(context).maybePop();
@@ -93,7 +101,7 @@ class _GamePageState extends State<GamePage> {
     final c = Palette.of(context);
     _game.palette = c;
     return PopScope(
-      canPop: g.mode != Mode.edit,
+      canPop: g.mode != Mode.edit && !g.testing,
       onPopInvokedWithResult: (didPop, _) {
         if (didPop) {
           if (g.mode == Mode.run) g.stop();
@@ -145,19 +153,19 @@ class _GamePageState extends State<GamePage> {
         Expanded(
           child: InkWell(
             borderRadius: BorderRadius.circular(10),
-            onTap: g.mode == Mode.edit ? null : () => _levelSheet(c),
+            onTap: g.mode == Mode.edit || g.testing ? null : () => _levelSheet(c),
             child: Padding(
               padding: EdgeInsets.symmetric(horizontal: narrow ? 2 : 6, vertical: narrow ? 2 : 4),
               child: Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisSize: MainAxisSize.min, children: [
-                Text(g.mode == Mode.edit ? tr('Editando: {n}', {'n': lv.name}) : tr(lv.name),
+                Text(g.mode == Mode.edit ? tr('Editando: {n}', {'n': lv.name}) : g.testing ? tr('Testando: {n}', {'n': lv.name}) : tr(lv.name),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: GoogleFonts.chakraPetch(fontSize: narrow ? 16 : (compact ? 19 : 22), fontWeight: FontWeight.w700, color: c.ink)),
                 if (g.mode != Mode.edit)
                   Row(children: [
-                    Text(idx >= 0 ? tr('Fase {n}', {'n': (idx + 1).toString().padLeft(2, '0')}) : tr('Minha fase'),
+                    Text(g.testing ? tr('Fase de teste') : idx >= 0 ? tr('Fase {n}', {'n': (idx + 1).toString().padLeft(2, '0')}) : tr('Minha fase'),
                         style: GoogleFonts.ibmPlexMono(fontSize: 11.5, color: c.muted)),
-                    Icon(Icons.expand_more, size: 16, color: c.muted),
+                    if (!g.testing) Icon(Icons.expand_more, size: 16, color: c.muted),
                   ]),
               ]),
             ),
@@ -183,7 +191,7 @@ class _GamePageState extends State<GamePage> {
   }
 
   Widget _menu(Palette c) {
-    final build = g.mode == Mode.build, edit = g.mode == Mode.edit;
+    final build = g.mode == Mode.build && !g.testing, edit = g.mode == Mode.edit;
     PopupMenuEntry<String> item(String v, IconData icon, String text, {bool enabled = true, bool? check}) => PopupMenuItem(
           value: v,
           enabled: enabled,
@@ -210,7 +218,7 @@ class _GamePageState extends State<GamePage> {
         'fit' => g.zoomFit(),
         'share' => _shareSheet(c),
         'edit' => g.editCurrent(),
-        'new' => g.newLevel(),
+        'new' => _newLevel(c),
         'help' => _howTo(c),
         'sound' => g.setSound(!g.soundOn),
         'options' => showOptions(context, g),
@@ -253,7 +261,10 @@ class _GamePageState extends State<GamePage> {
       if (edit)
         ConstrainedBox(
           constraints: BoxConstraints(maxHeight: box.maxHeight * .45),
-          child: SingleChildScrollView(padding: const EdgeInsets.fromLTRB(8, 0, 8, 8), child: _editorPanel(c)),
+          child: Column(mainAxisSize: MainAxisSize.min, children: [
+            Flexible(child: SingleChildScrollView(padding: const EdgeInsets.fromLTRB(8, 0, 8, 8), child: _editorPanel(c))),
+            Padding(padding: const EdgeInsets.fromLTRB(8, 0, 8, 8), child: _editorActions(c)),
+          ]),
         ),
       SizedBox(height: benchH, child: Padding(padding: const EdgeInsets.symmetric(horizontal: 8), child: _benchArea(c))),
       Expanded(
@@ -292,6 +303,10 @@ class _GamePageState extends State<GamePage> {
                 child: g.mode == Mode.edit ? _editorPanel(c) : _dockBody(c, true),
               ),
             ),
+            if (g.mode == Mode.edit) ...[
+              Divider(height: 1, color: c.line),
+              Padding(padding: const EdgeInsets.fromLTRB(8, 8, 8, 8), child: _editorActions(c)),
+            ],
             if (g.winInfo == null && g.hint.isNotEmpty) ...[
               Divider(height: 1, color: c.line),
               Padding(
@@ -439,6 +454,12 @@ class _GamePageState extends State<GamePage> {
             ]),
           )
         : const SizedBox.shrink();
+    final back = g.testing
+        ? Padding(
+            padding: const EdgeInsets.only(bottom: 8),
+            child: TB(c: c, primary: true, icon: Icons.edit_outlined, label: 'Voltar ao editor', onTap: g.backToEditor),
+          )
+        : const SizedBox.shrink();
     if (vertical) {
       // dock lateral: fichas compactas em 2 colunas, ferramentas e Rodar lado a lado
       final small = [
@@ -446,6 +467,7 @@ class _GamePageState extends State<GamePage> {
           if (g.toolAllowed(id)) PieceChip(c: c, compact: true, swatch: sw, name: name, cost: cost, selected: g.tool == id, onTap: () => g.setTool(id)),
       ];
       return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+        back,
         note,
         Padding(
           padding: const EdgeInsets.only(bottom: 6),
@@ -460,6 +482,7 @@ class _GamePageState extends State<GamePage> {
       ]);
     }
     return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+      back,
       note,
       SizedBox(
         height: 64,
@@ -526,26 +549,41 @@ class _GamePageState extends State<GamePage> {
         ),
       ]);
 
+  /// Fase nova: escolhe o modelo e abre o editor.
+  Future<void> _newLevel(Palette c) async {
+    final t = await pickTemplate(context, c);
+    if (t != null) g.newLevel(t);
+  }
+
+  /// Editor em três abas (Desenhar, Regras e Fase), com Testar, Cancelar e Salvar
+  /// sempre à vista.
   Widget _editorPanel(Palette c) {
     final lv = g.editLevel!;
-    Widget et(String id, String text, Widget sw) => TB(c: c, small: true, label: text, leading: sw, pressed: g.etool == id, onTap: () => g.setETool(id));
-    final armed = DateTime.now().difference(_delArmed).inMilliseconds < 3000;
+    const tabs = ['Desenhar', 'Regras', 'Fase'];
     return Panel(c: c, accent: true, children: [
-      Row(children: [
-        Expanded(
-          child: TextField(
-            controller: _name,
-            maxLength: 40,
-            onChanged: g.setEditName,
-            style: GoogleFonts.ibmPlexSans(fontSize: 15, color: c.ink),
-            decoration: InputDecoration(labelText: tr('Nome da fase'), counterText: '', isDense: true, border: OutlineInputBorder(borderSide: BorderSide(color: c.line))),
-          ),
-        ),
-        const SizedBox(width: 8),
-        TB(c: c, small: true, label: 'Chão', pressed: lv.ground, onTap: g.toggleGround),
-      ]),
-      label(c, 'Cenário'),
       Wrap(spacing: 6, runSpacing: 6, children: [
+        for (final (i, t) in tabs.indexed) TB(c: c, small: true, label: t, pressed: _edTab == i, onTap: () => setState(() => _edTab = i)),
+      ]),
+      ...switch (_edTab) {
+        0 => _edDraw(c, lv),
+        1 => _edRules(c, lv),
+        _ => _edLevel(c, lv),
+      },
+    ]);
+  }
+
+  /// Testar, Cancelar e Salvar: fora da rolagem, sempre à vista.
+  Widget _editorActions(Palette c) => Wrap(spacing: 8, runSpacing: 8, alignment: WrapAlignment.end, children: [
+        TB(c: c, small: true, icon: Icons.play_arrow_rounded, label: 'Testar', tooltip: 'Jogar a fase como está, sem sair do editor', onTap: g.testEdit),
+        TB(c: c, small: true, label: 'Cancelar', onTap: g.cancelEdit),
+        TB(c: c, small: true, primary: true, label: 'Salvar fase', onTap: g.saveEdit),
+      ]);
+
+  List<Widget> _edDraw(Palette c, Level lv) {
+    Widget et(String id, String text, Widget sw) => TB(c: c, small: true, label: text, leading: sw, pressed: g.etool == id, onTap: () => g.setETool(id));
+    return [
+      Wrap(spacing: 6, runSpacing: 6, children: [
+        TB(c: c, small: true, icon: Icons.ads_click, label: 'Ajustar', pressed: g.etool == 'eselect', onTap: () => g.setETool('eselect')),
         et('block', 'Bloco', Sw.sq(c.ground)),
         et('plat', 'Plataforma', Sw.bar(c.ground)),
         et('lift', 'Elevador', Sw.bar(c.lift)),
@@ -558,56 +596,186 @@ class _GamePageState extends State<GamePage> {
         et('magN', 'Ímã fixo N', Sw.mag(c.mN, c.ink, 'N')),
         et('magS', 'Ímã fixo S', Sw.mag(c.mS, c.ink, 'S')),
         TB(c: c, small: true, icon: Icons.delete_outline, label: 'Apagar', pressed: g.etool == 'edel', onTap: () => g.setETool('edel')),
+      ]),
+      Wrap(spacing: 6, runSpacing: 6, children: [
+        TB(c: c, small: true, icon: Icons.grid_4x4, label: 'Grade', tooltip: 'Encaixar de 20 em 20 cm (desligada: de 5 em 5)', pressed: g.egrid, onTap: g.toggleGrid),
+        TB(c: c, small: true, label: 'Chão', pressed: lv.ground, onTap: g.toggleGround),
+        TB(c: c, small: true, icon: Icons.flip, label: 'Espelhar', tooltip: 'Inverter a fase da esquerda para a direita', onTap: g.mirrorLevel),
         TB(c: c, small: true, icon: Icons.undo, label: 'Desfazer', onTap: g.editUndo),
       ]),
-      label(c, 'Peças permitidas'),
-      Wrap(spacing: 6, runSpacing: 6, children: [
-        for (final (id, name, _, sw) in _pieces(c))
+      if (g.selected != null) _selPanel(c),
+    ];
+  }
+
+  /// Propriedades do elemento selecionado com a ferramenta Ajustar.
+  Widget _selPanel(Palette c) {
+    final s = g.esel!, o = g.selected!;
+    const names = {
+      'block': 'Bloco',
+      'door': 'Porta',
+      'plat': 'Plataforma',
+      'seesaw': 'Gangorra',
+      'lift': 'Elevador',
+      'magnet': 'Ímã fixo',
+      'button': 'Botão',
+      'zone': 'Área de construção',
+      'goal': 'Meta',
+      'ball': 'Bola',
+    };
+    final step = g.gridStep, single = const ['zone', 'goal', 'ball'].contains(s.kind);
+    String m(double v) => '${fmt(v / 100)} m';
+    Widget stepper(String name, String value, String prop, double d) => Row(children: [
+          Expanded(child: Text(tr(name), style: GoogleFonts.ibmPlexSans(fontSize: 13, color: c.muted))),
+          IconBtn(c: c, icon: Icons.remove, tooltip: 'Diminuir', size: 36, onTap: () => g.eAdjust(prop, -d)),
+          SizedBox(width: 74, child: Text(value, textAlign: TextAlign.center, style: GoogleFonts.ibmPlexMono(fontSize: 13, color: c.ink))),
+          IconBtn(c: c, icon: Icons.add, tooltip: 'Aumentar', size: 36, onTap: () => g.eAdjust(prop, d)),
+        ]);
+    final rows = <Widget>[
+      ...switch (o) {
+        R r => [
+            stepper('Posição x', m(r.x), 'x', step),
+            stepper('Posição y', m(r.y), 'y', step),
+            stepper('Largura', m(r.w), 'w', step),
+            stepper('Altura', m(r.h), 'h', step),
+          ],
+        Lift l => [
+            stepper('Largura', m(l.w), 'width', 20),
+            stepper('Velocidade', '${fmt(l.speed / 100)} m/s', 'speed', 15),
+            stepper('Atraso', '${fmt(l.delay, 1)} s', 'delay', .5),
+            stepper('Posição x', m(math.min(l.a.x, l.b.x)), 'x', step),
+            stepper('Posição y', m(math.min(l.a.y, l.b.y)), 'y', step),
+            if (l.hasShaft)
+              Text(tr('Vertical e no nível do chão: abre um poço embaixo.'), style: GoogleFonts.ibmPlexSans(fontSize: 12.5, color: c.muted)),
+          ],
+        Seg sg => [
+            Text('${fmt(dist(sg.a, sg.b) / 100)} m · ${(math.atan2(sg.a.y - sg.b.y, sg.b.x - sg.a.x) * 180 / math.pi).round()}°',
+                style: GoogleFonts.ibmPlexMono(fontSize: 13, color: c.ink)),
+            stepper('Posição x', m(math.min(sg.a.x, sg.b.x)), 'x', step),
+            stepper('Posição y', m(math.min(sg.a.y, sg.b.y)), 'y', step),
+            Align(
+              alignment: Alignment.centerLeft,
+              child: TB(c: c, small: true, icon: Icons.horizontal_rule, label: 'Deixar reto', onTap: () => g.eAdjust('level')),
+            ),
+          ],
+        FixedMag mg => [
+            Align(
+              alignment: Alignment.centerLeft,
+              child: TB(c: c, small: true, icon: Icons.swap_horiz, label: mg.pole == 'N' ? 'Polo: norte' : 'Polo: sul', onTap: () => g.eAdjust('pole')),
+            ),
+            stepper('Posição x', m(mg.x), 'x', step),
+            stepper('Posição y', m(mg.y), 'y', step),
+          ],
+        Pt pt => [stepper('Posição x', m(pt.x), 'x', step), stepper('Posição y', m(pt.y), 'y', step)],
+        _ => <Widget>[],
+      },
+    ];
+    return Container(
+      padding: const EdgeInsets.fromLTRB(10, 6, 6, 8),
+      decoration: BoxDecoration(color: c.bg, borderRadius: BorderRadius.circular(10), border: Border.all(color: c.accent.withValues(alpha: .5))),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+        Row(children: [
+          Expanded(child: Text(tr(names[s.kind]!), style: GoogleFonts.ibmPlexSans(fontSize: 14, fontWeight: FontWeight.w700, color: c.ink))),
+          if (!single) IconBtn(c: c, icon: Icons.copy_all_outlined, tooltip: 'Duplicar', size: 36, onTap: g.eDuplicate),
+          if (!single) IconBtn(c: c, icon: Icons.delete_outline, tooltip: 'Apagar', size: 36, onTap: g.eDelete),
+        ]),
+        ...rows,
+      ]),
+    );
+  }
+
+  List<Widget> _edRules(Palette c, Level lv) => [
+        label(c, 'Peças permitidas'),
+        Wrap(spacing: 6, runSpacing: 6, children: [
+          for (final (id, name, _, sw) in _pieces(c))
+            FilterChip(
+              avatar: sw,
+              label: Text(tr(name), style: GoogleFonts.ibmPlexSans(fontSize: 13, color: c.ink)),
+              selected: g.editAllows(id),
+              selectedColor: c.zone.withValues(alpha: .18),
+              checkmarkColor: c.zone,
+              backgroundColor: c.bg,
+              side: BorderSide(color: c.line),
+              onSelected: (_) => g.toggleAllowed(id),
+            ),
+        ]),
+        label(c, 'Regras'),
+        Wrap(spacing: 10, runSpacing: 6, crossAxisAlignment: WrapCrossAlignment.center, children: [
           FilterChip(
-            avatar: sw,
-            label: Text(tr(name), style: GoogleFonts.ibmPlexSans(fontSize: 13, color: c.ink)),
-            selected: g.editAllows(id),
+            avatar: Icon(Icons.sports_baseball_outlined, size: 18, color: c.ink),
+            label: Text(tr('Bola solta'), style: GoogleFonts.ibmPlexSans(fontSize: 13, color: c.ink)),
+            tooltip: tr('Nada pode ser preso à bola, e ela não liga motor de roda'),
+            selected: lv.looseBall,
             selectedColor: c.zone.withValues(alpha: .18),
             checkmarkColor: c.zone,
             backgroundColor: c.bg,
             side: BorderSide(color: c.line),
-            onSelected: (_) => g.toggleAllowed(id),
+            onSelected: (_) => g.toggleLooseBall(),
           ),
-      ]),
-      label(c, 'Regras'),
-      Wrap(spacing: 10, runSpacing: 6, crossAxisAlignment: WrapCrossAlignment.center, children: [
-        FilterChip(
-          avatar: Icon(Icons.sports_baseball_outlined, size: 18, color: c.ink),
-          label: Text(tr('Bola solta'), style: GoogleFonts.ibmPlexSans(fontSize: 13, color: c.ink)),
-          tooltip: tr('Nada pode ser preso à bola, e ela não liga motor de roda'),
-          selected: lv.looseBall,
-          selectedColor: c.zone.withValues(alpha: .18),
-          checkmarkColor: c.zone,
-          backgroundColor: c.bg,
-          side: BorderSide(color: c.line),
-          onSelected: (_) => g.toggleLooseBall(),
-        ),
-        Row(mainAxisSize: MainAxisSize.min, children: [
-          Text(tr('Orçamento (\$)'), style: GoogleFonts.ibmPlexSans(fontSize: 13, color: c.muted)),
-          const SizedBox(width: 6),
-          SizedBox(
-            width: 80,
-            child: TextField(
-              controller: _budget,
-              keyboardType: TextInputType.number,
-              onChanged: g.setBudget,
-              style: GoogleFonts.ibmPlexSans(fontSize: 14, color: c.ink),
-              decoration: InputDecoration(hintText: tr('sem'), isDense: true, border: OutlineInputBorder(borderSide: BorderSide(color: c.line))),
+          Row(mainAxisSize: MainAxisSize.min, children: [
+            Text(tr('Orçamento (\$)'), style: GoogleFonts.ibmPlexSans(fontSize: 13, color: c.muted)),
+            const SizedBox(width: 6),
+            SizedBox(
+              width: 80,
+              child: TextField(
+                controller: _budget,
+                keyboardType: TextInputType.number,
+                onChanged: g.setBudget,
+                style: GoogleFonts.ibmPlexSans(fontSize: 14, color: c.ink),
+                decoration: InputDecoration(hintText: tr('sem'), isDense: true, border: OutlineInputBorder(borderSide: BorderSide(color: c.line))),
+              ),
             ),
-          ),
+          ]),
         ]),
+      ];
+
+  List<Widget> _edLevel(Palette c, Level lv) {
+    final armed = DateTime.now().difference(_delArmed).inMilliseconds < 3000;
+    final ok = lv.verified;
+    return [
+      TextField(
+        controller: _name,
+        maxLength: 40,
+        onChanged: g.setEditName,
+        style: GoogleFonts.ibmPlexSans(fontSize: 15, color: c.ink),
+        decoration: InputDecoration(labelText: tr('Nome da fase'), counterText: '', isDense: true, border: OutlineInputBorder(borderSide: BorderSide(color: c.line))),
+      ),
+      TextField(
+        controller: _tip,
+        maxLength: 160,
+        minLines: 1,
+        maxLines: 3,
+        onChanged: g.setEditTip,
+        style: GoogleFonts.ibmPlexSans(fontSize: 14, color: c.ink),
+        decoration: InputDecoration(
+            labelText: tr('Dica para quem joga'), counterText: '', isDense: true, border: OutlineInputBorder(borderSide: BorderSide(color: c.line))),
+      ),
+      Row(children: [
+        Icon(ok ? Icons.verified : Icons.help_outline, size: 20, color: ok ? c.zone : c.muted),
+        const SizedBox(width: 8),
+        Expanded(
+          child: Text(tr(ok ? 'Verificada: você venceu a fase do jeito que ela está.' : 'Não verificada: toque em Testar e vença uma vez.'),
+              style: GoogleFonts.ibmPlexSans(fontSize: 13, color: ok ? c.zone : c.muted)),
+        ),
       ]),
       label(c, 'Metas das medalhas'),
-      Wrap(spacing: 10, runSpacing: 6, children: [_num(c, 't', 'Tempo (s)'), _num(c, 'n', 'Peças'), _num(c, 'c', 'Custo')]),
-      Wrap(spacing: 8, runSpacing: 8, alignment: WrapAlignment.end, children: [
+      Wrap(spacing: 10, runSpacing: 6, crossAxisAlignment: WrapCrossAlignment.center, children: [
+        _num(c, 't', 'Tempo (s)'),
+        _num(c, 'n', 'Peças'),
+        _num(c, 'c', 'Custo'),
+        TB(
+            c: c,
+            small: true,
+            icon: Icons.auto_awesome,
+            label: 'Sugerir metas',
+            tooltip: 'Pela sua melhor vitória no teste',
+            onTap: g.bestForTargets == null ? null : g.suggestTargets),
+      ]),
+      Wrap(spacing: 8, runSpacing: 8, children: [
+        if (g.canDeleteEdited) TB(c: c, small: true, icon: Icons.copy_outlined, label: 'Salvar como cópia', onTap: () => g.saveEdit(asCopy: true)),
         if (g.canDeleteEdited)
           TB(
               c: c,
+              small: true,
               icon: Icons.delete_forever_outlined,
               label: armed ? 'Toque de novo para excluir' : 'Excluir fase',
               onTap: () {
@@ -619,10 +787,8 @@ class _GamePageState extends State<GamePage> {
                 _delArmed = DateTime(0);
                 g.deleteEdited();
               }),
-        TB(c: c, label: 'Cancelar', onTap: g.cancelEdit),
-        TB(c: c, primary: true, label: 'Salvar fase', onTap: g.saveEdit),
       ]),
-    ]);
+    ];
   }
 
   // ---------- folhas (bottom sheets) ----------
@@ -678,6 +844,17 @@ class _GamePageState extends State<GamePage> {
   void _infoSheet(Palette c) => _sheet(c, 'Metas e desafios', (ctx) {
         final lv = g.level, badges = g.progress.badgesOf(lv.id!);
         return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          if (g.progress.isCustom(lv.id)) ...[
+            Row(children: [
+              Icon(lv.verified ? Icons.verified : Icons.help_outline, size: 18, color: lv.verified ? c.zone : c.muted),
+              const SizedBox(width: 6),
+              Expanded(
+                child: Text(tr(lv.verified ? 'Verificada: o autor venceu esta fase do jeito que ela está.' : 'Ainda não verificada: ninguém venceu esta fase do jeito que ela está.'),
+                    style: GoogleFonts.ibmPlexSans(fontSize: 13, color: lv.verified ? c.zone : c.muted)),
+              ),
+            ]),
+            const SizedBox(height: 10),
+          ],
           if (lv.tip.isNotEmpty) ...[
             Text(tr(lv.tip), style: GoogleFonts.ibmPlexSans(fontSize: 14.5, height: 1.4, color: c.ink)),
             const SizedBox(height: 14),

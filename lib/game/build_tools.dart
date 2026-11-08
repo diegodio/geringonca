@@ -36,6 +36,7 @@ mixin _BuildTools on GameState {
   }
 
   /// Ao trocar de fase, sai de uma ferramenta que a fase nova não permite.
+  @override
   void _fitTool() {
     if (toolAllowed(tool)) return;
     tool = kPieceTools.firstWhere(toolAllowed, orElse: () => 'move');
@@ -57,6 +58,7 @@ mixin _BuildTools on GameState {
     if (_undo.length > 100) _undo.removeAt(0);
   }
 
+  @override
   void _clearUndo() => _undo.clear();
 
   @override

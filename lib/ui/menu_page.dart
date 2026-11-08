@@ -10,6 +10,7 @@ import 'game_page.dart';
 import 'how_to_play.dart';
 import 'logo.dart';
 import 'options.dart';
+import 'templates.dart';
 import 'widgets.dart';
 
 /// Menu inicial: continuar, escolher fase, criar fase e como jogar.
@@ -81,7 +82,13 @@ class MenuPage extends StatelessWidget {
                         label: started ? tr('▶ Continuar: {n}', {'n': tr(g.level.name)}) : tr('▶ Começar'),
                         onTap: () => _play(context, () => g.chooseLevel(g.level.id!)),
                       ),
-                      TB(c: c, label: 'Criar fase', onTap: () => _play(context, g.newLevel)),
+                      TB(
+                          c: c,
+                          label: 'Criar fase',
+                          onTap: () async {
+                            final t = await pickTemplate(context, c);
+                            if (t != null && context.mounted) _play(context, () => g.newLevel(t));
+                          }),
                       TB(c: c, label: 'Como jogar', onTap: () => _howTo(context, c)),
                     ]),
                     const SizedBox(height: 14),

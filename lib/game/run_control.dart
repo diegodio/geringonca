@@ -46,7 +46,7 @@ mixin _RunControl on GameState {
       _deny(tr('A engenhoca custa \${c}, mas o orçamento desta fase é \${b}.', {'c': costOf(ps), 'b': budget}));
       return notifyListeners();
     }
-    if (!isReplay) progress.addTry(level.id!);
+    if (!isReplay && !testing) progress.addTry(level.id!);
     sim?.dispose();
     sim = Sim(level, ps.map((q) => q.copy()).toList(), b.copy());
     mode = Mode.run;
@@ -89,6 +89,7 @@ mixin _RunControl on GameState {
     notifyListeners();
   }
 
+  @override
   void _clearTrail() {
     trail.clear();
     lastTrail = [];
@@ -182,6 +183,15 @@ mixin _RunControl on GameState {
       fx(Sfx.win);
       return;
     }
+    if (testing) {
+      _testWon(s.t, s.n, s.cost);
+      winInfo = WinInfo(false, s.t, s.n, s.cost, {}, [], level.targets);
+      say(tr('Venceu o teste! A fase está verificada. Volte ao editor para salvar.'), true);
+      fx(Sfx.medal);
+      return;
+    }
+    // fase própria vencida: fica verificada (vai assim no link)
+    if (progress.isCustom(level.id) && !level.verified) progress.markVerified(level.id!);
     final r = progress.recordWin(level, s.t, s.parts, s.ball0);
     var msg = trN(s.n, 'Fase concluída em {t} s, com 1 peça e custo \${c}.', 'Fase concluída em {t} s, com {n} peças e custo \${c}.',
         {'t': fmt(s.t), 'c': s.cost});
