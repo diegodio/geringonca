@@ -59,6 +59,9 @@ class _GamePageState extends State<GamePage> {
     super.initState();
     _game = OficinaGame(g, mono: GoogleFonts.ibmPlexMono().fontFamily!, display: GoogleFonts.chakraPetch().fontFamily!);
     g.addListener(_sync);
+    // qualquer mudança no jogo acorda a bancada (ela para de desenhar quando nada muda);
+    // a escuta fica aqui porque a bancada pode ser recriada e perder a dela
+    g.addListener(_game.wake);
     _sync();
   }
 
@@ -79,6 +82,7 @@ class _GamePageState extends State<GamePage> {
   @override
   void dispose() {
     g.removeListener(_sync);
+    g.removeListener(_game.wake);
     _name.dispose();
     _tip.dispose();
     _budget.dispose();
