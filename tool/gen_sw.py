@@ -16,6 +16,9 @@ web = sys.argv[1]
 here = os.path.dirname(os.path.abspath(__file__))
 skip_dirs = {'canvaskit'}
 skip_files = {'sw.js', 'flutter_service_worker.js', '.last_build_id', 'version.json'}
+# o jogo vem em duas versões (WebAssembly e JS) e o navegador usa uma só:
+# o service worker guarda apenas a que este aparelho usa (veja sw_template.js)
+entry_files = {'main.dart.wasm', 'main.dart.mjs', 'main.dart.js'}
 
 files = []
 for root, dirs, names in os.walk(web):
@@ -41,7 +44,7 @@ m = re.search(r'"engineRevision":"([0-9a-f]+)"', boot)
 engine = m.group(1)[:16] if m else version
 
 # a página entra pelo endereço da pasta ("./"), não por index.html
-urls = ['./' if f == 'index.html' else f for f in files]
+urls = ['./' if f == 'index.html' else f for f in files if f not in entry_files]
 tpl = open(os.path.join(here, 'sw_template.js'), encoding='utf-8').read()
 out = (tpl.replace('__VERSAO__', version)
           .replace('__MOTOR__', engine)

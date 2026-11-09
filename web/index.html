@@ -31,6 +31,12 @@
 
   <title>Geringonça</title>
   <link rel="manifest" href="manifest.json">
+
+  <!-- Pedido adiantado: o Box2D só seria pedido depois que o jogo iniciasse; assim
+       baixa junto com o código (medido: 4G 2,30 → 2,16 s até o jogo ficar pronto).
+       As fontes ficam de fora de propósito: adiantadas, disputam a banda com o
+       motor do jogo e o carregamento piora (7,2 s contra 6,5 s a 10 Mbit/s). -->
+  <link rel="preload" href="assets/packages/forge2d/lib/src/backend/wasm/box2d.wasm" as="fetch" crossorigin>
   <meta name="theme-color" content="#1b2a32">
 
   <!-- Tela de carregamento: o logotipo (com o pingo do I quicando) até o primeiro quadro do jogo -->

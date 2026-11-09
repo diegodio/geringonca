@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:forge2d/forge2d.dart' show initializeForge2D;
 import 'package:geringonca/core/levels.dart';
 import 'package:geringonca/core/model.dart';
 import 'package:geringonca/game/controller.dart';
@@ -22,6 +23,8 @@ void _tap(GameController g, Pt p) {
 GameController _editor([String template = 'vazio']) => GameController(Store(null))..newLevel(template);
 
 void main() {
+  setUpAll(() async => initializeForge2D()); // no navegador o Box2D precisa ser carregado antes
+
   group('ajustar o cenário', () {
     test('arrastar um bloco o move de 20 em 20, e desfazer volta', () {
       final g = _editor()..setETool('block');

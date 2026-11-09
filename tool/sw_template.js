@@ -16,8 +16,27 @@ const CACHE_MOTOR = 'geringonca-motor-' + MOTOR;
 const FONTES = 'geringonca-fontes';
 const BASE = new URL('./', self.location).href;
 
+// O jogo vem em duas versões; o navegador escolhe uma (WebAssembly onde há suporte, JS
+// nos outros). Numa atualização, baixa só a versão do tipo que já estava guardada; na
+// primeira visita, a página conta qual usou (mensagem 'guardar' abaixo).
+const WASM = ['main.dart.wasm', 'main.dart.mjs'], JS = ['main.dart.js'];
+
+async function versaoEmUso() {
+  for (const k of await caches.keys()) {
+    if (!k.startsWith('geringonca-app-') || k === APP) continue;
+    const c = await caches.open(k);
+    if (await c.match(BASE + WASM[0])) return WASM;
+    if (await c.match(BASE + JS[0])) return JS;
+  }
+  return [];
+}
+
 self.addEventListener('install', (e) => {
-  e.waitUntil(caches.open(APP).then((c) => c.addAll(ARQUIVOS)).then(() => self.skipWaiting()));
+  e.waitUntil((async () => {
+    const c = await caches.open(APP);
+    await c.addAll([...ARQUIVOS, ...await versaoEmUso()]);
+    await self.skipWaiting();
+  })());
 });
 
 self.addEventListener('activate', (e) => {

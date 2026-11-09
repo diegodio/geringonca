@@ -1,3 +1,6 @@
+@TestOn('vm') // lê os arquivos do projeto para achar textos sem tradução
+library;
+
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
