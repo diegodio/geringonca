@@ -12,9 +12,10 @@ const kChapters = [
   ('Estruturas', 'Pontes, chassis e terreno', 10),
   ('Cenário em movimento', 'Elevadores, gangorras e botões', 10),
   ('Ímãs e mecanismos', 'Atração, repulsão e guindastes', 10),
+  ('Morros e rampas', 'A gravidade a favor, ou contra', 10),
 ];
 
-/// As 50 fases prontas, em ordem crescente de dificuldade, divididas em 5
+/// As 60 fases prontas, em ordem crescente de dificuldade, divididas em 6
 /// capítulos de 10. As ids não seguem a ordem porque as fases mais antigas
 /// mantêm a id original (o progresso salvo usa a id). Cada fase tem uma
 /// solução de referência em test/levels_test.dart, que confere que ela vence,
@@ -657,6 +658,133 @@ List<Level> buildBuiltinLevels() => [
         doors: [R(840, 150, 25, 150)],
         buttons: [Pt(40, 500)],
         targets: Targets(t: 6.5, n: 9, c: 130),
+      ),
+      // ---------- capítulo: Morros e rampas ----------
+      // 51
+      Level(
+        id: 'l51',
+        name: 'Ladeira abaixo',
+        tip: 'Só barras. A bola sai rolando do poleiro e cai seca no chão: monte uma rampa firme para ela descer embalada até a meta.',
+        allowed: ['rod'],
+        zone: R(40, 120, 330, 380),
+        goal: R(680, 380, 200, 120),
+        ball: Pt(75, 160),
+        plats: [_s(55, 190, 150, 200)],
+        targets: Targets(t: 5, n: 3, c: 30),
+      ),
+      // 52
+      Level(
+        id: 'l52',
+        name: 'Zigue-zague',
+        tip: 'Só barras. A bola desce a prateleira para a direita, mas a meta está embaixo dela, à esquerda.',
+        allowed: ['rod'],
+        zone: R(640, 60, 340, 440),
+        goal: R(220, 400, 200, 100),
+        ball: Pt(150, 228),
+        plats: [_s(120, 240, 700, 330)],
+        targets: Targets(t: 9.5, n: 3, c: 30),
+      ),
+      // 53
+      Level(
+        id: 'l53',
+        name: 'Sob o beiral',
+        tip: 'Um teto baixo pendurado antes da meta: engenhocas altas e rodas grandes ficam presas.',
+        zone: R(40, 300, 280, 200),
+        goal: R(780, 380, 190, 120),
+        ball: Pt(150, 478),
+        blocks: [R(480, 0, 240, 395)],
+        targets: Targets(t: 2.5, n: 1, c: 25),
+      ),
+      // 54
+      Level(
+        id: 'l54',
+        name: 'Trampolim',
+        tip: 'Sem motor. Um calço barra a bola antes do buraco. Apoie uma rampa nele para ela voar até o outro lado.',
+        allowed: _noMotor,
+        ground: false,
+        zone: R(420, 330, 270, 170),
+        goal: R(800, 380, 180, 120),
+        ball: Pt(205, 20),
+        hills: [R(-200, 40, 760, 460)],
+        blocks: [R(0, 500, 690, 60), R(750, 500, 250, 60), R(650, 470, 40, 30)],
+        targets: Targets(t: 3.5, n: 1, c: 10),
+      ),
+      // 55
+      Level(
+        id: 'l55',
+        name: 'Calha',
+        tip: 'Sem motor. A bola voa do platô e cai antes do pedestal da meta. Pegue-a no ar com uma calha que desça até lá em cima.',
+        allowed: _noMotor,
+        zone: R(380, 200, 240, 300),
+        goal: R(620, 300, 110, 100),
+        ball: Pt(30, 75),
+        blocks: [R(0, 300, 330, 200), R(620, 400, 110, 100)],
+        hills: [R(-330, 100, 660, 200)],
+        targets: Targets(t: 3.5, n: 4, c: 40),
+      ),
+      // 56
+      Level(
+        id: 'l56',
+        name: 'Sobe e desce',
+        tip: 'Bola solta e três morros até o platô da meta.',
+        looseBall: true,
+        zone: R(40, 300, 260, 200),
+        goal: R(860, 240, 130, 140),
+        ball: Pt(160, 420),
+        hills: [R(320, 400, 180, 100), R(510, 380, 180, 120), R(700, 380, 300, 120)],
+        blocks: [R(850, 380, 150, 120)],
+        targets: Targets(t: 8, n: 6, c: 90),
+      ),
+      // 57
+      Level(
+        id: 'l57',
+        name: 'Teto no morro',
+        tip: 'Um morro íngreme com o teto quase encostando no topo: só uma engenhoca baixa e forte passa.',
+        zone: R(40, 300, 260, 200),
+        goal: R(780, 380, 190, 120),
+        ball: Pt(150, 472),
+        hills: [R(320, 360, 400, 140)],
+        blocks: [R(420, 0, 200, 300)],
+        targets: Targets(t: 3.5, n: 1, c: 25),
+      ),
+      // 58
+      Level(
+        id: 'l58',
+        name: 'Empurrãozinho',
+        tip: 'A bola equilibra no topo de um morro íngreme. Suba a encosta e dê só um empurrãozinho para o lado da meta.',
+        zone: R(40, 300, 240, 200),
+        goal: R(760, 380, 220, 120),
+        ball: Pt(500, 258),
+        hills: [R(280, 280, 440, 220)],
+        targets: Targets(t: 3.5, n: 2, c: 30),
+      ),
+      // 59
+      Level(
+        id: 'l59',
+        name: 'Salto do platô',
+        tip: 'Bola solta. A área verde não alcança o outro lado do vale: desça embalado e salte com a bola junto.',
+        ground: false,
+        looseBall: true,
+        zone: R(40, 80, 330, 170),
+        goal: R(780, 260, 210, 120),
+        ball: Pt(150, 150),
+        blocks: [R(0, 250, 380, 250), R(600, 380, 400, 120)],
+        targets: Targets(t: 3, n: 6, c: 90),
+      ),
+      // 60
+      Level(
+        id: 'l60',
+        name: 'Grande descida',
+        tip: 'Bola solta e orçamento curto: desça a ladeira, passe por baixo do teto e salte até a meta.',
+        ground: false,
+        looseBall: true,
+        budget: 100,
+        zone: R(40, 80, 300, 170),
+        goal: R(800, 350, 190, 120),
+        ball: Pt(150, 150),
+        blocks: [R(0, 250, 340, 310), R(340, 430, 300, 130), R(760, 470, 240, 90), R(450, 0, 160, 150)],
+        hills: [R(40, 250, 600, 180)],
+        targets: Targets(t: 2.5, n: 6, c: 90),
       ),
     ];
 

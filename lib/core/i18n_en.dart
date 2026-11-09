@@ -824,6 +824,50 @@ const kEn = <String, String>{
       'Fixed magnet',
   'Morro':
       'Hill',
+  'Morros e rampas':
+      'Hills and ramps',
+  'A gravidade a favor, ou contra':
+      'Gravity on your side, or against you',
+  'Ladeira abaixo':
+      'Downhill',
+  'Só barras. A bola sai rolando do poleiro e cai seca no chão: monte uma rampa firme para ela descer embalada até a meta.':
+      'Bars only. The ball rolls off the perch and drops dead on the ground: build a sturdy ramp so it rolls down with speed all the way to the goal.',
+  'Zigue-zague':
+      'Zigzag',
+  'Só barras. A bola desce a prateleira para a direita, mas a meta está embaixo dela, à esquerda.':
+      'Bars only. The ball rolls down the shelf to the right, but the goal is underneath it, on the left.',
+  'Sob o beiral':
+      'Under the eaves',
+  'Um teto baixo pendurado antes da meta: engenhocas altas e rodas grandes ficam presas.':
+      'A low ceiling hangs before the goal: tall contraptions and big wheels get stuck.',
+  'Trampolim':
+      'Springboard',
+  'Sem motor. Um calço barra a bola antes do buraco. Apoie uma rampa nele para ela voar até o outro lado.':
+      'No motors. A chock stops the ball before the hole. Lean a ramp on it so the ball flies to the other side.',
+  'Calha':
+      'Chute',
+  'Sem motor. A bola voa do platô e cai antes do pedestal da meta. Pegue-a no ar com uma calha que desça até lá em cima.':
+      'No motors. The ball flies off the plateau and lands short of the goal pedestal. Catch it in mid-air with a chute that runs down onto it.',
+  'Sobe e desce':
+      'Up and down',
+  'Bola solta e três morros até o platô da meta.':
+      'Loose ball and three hills up to the goal plateau.',
+  'Teto no morro':
+      'Ceiling over the hill',
+  'Um morro íngreme com o teto quase encostando no topo: só uma engenhoca baixa e forte passa.':
+      'A steep hill with the ceiling almost touching its top: only a low, strong contraption gets through.',
+  'Empurrãozinho':
+      'A little nudge',
+  'A bola equilibra no topo de um morro íngreme. Suba a encosta e dê só um empurrãozinho para o lado da meta.':
+      'The ball balances on top of a steep hill. Climb the slope and give it a little nudge toward the goal.',
+  'Salto do platô':
+      'Plateau jump',
+  'Bola solta. A área verde não alcança o outro lado do vale: desça embalado e salte com a bola junto.':
+      'Loose ball. The green area does not reach across the valley: build up speed and jump with the ball.',
+  'Grande descida':
+      'The big descent',
+  'Bola solta e orçamento curto: desça a ladeira, passe por baixo do teto e salte até a meta.':
+      'Loose ball and a tight budget: go down the slope, under the ceiling and jump to the goal.',
   'Arraste para desenhar um morro: a largura é a base, a altura é o topo.':
       'Drag to draw a hill: the width is its base, the height is its top.',
   'Verificada: o autor venceu esta fase do jeito que ela está.':

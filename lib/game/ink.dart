@@ -224,13 +224,14 @@ class Ink {
     for (final p in lv.plats) {
       plat(p.a, p.b);
     }
+    // morros antes dos blocos: a parte do morro atrás de um bloco fica escondida
+    for (final h in lv.hills) {
+      hill(h);
+    }
     for (final b in lv.blocks) {
       final r = Rect.fromLTWH(b.x, b.y, b.w, b.h);
       cv.drawRect(r, fill(c.ground));
       cv.drawRect(r, stroke(c.ink, 1.5));
-    }
-    for (final h in lv.hills) {
-      hill(h);
     }
     for (var x = 100; x < kW; x += 100) {
       line(x.toDouble(), kH - 10, x.toDouble(), kH, stroke(c.muted, 1));
