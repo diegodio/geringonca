@@ -1,5 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:forge2d/forge2d.dart';
 
 import 'game/controller.dart';
@@ -12,9 +14,19 @@ import 'ui/platform/link.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  // as fontes vêm de assets/fonts; sem buscar no Google ao abrir
+  GoogleFonts.config.allowRuntimeFetching = false;
+  LicenseRegistry.addLicense(() async* {
+    for (final (name, file) in [('IBM Plex Sans', 'ibmplexsans'), ('IBM Plex Mono', 'ibmplexmono'), ('Chakra Petch', 'chakrapetch')]) {
+      yield LicenseEntryWithLineBreaks([name], await rootBundle.loadString('assets/fonts/OFL-$file.txt'));
+    }
+  });
   // na web, carrega o Box2D em WebAssembly direto do lugar certo (sem tentativas)
   await initializeForge2D(wasmUri: kIsWeb ? Uri.parse('assets/packages/forge2d/lib/src/backend/wasm/box2d.wasm') : null);
   final store = await Store.open();
+  // ao ir para o fundo ou fechar, grava na hora o que estava esperando
+  // (o próprio Flutter guarda o ouvinte enquanto o app vive)
+  AppLifecycleListener(onHide: store.flush, onPause: store.flush, onDetach: store.flush);
   final g = GameController(store)..fxOut = playFx;
   runApp(GeringoncaApp(controller: g));
   // aberto por um link de compartilhamento (#c=...): vai direto para a fase

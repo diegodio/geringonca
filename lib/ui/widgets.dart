@@ -215,13 +215,18 @@ class PieceChip extends StatelessWidget {
           onTap: onTap,
           child: Container(
             constraints: const BoxConstraints(minWidth: 72, minHeight: 56),
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-            child: Column(mainAxisSize: MainAxisSize.min, children: [
-              SizedBox(height: 18, child: Center(child: swatch)),
-              const SizedBox(height: 4),
-              Text(tr(name), style: GoogleFonts.ibmPlexSans(fontSize: 12.5, fontWeight: FontWeight.w600, color: selected ? c.paper : c.ink)),
-              Text(cost, style: GoogleFonts.ibmPlexMono(fontSize: 10.5, color: selected ? c.paper.withValues(alpha: .75) : c.muted)),
-            ]),
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+            // cabe na faixa de 64 px com folga; com letra grande no aparelho, encolhe em vez de cortar
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Column(mainAxisSize: MainAxisSize.min, children: [
+                SizedBox(height: 18, child: Center(child: swatch)),
+                const SizedBox(height: 3),
+                Text(tr(name),
+                    style: GoogleFonts.ibmPlexSans(fontSize: 12.5, height: 1.15, fontWeight: FontWeight.w600, color: selected ? c.paper : c.ink)),
+                Text(cost, style: GoogleFonts.ibmPlexMono(fontSize: 10.5, height: 1.15, color: selected ? c.paper.withValues(alpha: .75) : c.muted)),
+              ]),
+            ),
           ),
         ),
       );
