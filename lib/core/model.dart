@@ -251,6 +251,10 @@ class Level {
   R zone, goal;
   Pt ball;
   List<R> blocks, doors;
+
+  /// Morros: cada um ocupa o retângulo dado e tem a forma de uma lombada suave,
+  /// do pé (embaixo, nas pontas) até o topo (em cima, no meio). Veja [hillY].
+  List<R> hills;
   List<Seg> plats, seesaws;
   List<Lift> lifts;
   List<FixedMag> magnets;
@@ -279,6 +283,7 @@ class Level {
     required this.goal,
     required this.ball,
     List<R>? blocks,
+    List<R>? hills,
     List<R>? doors,
     List<Seg>? plats,
     List<Seg>? seesaws,
@@ -291,6 +296,7 @@ class Level {
     this.budget,
     this.verified = false,
   })  : blocks = blocks ?? [],
+        hills = hills ?? [],
         doors = doors ?? [],
         plats = plats ?? [],
         seesaws = seesaws ?? [],
@@ -310,6 +316,7 @@ class Level {
         'goal': goal.toJson(),
         'ball': ball.toJson(),
         'blocks': blocks.map((e) => e.toJson()).toList(),
+        if (hills.isNotEmpty) 'hills': hills.map((e) => e.toJson()).toList(),
         'plats': plats.map((e) => e.toJson()).toList(),
         'magnets': magnets.map((e) => e.toJson()).toList(),
         'lifts': lifts.map((e) => e.toJson()).toList(),
@@ -337,6 +344,7 @@ class Level {
       goal: R.fromJson(m['goal']) ?? R(790, 360, 180, 140),
       ball: Pt.fromJson(m['ball']) ?? Pt(170, 440),
       blocks: arr(m['blocks'], 80, R.fromJson),
+      hills: arr(m['hills'], 20, R.fromJson),
       plats: arr(m['plats'], 80, Seg.fromJson),
       seesaws: arr(m['seesaws'], 20, Seg.fromJson),
       lifts: arr(m['lifts'], 20, (l) {
@@ -364,3 +372,16 @@ class Level {
 }
 
 R zone0() => R(40, 270, 310, 220);
+
+/// Altura (y) da superfície do morro [r] na posição [x]: uma lombada de cosseno,
+/// plana nos pés e no topo, para a bola e as rodas rolarem sem tranco.
+double hillY(R r, double x) {
+  final u = clampD((x - r.x) / r.w, 0, 1);
+  return r.y + r.h - r.h * (1 - dcos(2 * math.pi * u)) / 2; // dcos: igual em todo aparelho
+}
+
+/// Pontos da superfície do morro, da esquerda para a direita.
+List<Pt> hillPoints(R r, [int n = 32]) => [for (var i = 0; i <= n; i++) Pt(r.x + r.w * i / n, hillY(r, r.x + r.w * i / n))];
+
+/// O ponto [p] está dentro do morro [r] (entre a superfície e o pé)?
+bool inHill(R r, Pt p) => p.x >= r.x && p.x <= r.x + r.w && p.y <= r.y + r.h && p.y >= hillY(r, p.x);

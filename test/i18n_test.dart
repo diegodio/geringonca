@@ -32,7 +32,7 @@ Set<String> _sourceKeys() {
     RegExp(r"\b_num\(c,\s*'\w+',\s*" + lit),
     RegExp(r'\bstepper\(' + lit),
     RegExp(r'\blabel:\s*[^,()]*?\?\s*' + lit + r'\s*:\s*' + lit),
-    RegExp(r"'(?:block|door|plat|seesaw|lift|magnet|button|zone|goal|ball)':\s*" + lit),
+    RegExp(r"'(?:block|hill|door|plat|seesaw|lift|magnet|button|zone|goal|ball)':\s*" + lit),
     RegExp(r"\(\s*'\w+',\s*" + lit + r",\s*'\\\$\d+',"),
   ];
   final keys = <String>{};

@@ -121,6 +121,23 @@ void main() {
       expect(jsonEncode(a['goal']), jsonEncode(b['goal']));
     });
 
+    test('morro: desenhar, selecionar pela curva, duplicar e espelhar', () {
+      final g = _editor()..setETool('hill');
+      _drag(g, Pt(400, 300), Pt(700, 500));
+      final h = g.editLevel!.hills.single;
+      expect([h.x, h.y, h.w, h.h], [400, 300, 300, 200]);
+      g.setETool('eselect');
+      _tap(g, Pt(550, 320)); // perto do topo
+      expect(g.esel, (kind: 'hill', i: 0));
+      _tap(g, Pt(420, 320)); // acima da encosta, fora do morro: não seleciona
+      expect(g.esel?.kind, isNot('hill'));
+      _tap(g, Pt(550, 450));
+      g.eDuplicate();
+      expect(g.editLevel!.hills.length, 2);
+      g.mirrorLevel();
+      expect(g.editLevel!.hills.first.x, 1000 - 400 - 300);
+    });
+
     test('grade desligada encaixa de 5 em 5', () {
       final g = _editor()..toggleGrid();
       expect(g.gridStep, 5);

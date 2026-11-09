@@ -224,6 +224,10 @@ class Ink {
     for (final p in lv.plats) {
       plat(p.a, p.b);
     }
+    // morros antes dos blocos: a parte do morro atrás de um bloco fica escondida
+    for (final h in lv.hills) {
+      hill(h);
+    }
     for (final b in lv.blocks) {
       final r = Rect.fromLTWH(b.x, b.y, b.w, b.h);
       cv.drawRect(r, fill(c.ground));
@@ -324,6 +328,8 @@ class Ink {
         final r = R.fromPoints(a, b);
         if (d.et == 'door') {
           door(r.x, r.y, r.w, r.h, al);
+        } else if (d.et == 'hill') {
+          hill(r, al);
         } else {
           cv.drawRect(Rect.fromLTWH(r.x, r.y, r.w, r.h), fill(d.et == 'zone' ? c.zone : d.et == 'goal' ? c.goal : c.ground, al));
         }
@@ -331,6 +337,19 @@ class Ink {
         return;
     }
     if (dist(a, b) > 4) measure(Seg(a, b));
+  }
+
+  /// Morro: a curva preenchida até o pé, com contorno só na curva (o pé encosta
+  /// no chão ou num bloco). [a] < 1 no rascunho do editor.
+  void hill(R h, [double a = 1]) {
+    final pts = hillPoints(h, 48);
+    final top = Path()..moveTo(pts.first.x, pts.first.y);
+    for (final p in pts.skip(1)) {
+      top.lineTo(p.x, p.y);
+    }
+    final body = Path.from(top)..close();
+    cv.drawPath(body, fill(c.ground, a));
+    cv.drawPath(top, stroke(c.ink, 1.5, a));
   }
 
   /// Elemento selecionado no editor: contorno, alças para redimensionar e, enquanto

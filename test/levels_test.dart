@@ -57,8 +57,8 @@ List<Part> rigid(Level lv, double r, double d) {
 }
 
 /// Gaiola: chassi, duas paredes inclinadas e tampa, sobre duas rodas; a bola vai solta dentro.
-List<Part> cage(Pt b, double r, {String top = 'solid', double half = 40}) {
-  final by = 500 - r;
+List<Part> cage(Pt b, double r, {String top = 'solid', double half = 40, double floor = 500}) {
+  final by = floor - r;
   return [
     rod(b.x - 80, by, b.x + 80, by),
     rod(b.x - 80, by, b.x - half, by - 70),
@@ -157,6 +157,22 @@ Map<String, List<Part>> solutions() {
     'l48': [...crane(300, 380, Pt(150, 230)), wh('ccw', 130, 472, 24), rod(130, 472, 135, 430, 'water')],
     'l49': [rod(420, 488, 560, 488), wh('cw', 330, 440, 60), wh('ccw', 140, 472, 24), rod(140, 472, 145, 430, 'water')],
     'l50': [rod(420, 488, 560, 488), ...cage(Pt(330, 440), 60), wh('ccw', 160, 472, 24), rod(160, 472, 165, 430, 'water')],
+    // ---------- capítulo 6: Morros e rampas ----------
+    // rampa em triângulo: a bola desce embalada do poleiro
+    'l51': [rod(150, 215, 360, 490), rod(150, 215, 150, 495), rod(150, 495, 360, 490)],
+    // rampa no canto direito devolve a bola para baixo da prateleira
+    'l52': [rod(970, 330, 700, 492), rod(970, 330, 970, 495), rod(970, 495, 700, 492)],
+    'l53': axle(l['l53']!, 40),
+    // uma barra apoiada no calço vira trampolim
+    'l54': [rod(560, 495, 690, 455)],
+    // calha que pega a bola no ar e desce até o pedestal
+    'l55': [rod(390, 330, 615, 385), rod(390, 330, 390, 495), rod(390, 495, 615, 385), rod(615, 385, 615, 495)],
+    'l56': cage(l['l56']!.ball, 60),
+    'l57': axle(l['l57']!, 28),
+    // roda grande sobe o morro íngreme e empurra a bola do topo
+    'l58': [wh('cw', 160, 440, 60), rod(160, 440, 130, 400, 'water')],
+    'l59': cage(l['l59']!.ball, 60, floor: 250),
+    'l60': cage(l['l60']!.ball, 40, floor: 250),
   };
 }
 
@@ -205,16 +221,30 @@ Map<String, Map<String, List<Part>>> tooSimple() {
     'l48': {'guindaste sem o botão': crane(300, 380, Pt(150, 230))},
     'l49': {'roda média': [rod(420, 488, 560, 488), wh('cw', 330, 460, 40), wh('ccw', 140, 472, 24), rod(140, 472, 145, 430, 'water')]},
     'l50': {'gaiola média': [rod(420, 488, 560, 488), ...cage(Pt(330, 440), 40), wh('ccw', 160, 472, 24), rod(160, 472, 165, 430, 'water')]},
+    'l51': {'nada': none(), 'barra solta, sem apoio': [rod(150, 215, 360, 490)]},
+    'l52': {'nada': none()},
+    'l53': {'roda grande': axle(l['l53']!, 60)},
+    'l54': {'nada': none()},
+    'l55': {'nada': none()},
+    'l56': {'nada': none(), 'gaiola de rodas médias': cage(l['l56']!.ball, 40)},
+    'l57': {'roda média': axle(l['l57']!, 40)},
+    'l58': {
+      'nada': none(),
+      'roda média': [wh('cw', 160, 460, 40), rod(160, 460, 130, 420, 'water')],
+      'roda pequena': [wh('cw', 160, 472, 28), rod(160, 472, 130, 432, 'water')],
+    },
+    'l59': {'gaiola lenta': cage(l['l59']!.ball, 28, floor: 250)},
+    'l60': {'nada': none(), 'gaiola de rodas grandes': cage(l['l60']!.ball, 60, floor: 250)},
   };
 }
 
 void main() {
   setUpAll(() async => initializeForge2D());
 
-  test('são 50 fases, 5 capítulos de 10, e cada uma tem solução de referência', () {
-    expect(kBuiltin, hasLength(50));
-    expect(kChapters.map((c) => c.$3).fold(0, (a, b) => a + b), 50);
-    expect(kBuiltin.map((l) => l.id).toSet(), hasLength(50));
+  test('são 60 fases, 6 capítulos de 10, e cada uma tem solução de referência', () {
+    expect(kBuiltin, hasLength(60));
+    expect(kChapters.map((c) => c.$3).fold(0, (a, b) => a + b), 60);
+    expect(kBuiltin.map((l) => l.id).toSet(), hasLength(60));
     expect(solutions().keys.toList(), kBuiltin.map((l) => l.id).toList());
   });
 
