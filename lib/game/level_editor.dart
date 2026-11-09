@@ -242,7 +242,7 @@ mixin _LevelEditor on GameState {
     double mx(double x) => kW - x;
     void pt(Pt p) => p.x = mx(p.x);
     void rect(R r) => r.x = kW - r.x - r.w;
-    for (final r in [...lv.blocks, ...lv.doors, lv.zone, lv.goal]) {
+    for (final r in [...lv.blocks, ...lv.hills, ...lv.doors, lv.zone, lv.goal]) {
       rect(r);
     }
     for (final s in [...lv.plats, ...lv.seesaws, ...lv.lifts]) {
@@ -322,6 +322,7 @@ mixin _LevelEditor on GameState {
     final lv = editLevel!;
     List<Object> list(String k) => switch (k) {
           'block' => lv.blocks,
+          'hill' => lv.hills,
           'door' => lv.doors,
           'plat' => lv.plats,
           'seesaw' => lv.seesaws,
@@ -359,6 +360,7 @@ mixin _LevelEditor on GameState {
         last<R>('door', lv.doors, (d) => d.contains(p)) ??
         last<Seg>('plat', lv.plats, (s) => segDist(p, s.a, s.b) <= kPlatT / 2 + tol * .6) ??
         last<R>('block', lv.blocks, (b) => b.contains(p)) ??
+        last<R>('hill', lv.hills, (h) => inHill(h, p) || (p.x >= h.x && p.x <= h.x + h.w && (p.y - hillY(h, p.x)).abs() <= tol)) ??
         (lv.goal.contains(p) ? (kind: 'goal', i: 0) : null) ??
         (lv.zone.contains(p) ? (kind: 'zone', i: 0) : null);
   }
@@ -437,6 +439,7 @@ mixin _LevelEditor on GameState {
     final lv = editLevel!;
     final list = switch (s.kind) {
       'block' => lv.blocks,
+      'hill' => lv.hills,
       'door' => lv.doors,
       'plat' => lv.plats,
       'seesaw' => lv.seesaws,
@@ -458,6 +461,7 @@ mixin _LevelEditor on GameState {
     final lv = editLevel!;
     (switch (s.kind) {
       'block' => lv.blocks,
+      'hill' => lv.hills,
       'door' => lv.doors,
       'plat' => lv.plats,
       'seesaw' => lv.seesaws,
@@ -639,6 +643,8 @@ mixin _LevelEditor on GameState {
     _pushEU();
     if (t == 'block') {
       lv.blocks.add(r);
+    } else if (t == 'hill') {
+      lv.hills.add(r);
     } else if (t == 'door') {
       lv.doors.add(r);
     } else if (t == 'zone') {

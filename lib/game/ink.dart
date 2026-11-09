@@ -229,6 +229,9 @@ class Ink {
       cv.drawRect(r, fill(c.ground));
       cv.drawRect(r, stroke(c.ink, 1.5));
     }
+    for (final h in lv.hills) {
+      hill(h);
+    }
     for (var x = 100; x < kW; x += 100) {
       line(x.toDouble(), kH - 10, x.toDouble(), kH, stroke(c.muted, 1));
       text('${x ~/ 100} m', x + 4, kH - 3, lv.ground ? c.paper : c.muted, size: 11);
@@ -324,6 +327,8 @@ class Ink {
         final r = R.fromPoints(a, b);
         if (d.et == 'door') {
           door(r.x, r.y, r.w, r.h, al);
+        } else if (d.et == 'hill') {
+          hill(r, al);
         } else {
           cv.drawRect(Rect.fromLTWH(r.x, r.y, r.w, r.h), fill(d.et == 'zone' ? c.zone : d.et == 'goal' ? c.goal : c.ground, al));
         }
@@ -331,6 +336,19 @@ class Ink {
         return;
     }
     if (dist(a, b) > 4) measure(Seg(a, b));
+  }
+
+  /// Morro: a curva preenchida até o pé, com contorno só na curva (o pé encosta
+  /// no chão ou num bloco). [a] < 1 no rascunho do editor.
+  void hill(R h, [double a = 1]) {
+    final pts = hillPoints(h, 48);
+    final top = Path()..moveTo(pts.first.x, pts.first.y);
+    for (final p in pts.skip(1)) {
+      top.lineTo(p.x, p.y);
+    }
+    final body = Path.from(top)..close();
+    cv.drawPath(body, fill(c.ground, a));
+    cv.drawPath(top, stroke(c.ink, 1.5, a));
   }
 
   /// Elemento selecionado no editor: contorno, alças para redimensionar e, enquanto

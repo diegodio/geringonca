@@ -822,6 +822,10 @@ const kEn = <String, String>{
       'Pole: south',
   'Ímã fixo':
       'Fixed magnet',
+  'Morro':
+      'Hill',
+  'Arraste para desenhar um morro: a largura é a base, a altura é o topo.':
+      'Drag to draw a hill: the width is its base, the height is its top.',
   'Verificada: o autor venceu esta fase do jeito que ela está.':
       'Verified: the author beat this level as it is.',
   'Ainda não verificada: ninguém venceu esta fase do jeito que ela está.':

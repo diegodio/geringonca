@@ -155,6 +155,16 @@ class Sim {
     for (final b in lv.blocks) {
       _box(b.x + b.w / 2, b.y + b.h / 2, b.w, b.h);
     }
+    // Morros: cadeia fechada pela curva (o pé fecha o laço), sólida por fora e lisa
+    // nas emendas, para a bola e as rodas rolarem sem tropeçar.
+    for (final h in lv.hills) {
+      _static(0, 0).createChain(ChainDef(
+        points: [for (final p in hillPoints(h)) _vp(p)],
+        isLoop: true,
+        materials: [SurfaceMaterial(friction: .9)],
+        filter: Filter(categoryBits: catEnv, maskBits: catParts | catBall | catScen),
+      ));
+    }
     for (final s in lv.plats) {
       final body = _static((s.a.x + s.b.x) / 2, (s.a.y + s.b.y) / 2);
       // cápsula = retângulo com pontas redondas, como a plataforma do HTML

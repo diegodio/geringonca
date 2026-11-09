@@ -49,6 +49,7 @@ const kHints = {
 const kEHints = {
   'eselect': 'Toque num elemento para selecionar. Arraste para mover; arraste as bolinhas para mudar o tamanho.',
   'block': 'Arraste para desenhar um bloco.',
+  'hill': 'Arraste para desenhar um morro: a largura é a base, a altura é o topo.',
   'plat': 'Arraste para desenhar uma plataforma. Inclinada, vira rampa.',
   'lift': 'Arraste do ponto de partida até o ponto de chegada do elevador.',
   'seesaw': 'Arraste para desenhar a prancha. O eixo fica no meio.',
