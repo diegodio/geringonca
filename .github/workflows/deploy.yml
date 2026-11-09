@@ -19,6 +19,9 @@ jobs:
         with:
           channel: stable
       - run: flutter pub get
+      # nada é publicado se a análise ou algum teste falhar
+      - run: flutter analyze
+      - run: flutter test
       # CanvasKit servido junto do jogo (sem CDN), para o modo offline guardar tudo
       - run: flutter build web --release --no-web-resources-cdn --base-href "/geringonca/"
       # service worker com a lista de arquivos e a versão desta publicação

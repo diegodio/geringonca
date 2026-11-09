@@ -61,6 +61,11 @@ flutter:
   # the material Icons class.
   uses-material-design: true
 
+  # Fontes do jogo dentro do app (o google_fonts as acha pelo nome do arquivo):
+  # nada é buscado na internet ao abrir, e a primeira visita já funciona offline.
+  assets:
+    - assets/fonts/
+
   # To add assets to your application, add an assets section, like this:
   # assets:
   #   - images/a_dot_burr.jpeg
