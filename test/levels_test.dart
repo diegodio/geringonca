@@ -57,13 +57,13 @@ List<Part> rigid(Level lv, double r, double d) {
 }
 
 /// Gaiola: chassi, duas paredes inclinadas e tampa, sobre duas rodas; a bola vai solta dentro.
-List<Part> cage(Pt b, double r, {String top = 'solid', double half = 40, double floor = 500}) {
+List<Part> cage(Pt b, double r, {String top = 'solid', double half = 40, double floor = 500, double h = 70}) {
   final by = floor - r;
   return [
     rod(b.x - 80, by, b.x + 80, by),
-    rod(b.x - 80, by, b.x - half, by - 70),
-    rod(b.x + 80, by, b.x + half, by - 70),
-    rod(b.x - half, by - 70, b.x + half, by - 70, top),
+    rod(b.x - 80, by, b.x - half, by - h),
+    rod(b.x + 80, by, b.x + half, by - h),
+    rod(b.x - half, by - h, b.x + half, by - h, top),
     wh('cw', b.x - 80, by, r),
     wh('cw', b.x + 80, by, r),
   ];
@@ -156,7 +156,7 @@ Map<String, List<Part>> solutions() {
     ],
     'l48': [...crane(300, 380, Pt(150, 230)), wh('ccw', 130, 472, 24), rod(130, 472, 135, 430, 'water')],
     'l49': [rod(420, 488, 560, 488), wh('cw', 330, 440, 60), wh('ccw', 140, 472, 24), rod(140, 472, 145, 430, 'water')],
-    'l50': [rod(420, 488, 560, 488), ...cage(Pt(330, 440), 60), wh('ccw', 160, 472, 24), rod(160, 472, 165, 430, 'water')],
+    'l50': [rod(420, 488, 560, 488), ...cage(Pt(330, 440), 50), wh('ccw', 160, 472, 24), rod(160, 472, 165, 430, 'water')],
     // ---------- capítulo 6: Morros e rampas ----------
     // rampa em triângulo: a bola desce embalada do poleiro
     'l51': [rod(150, 215, 360, 490), rod(150, 215, 150, 495), rod(150, 495, 360, 490)],
@@ -164,10 +164,10 @@ Map<String, List<Part>> solutions() {
     'l52': [rod(970, 330, 700, 492), rod(970, 330, 970, 495), rod(970, 495, 700, 492)],
     'l53': axle(l['l53']!, 40),
     // uma barra apoiada no calço vira trampolim
-    'l54': [rod(560, 495, 690, 455)],
+    'l54': [rod(520, 495, 690, 458)],
     // calha que pega a bola no ar e desce até o pedestal
     'l55': [rod(390, 330, 615, 385), rod(390, 330, 390, 495), rod(390, 495, 615, 385), rod(615, 385, 615, 495)],
-    'l56': cage(l['l56']!.ball, 60),
+    'l56': cage(l['l56']!.ball, 60, h: 80),
     'l57': axle(l['l57']!, 28),
     // roda grande sobe o morro íngreme e empurra a bola do topo
     'l58': [wh('cw', 160, 440, 60), rod(160, 440, 130, 400, 'water')],

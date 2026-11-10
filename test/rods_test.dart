@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:forge2d/forge2d.dart';
 import 'package:geringonca/core/levels.dart';
@@ -30,12 +32,46 @@ void main() {
     s.dispose();
   });
 
-  test('borracha atravessa madeira e o cenário', () {
+  test('borracha atravessa madeira, mas as pontas batem no chão', () {
     final s = _run([
-      Part.rod('solid', Pt(300, 495), Pt(500, 495)),
-      Part.rod('water', Pt(320, 400), Pt(480, 400)),
+      Part.rod('solid', Pt(300, 495), Pt(500, 495)), // no chão
+      Part.rod('water', Pt(250, 400), Pt(550, 400)), // mais comprida, cai por cima
     ], 2);
-    expect(_y(s, 1), greaterThan(560));
+    // o corpo da borracha passa pela madeira e as pontas param no chão
+    expect(_y(s, 1), closeTo(500 - kTipR, 2));
+    expect(_y(s, 0), closeTo(496, 2)); // a madeira nem se mexe
+    s.dispose();
+  });
+
+  test('ponta da borracha bate na madeira', () {
+    final s = _run([
+      Part.rod('solid', Pt(300, 495), Pt(500, 495)), // no chão
+      Part.rod('water', Pt(400, 400), Pt(400, 300)), // em pé, cai com a ponta em cima da madeira
+    ], 1);
+    // a ponta de baixo fica sobre a madeira (topo em 491), não atravessa até o chão
+    final p = s.pose(s.bodies[1].body);
+    expect(p.y + 50 * math.sin(p.angle).abs(), lessThan(491));
+    s.dispose();
+  });
+
+  test('madeira presa na mesma junta não dobra por dentro da outra', () {
+    final s = _run([
+      Part.rod('solid', Pt(300, 495), Pt(500, 495)), // no chão
+      Part.rod('solid', Pt(300, 495), Pt(380, 320)), // presa na ponta, inclinada: tomba por cima
+    ], 3);
+    // a de cima deita sobre a de baixo, sem atravessá-la até o chão
+    final p = s.pose(s.bodies[1].body);
+    expect(p.y, lessThan(495 - 2));
+    expect(p.x, greaterThan(300));
+    s.dispose();
+  });
+
+  test('madeira não atravessa roda solta', () {
+    final s = _run([
+      Part.wheel('free', Pt(400, 472), 28), // no chão
+      Part.rod('solid', Pt(330, 380), Pt(470, 380)), // cai em cima da roda
+    ], 1);
+    expect(_y(s, 1), lessThan(472 - 28 + 2));
     s.dispose();
   });
 

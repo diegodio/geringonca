@@ -249,7 +249,9 @@ class Sim {
     void addJ(Pt pt, Body body) => joints.putIfAbsent(pt.key, () => (pt, <Body>[])).$2.add(body);
     if (attached) addJ(ball0, ball);
 
-    final shapeOf = <Body, Shape>{};
+    // Formas de cada peça, com o lugar onde começam (segmento a-b e raio), para
+    // decidir quem ignora quem: só pedaços que já começam encostados.
+    final pieces = <(Body, Shape, Pt, Pt, double)>[];
     for (final q in parts) {
       late Body b;
       late Shape sh;
@@ -264,17 +266,48 @@ class Sim {
           linearDamping: _airDamping,
           angularDamping: _airDamping,
         ));
-        sh = b.createShape(
-          Polygon.box(len / 2 / kScale, 4 / kScale),
-          ShapeDef(
-            density: _dPart,
-            material: SurfaceMaterial(friction: .8),
-            enableSensorEvents: q.k == 'solid',
-            filter: q.k == 'solid'
-                ? Filter(categoryBits: catRod, maskBits: catEnv | catBall | catScen | catCirc | catRod)
-                : Filter(categoryBits: catWater, maskBits: 0),
-          ),
+        // ponto da barra a uma distância [d] da ponta a (no mundo)
+        Pt along(double d) => Pt(q.a!.x + (q.b!.x - q.a!.x) * d / len, q.a!.y + (q.b!.y - q.a!.y) * d / len);
+        final solidDef = ShapeDef(
+          density: _dPart,
+          material: SurfaceMaterial(friction: .8),
+          enableSensorEvents: true,
+          filter: Filter(categoryBits: catRod, maskBits: catEnv | catBall | catScen | catCirc | catRod),
         );
+        if (q.k == 'solid') {
+          // Madeira em três pedaços (ponta, meio, ponta): na junta só as pontas se
+          // ignoram; o resto da barra bate em tudo, inclusive em outra barra presa ali.
+          // As pontas são cápsulas (redondas, como desenhadas); o meio é uma caixa reta,
+          // que empurra para fora sempre do mesmo jeito o que começar sobreposto (a bola
+          // em cima do chassi). A caixa entra um pouco nas pontas, para a emenda ficar
+          // lisa e nada que role sobre a barra tropeçar nela.
+          final e = math.min(12.0, len / 3);
+          for (final (from, to) in [(0.0, e), (e, len - e), (len - e, len)]) {
+            final mid = from > 0 && to < len;
+            final piece = b.createShape(
+              mid
+                  ? Polygon.offsetBox((to - from) / 2 / kScale + 2 / kScale, 4 / kScale,
+                      center: Vector2((from + to) / 2 - len / 2, 0) / kScale, rotation: 0)
+                  : Capsule(center1: Vector2(from - len / 2, 0) / kScale, center2: Vector2(to - len / 2, 0) / kScale, radius: 4 / kScale),
+              solidDef,
+            );
+            _tag(piece);
+            pieces.add((b, piece, along(from), along(to), 4));
+          }
+          sh = pieces.last.$2;
+        } else {
+          // Borracha: o corpo atravessa tudo, mas as pontas batem em tudo, até no chão.
+          sh = b.createShape(
+            Polygon.box(len / 2 / kScale, 4 / kScale),
+            ShapeDef(density: _dPart, filter: Filter(categoryBits: catWater, maskBits: 0)),
+          );
+          _tag(sh);
+          for (final (x, end) in [(-len / 2, q.a!), (len / 2, q.b!)]) {
+            final tip = b.createShape(Circle(radius: kTipR / kScale, center: Vector2(x, 0) / kScale), solidDef);
+            _tag(tip);
+            pieces.add((b, tip, end, end, kTipR));
+          }
+        }
         addJ(q.a!, b);
         addJ(q.b!, b);
       } else {
@@ -306,42 +339,29 @@ class Sim {
         }
         addJ(q.c!, b);
       }
-      _tag(sh);
-      shapeOf[b] = sh;
+      if (!q.isRod) {
+        _tag(sh);
+        pieces.add((b, sh, q.c!, q.c!, q.r));
+      }
       bodies.add(SimPart(q, b, halfLen, powered: motorOn(q, parts, lv.looseBall ? null : ball0)));
     }
 
-    // Rodas e ímãs batem em toda barra de madeira, menos nas presas a eles (no centro
-    // ou na borda) e nas que já começam por cima deles; senão a engenhoca travaria.
-    final rods = bodies.where((s) => s.part.isRod && s.part.k == 'solid').toList();
-    final circs = bodies.where((s) => !s.part.isRod).toList();
-    for (final c in circs) {
-      final q = c.part;
-      final pins = [q.c!, if (q.isWheel) ...q.perim];
-      for (final r in rods) {
-        final rp = r.part;
-        final pinned = rp.points.any((p) => pins.any((w) => dist(p, w) < .75));
-        if (pinned || segDist(q.c!, rp.a!, rp.b!) < q.r + 3) _noCollide(shapeOf[c.body]!, shapeOf[r.body]!);
-      }
-    }
-    // Madeira bate em madeira, menos nas barras que já começam encostadas
-    // (presas na mesma junta ou cruzadas em X); senão a engenhoca se empurraria ao começar.
-    for (var i = 0; i < rods.length; i++) {
-      for (var j = i + 1; j < rods.length; j++) {
-        final a = rods[i].part, b = rods[j].part;
-        if (segSegDist(a.a!, a.b!, b.a!, b.b!) < 8) _noCollide(shapeOf[rods[i].body]!, shapeOf[rods[j].body]!);
-      }
-    }
-    // Rodas e ímãs trombam entre si, menos os que já começam encostados ou sobrepostos.
-    for (var i = 0; i < circs.length; i++) {
-      for (var j = i + 1; j < circs.length; j++) {
-        final a = circs[i].part, b = circs[j].part;
-        if (dist(a.c!, b.c!) < a.r + b.r + 2) _noCollide(shapeOf[circs[i].body]!, shapeOf[circs[j].body]!);
+    // Peças batem umas nas outras e na bola, menos os pedaços que já começam
+    // encostados: as pontas presas na mesma junta, a barra que passa pelo eixo da
+    // roda, barras desenhadas cruzadas. Senão a engenhoca se empurraria ao começar.
+    // Fora isso, madeira não atravessa madeira, roda, ímã nem a bola.
+    for (var i = 0; i < pieces.length; i++) {
+      final (bi, si, ai, ci, ri) = pieces[i];
+      for (var j = i + 1; j < pieces.length; j++) {
+        final (bj, sj, aj, cj, rj) = pieces[j];
+        if (identical(bi, bj)) continue;
+        if (segSegDist(ai, ci, aj, cj) < ri + rj + 1.5) _noCollide(si, sj);
       }
     }
     // A bola não bate nas peças presas nela por uma junta.
-    for (final s in [...rods, ...circs]) {
-      if (s.part.points.any((p) => p.key == ballKey)) _noCollide(ballShape, shapeOf[s.body]!);
+    for (final (b, sh, _, _, _) in pieces) {
+      final part = bodies.firstWhere((s) => identical(s.body, b)).part;
+      if (part.points.any((p) => p.key == ballKey)) _noCollide(ballShape, sh);
     }
     if (_skip.isNotEmpty) {
       world.customFilterCallback = (a, b) {
@@ -353,7 +373,10 @@ class Sim {
 
     void pin(Body a, Body b, Pt pt) {
       final w = _vp(pt);
-      world.createRevoluteJoint(RevoluteJointDef(bodyA: a, bodyB: b, localAnchorA: a.localPoint(w), localAnchorB: b.localPoint(w)));
+      // peças presas colidem entre si (o Box2D, por padrão, não deixaria); só os
+      // pedaços que já começam encostados na junta se ignoram (filtro acima)
+      world.createRevoluteJoint(
+          RevoluteJointDef(bodyA: a, bodyB: b, localAnchorA: a.localPoint(w), localAnchorB: b.localPoint(w), collideConnected: true));
     }
 
     for (final (pt, list) in joints.values) {

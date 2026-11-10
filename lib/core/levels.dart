@@ -610,7 +610,7 @@ List<Level> buildBuiltinLevels() => [
         goal: R(400, 40, 140, 140),
         ball: Pt(120, 150),
         blocks: [R(400, 180, 200, 320)],
-        targets: Targets(t: 1.1, n: 6, c: 75),
+        targets: Targets(t: 3.5, n: 6, c: 75),
       ),
       // 48
       Level(

@@ -36,7 +36,7 @@ enum PanelSide { auto, side, bottom }
 
 const kHints = {
   'rod': 'Arraste para criar uma barra. Solte perto de uma junta para conectar.',
-  'water': 'Barra de borracha: a única peça que atravessa tudo, inclusive outras barras.',
+  'water': 'Barra de borracha: o corpo atravessa tudo, inclusive outras barras; só as pontas batem, até no chão.',
   'cw': 'Toque para uma roda horária; arraste para mudar o tamanho. O motor só gira com o centro preso a alguma coisa.',
   'ccw': 'Toque para uma roda anti-horária; arraste para mudar o tamanho. O motor só gira com o centro preso a alguma coisa.',
   'free': 'Roda sem motor: gira quando é puxada ou empurrada. Toque para colocar; arraste para mudar o tamanho.',
