@@ -10,6 +10,9 @@ import 'detmath.dart';
 const double kW = 1000, kH = 560;
 const int kLimit = 150;
 const double kBallR = 22, kMagR = 18, kFixR = 20, kPlatT = 16, kLiftT = 16, kSeeT = 14;
+
+/// Raio das pontas sólidas da barra de borracha (o resto dela atravessa tudo).
+const double kTipR = 5;
 const double kMagK = 10, kMagRange = 300, kMagMin = 34, kLiftSpeed = 90;
 const Map<String, int> kCost = {'solid': 10, 'water': 5, 'cw': 25, 'ccw': 25, 'free': 15, 'N': 30, 'S': 30};
 
