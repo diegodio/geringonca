@@ -97,7 +97,7 @@ class OficinaGame extends FlameGame {
 
   bool get _movingScenery {
     final lv = g.cur;
-    return lv.lifts.isNotEmpty || lv.seesaws.isNotEmpty || lv.doors.isNotEmpty || lv.buttons.isNotEmpty;
+    return lv.lifts.isNotEmpty || lv.seesaws.isNotEmpty || lv.crates.isNotEmpty || lv.doors.isNotEmpty || lv.buttons.isNotEmpty;
   }
 
   @override
@@ -221,6 +221,10 @@ class _BuildLayer extends Component {
       final r = R.fromPoints(a.a!, a.b!);
       i.dashRect(Rect.fromLTWH(r.x, r.y, r.w, r.h), i.stroke(i.c.accent, 1.5 / g.cam.z), 5, 4);
     }
+    // tutorial: onde pôr a roda ou qual barra falta
+    final spot = g.tutSpot, tl = g.tutLine;
+    if (spot != null) i.dashCircle(Offset(spot.x, spot.y), 28, i.stroke(i.c.accent, 2.5), 6, 6);
+    if (tl != null) i.dashLine(Offset(tl.a.x, tl.a.y), Offset(tl.b.x, tl.b.y), i.stroke(i.c.accent, 2.5), 6, 6);
     final sh = g.snapHint;
     if (sh != null) canvas.drawCircle(Offset(sh.x, sh.y), 12, i.stroke(i.c.accent, 2.5));
   }

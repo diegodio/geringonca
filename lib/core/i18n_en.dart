@@ -624,12 +624,12 @@ const kEn = <String, String>{
       'The goal',
   'Monte uma engenhoca na área verde e toque em Rodar. A fase termina quando a bola amarela fica inteira dentro da área vermelha.':
       'Build a contraption in the green area and tap Run. The level ends when the yellow ball is fully inside the red area.',
-  'Cada fase tem três: tempo, número de peças e custo. Não precisa ganhar todas na mesma engenhoca. A solução mais rápida fica guardada em Melhor solução. Concluir uma fase libera a seguinte.':
-      'Each level has three: time, number of parts and cost. You don\'t need to win them all with the same contraption. The fastest solution is saved under Best solution. Finishing a level unlocks the next one.',
+  'Cada fase tem três: tempo, número de peças e custo. Não precisa ganhar todas na mesma engenhoca. A solução mais rápida fica guardada em Melhor solução. As fases abrem em sequência, e dá para pular uma que empacar.':
+      'Each level has three: time, number of parts and cost. You don\'t need to win them all with the same contraption. The fastest solution is saved under Best solution. Levels open in order, and you can skip one that has you stuck.',
   'Cenário que se move':
       'Moving scenery',
-  'Elevadores sobem e descem sem parar. Gangorras giram no eixo do meio. Portas abrem quando algo pisa num botão; numa fase sem botões, elas abrem e fecham a cada 2 s.':
-      'Elevators go up and down nonstop. Seesaws turn on the pivot in the middle. Doors open when something presses a button; in a level with no buttons, they open and close every 2 s.',
+  'Elevadores sobem e descem sem parar. Gangorras giram no eixo do meio. Caixas soltas caem, podem ser empurradas e apertam botões. Portas abrem quando algo pisa num botão; numa fase sem botões, elas abrem e fecham a cada 2 s.':
+      'Elevators go up and down nonstop. Seesaws turn on the pivot in the middle. Loose crates fall, can be pushed and press buttons. Doors open when something presses a button; in a level with no buttons, they open and close every 2 s.',
   'Seleção e zoom':
       'Selection and zoom',
   'Use dois dedos para aproximar e arrastar a tela (no computador, Ctrl + rolagem). Em Selecionar, marque várias peças para mover, duplicar ou girar de uma vez.':
@@ -878,4 +878,74 @@ const kEn = <String, String>{
       'Replay finished',
   'Fase concluída!':
       'Level complete!',
+  'Tela cheia':
+      'Full screen',
+  'Deixa só o jogo na tela':
+      'Leaves only the game on screen',
+  'Caixa solta':
+      'Loose crate',
+  'Tutorial':
+      'Tutorial',
+  'Tutorial · passo {i} de {n}':
+      'Tutorial · step {i} of {n}',
+  'Pular tutorial':
+      'Skip tutorial',
+  'Salve ou cancele a fase antes de abrir o tutorial.':
+      'Save or cancel the level before opening the tutorial.',
+  'Tutorial fechado. Você pode reabri-lo pelo menu ⋮, em Tutorial.':
+      'Tutorial closed. You can reopen it from the ⋮ menu, under Tutorial.',
+  'Boliche':
+      'Bowling',
+  'As caixas são soltas: dá para derrubá-las. Só precisa de embalo.':
+      'The crates are loose: you can knock them over. You just need momentum.',
+  'Salto':
+      'Jump',
+  'O vão é largo. Rodas grandes andam mais rápido.':
+      'The gap is wide. Big wheels go faster.',
+  'Tapa-buraco':
+      'Fill the pit',
+  'O buraco é largo e fundo demais. Empurre a caixa para dentro dele e passe por cima.':
+      'The pit is too wide and too deep. Push the crate into it and drive over.',
+  'Muro':
+      'Wall',
+  'Arrastada pelo chão, a bola não sobe o muro. Leve-a no alto, entre duas rodas grandes.':
+      'Dragged along the ground, the ball won\'t get up the wall. Carry it up high, between two big wheels.',
+  'Antena':
+      'Antenna',
+  'O botão está no alto, embaixo da plataforma. Algo na engenhoca precisa alcançá-lo.':
+      'The button is up high, under the platform. Something on the contraption has to reach it.',
+  'Roda-gigante':
+      'Ferris wheel',
+  'A meta fica acima da área verde. Uma barra presa em dois pontos da borda da roda gira junto com ela.':
+      'The goal is above the green area. A bar attached to two points on the wheel rim turns with it.',
+  'Degrau de caixa':
+      'Crate step',
+  'O paredão é alto demais. Empurre a caixa até ele e use-a como degrau.':
+      'The cliff is too high. Push the crate up against it and use it as a step.',
+  'Caixas soltas':
+      'Loose crates',
+  'Derrubar, empurrar e usar de degrau':
+      'Knock over, push and use as a step',
+  'Arraste para desenhar uma caixa solta. Ela cai, pode ser empurrada e aperta botões.':
+      'Drag to draw a loose crate. It falls, can be pushed and presses buttons.',
+  'Bem-vindo à Geringonça! O objetivo é levar a bola amarela até a área vermelha. Você só pode construir dentro da área verde.':
+      'Welcome to Geringonça! The goal is to get the yellow ball to the red area. You can only build inside the green area.',
+  'Começar':
+      'Start',
+  'Toque em Roda ↻ (a laranja) e depois toque na área verde, à esquerda da bola, perto do chão.':
+      'Tap Wheel ↻ (the orange one), then tap the green area, to the left of the ball, near the ground.',
+  'Agora ponha outra Roda ↻ à direita da bola. A seta mostra para que lado o motor gira.':
+      'Now put another Wheel ↻ to the right of the ball. The arrow shows which way the motor turns.',
+  'Toque em Barra e arraste do centro de uma roda até a bola. Ao soltar perto, a ponta se encaixa sozinha.':
+      'Tap Bar and drag from the center of a wheel to the ball. Release close to it and the end snaps into place.',
+  'Faça o mesmo com a outra roda: uma barra da bola até o centro dela.':
+      'Do the same with the other wheel: a bar from the ball to its center.',
+  'Pronto! Toque em ▶ Rodar para ver a engenhoca andar.':
+      'Done! Tap ▶ Run to watch the contraption go.',
+  'A engenhoca está andando. Quando a bola entrar inteira na área vermelha, a fase termina. Se travar, toque em Parar, ajuste e rode de novo.':
+      'The contraption is moving. When the ball is fully inside the red area, the level ends. If it gets stuck, tap Stop, adjust and run again.',
+  'Fase concluída! Agora explore as fases, tente as medalhas (★) e crie as suas no editor. Dica: aproxime com dois dedos para construir com precisão.':
+      'Level complete! Now explore the levels, go for the medals (★) and make your own in the editor. Tip: pinch to zoom in and build precisely.',
+  'Concluir':
+      'Finish',
 };

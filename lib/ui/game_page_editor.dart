@@ -54,6 +54,7 @@ extension _Editor on _GamePageState {
       Wrap(spacing: 6, runSpacing: 6, children: [
         TB(c: c, small: true, icon: Icons.ads_click, label: 'Ajustar', pressed: g.etool == 'eselect', onTap: () => g.setETool('eselect')),
         et('block', 'Bloco', Sw.sq(c.ground)),
+        et('crate', 'Caixa solta', Sw.sq(c.crate)),
         et('hill', 'Morro', const Icon(Icons.landscape_outlined, size: 18)),
         et('plat', 'Plataforma', Sw.bar(c.ground)),
         et('lift', 'Elevador', Sw.bar(c.lift)),
@@ -83,6 +84,7 @@ extension _Editor on _GamePageState {
     const names = {
       'block': 'Bloco',
       'hill': 'Morro',
+      'crate': 'Caixa solta',
       'door': 'Porta',
       'plat': 'Plataforma',
       'seesaw': 'Gangorra',

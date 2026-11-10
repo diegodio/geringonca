@@ -33,6 +33,9 @@ Map<String, (Level, List<Part>, Pt)> scenarios() {
     // a borracha no eixo liga o motor da manivela (roda com o centro solto não gira)
     'manivela': (l1, [crank, Part.rod('water', crank.c!.copy(), Pt(b.x + 60, b.y - 50)), Part.rod('solid', crank.perim[0], Pt(b.x - 100, b.y + 10)), Part.wheel('free', Pt(b.x - 100, b.y + 10), 24)], b),
     'motor com o centro solto': (l1, [Part.wheel('cw', Pt(b.x + 60, b.y + 10), 40)], b),
+    // caixas soltas: derrubadas por uma roda e usadas de degrau por uma gaiola
+    'boliche': (_lv('l61'), [Part.wheel('cw', _lv('l61').ball.copy(), 60)], _lv('l61').ball),
+    'degrau de caixa': sample('l67'),
   };
 }
 
@@ -49,6 +52,8 @@ const golden = <String, String>{
   'porta e botão': '1b2fbffa',
   'manivela': '2e2f45af',
   'motor com o centro solto': '358c5e37',
+  'boliche': '1fae6dc7',
+  'degrau de caixa': '0ec02ab8',
 };
 
 void main() {

@@ -80,8 +80,10 @@ class MenuPage extends StatelessWidget {
                         c: c,
                         primary: true,
                         label: started ? tr('▶ Continuar: {n}', {'n': tr(g.level.name)}) : tr('▶ Começar'),
-                        onTap: () => _play(context, () => g.chooseLevel(g.level.id!)),
+                        // na primeira visita, Começar abre o tutorial guiado
+                        onTap: () => _play(context, () => !started && !g.tutSeen ? g.startTutorial() : g.chooseLevel(g.level.id!)),
                       ),
+                      TB(c: c, icon: Icons.school_outlined, label: 'Tutorial', onTap: () => _play(context, g.startTutorial)),
                       TB(
                           c: c,
                           label: 'Criar fase',
@@ -173,8 +175,9 @@ class _LevelCard extends StatelessWidget {
     final m = pr.medalsOf(id), tg = lv.targets;
     final medals = [if (tg.t != null) m['t'] == true, if (tg.n != null) m['n'] == true, if (tg.c != null) m['c'] == true];
     final current = g.level.id == id;
-    // bloqueada: aponta a fase anterior pelo número, que cabe no cartão
-    final status = !open ? tr('Conclua a {n}', {'n': (number! - 1).toString().padLeft(2, '0')}) : tr(done ? 'Concluída' : 'Nova');
+    // bloqueada: aponta pelo número (que cabe no cartão) a fase que falta concluir
+    final need = open ? 0 : kBuiltin.indexOf(pr.blocker(id)!) + 1;
+    final status = !open ? tr('Conclua a {n}', {'n': need.toString().padLeft(2, '0')}) : tr(done ? 'Concluída' : 'Nova');
     return SizedBox(
       width: width,
       child: Opacity(

@@ -25,7 +25,7 @@ extension _Dock on _GamePageState {
     final chips = [
       for (final (id, name, cost, sw) in _pieces(c))
         if (g.toolAllowed(id))
-          PieceChip(c: c, swatch: sw, name: name, cost: cost, selected: g.tool == id, onTap: () => g.setTool(id)),
+          Pulse(c: c, on: g.tutTarget == id, child: PieceChip(c: c, swatch: sw, name: name, cost: cost, selected: g.tool == id, onTap: () => g.setTool(id))),
     ];
     final tools = [
       IconBtn(c: c, icon: Icons.open_with, tooltip: 'Mover juntas e a bola', pressed: g.tool == 'move', onTap: () => g.setTool('move')),
@@ -40,7 +40,7 @@ extension _Dock on _GamePageState {
           toggle: true,
           onTap: g.toggleSnap),
     ];
-    final play = RoundAction(c: c, icon: Icons.play_arrow_rounded, tooltip: 'Rodar', onTap: g.togglePlay);
+    final play = Pulse(c: c, on: g.tutTarget == 'play', round: true, child: RoundAction(c: c, icon: Icons.play_arrow_rounded, tooltip: 'Rodar', onTap: g.togglePlay));
     final rules = _rules(g.level);
     final note = rules.isNotEmpty
         ? Padding(
@@ -62,7 +62,8 @@ extension _Dock on _GamePageState {
       // dock lateral: fichas compactas em 2 colunas, ferramentas e Rodar lado a lado
       final small = [
         for (final (id, name, cost, sw) in _pieces(c))
-          if (g.toolAllowed(id)) PieceChip(c: c, compact: true, swatch: sw, name: name, cost: cost, selected: g.tool == id, onTap: () => g.setTool(id)),
+          if (g.toolAllowed(id))
+            Pulse(c: c, on: g.tutTarget == id, child: PieceChip(c: c, compact: true, swatch: sw, name: name, cost: cost, selected: g.tool == id, onTap: () => g.setTool(id))),
       ];
       return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
         back,

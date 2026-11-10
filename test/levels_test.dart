@@ -173,6 +173,15 @@ Map<String, List<Part>> solutions() {
     'l58': [wh('cw', 160, 440, 60), rod(160, 440, 130, 400, 'water')],
     'l59': cage(l['l59']!.ball, 60, floor: 250),
     'l60': cage(l['l60']!.ball, 40, floor: 250),
+    // ---------- capítulo 7: Caixas soltas ----------
+    'l61': axle(l['l61']!, 60),
+    'l62': axle(l['l62']!, 60),
+    'l63': cage(l['l63']!.ball, 60, floor: 400),
+    'l64': cage(l['l64']!.ball, 60),
+    // carro com antena: a ponta passa embaixo da plataforma e aperta o botão
+    'l65': [...rigid(l['l65']!, 28, 70), rod(170, 440, 170, 315), rod(240, 470, 170, 315)],
+    'l66': crane(280, 330, Pt(170, 440)),
+    'l67': cage(l['l67']!.ball, 60),
   };
 }
 
@@ -235,16 +244,27 @@ Map<String, Map<String, List<Part>>> tooSimple() {
     },
     'l59': {'gaiola lenta': cage(l['l59']!.ball, 28, floor: 250)},
     'l60': {'nada': none(), 'gaiola de rodas grandes': cage(l['l60']!.ball, 60, floor: 250)},
+    'l61': {'roda média': axle(l['l61']!, 40), 'roda pequena': axle(l['l61']!, 28)},
+    'l62': {'roda média': axle(l['l62']!, 40), 'gaiola de rodas pequenas': cage(l['l62']!.ball, 28)},
+    'l63': {'roda grande': axle(l['l63']!, 60), 'roda média': axle(l['l63']!, 40)},
+    'l64': {'roda grande': axle(l['l64']!, 60), 'carro rígido': rigid(l['l64']!, 60, 130)},
+    'l65': {
+      'sem antena': rigid(l['l65']!, 28, 70),
+      'antena curta': [...rigid(l['l65']!, 28, 70), rod(170, 440, 170, 350), rod(240, 470, 170, 350)],
+      'roda grande': axle(l['l65']!, 60),
+    },
+    'l66': {'roda grande': axle(l['l66']!, 60), 'carrinho de exemplo': sampleFor(l['l66']!, l['l66']!.ball)!},
+    'l67': {'carro rígido': rigid(l['l67']!, 60, 130), 'gaiola média': cage(l['l67']!.ball, 40)},
   };
 }
 
 void main() {
   setUpAll(() async => initializeForge2D());
 
-  test('são 60 fases, 6 capítulos de 10, e cada uma tem solução de referência', () {
-    expect(kBuiltin, hasLength(60));
-    expect(kChapters.map((c) => c.$3).fold(0, (a, b) => a + b), 60);
-    expect(kBuiltin.map((l) => l.id).toSet(), hasLength(60));
+  test('são 67 fases em 7 capítulos, e cada uma tem solução de referência', () {
+    expect(kBuiltin, hasLength(67));
+    expect(kChapters.map((c) => c.$3).fold(0, (a, b) => a + b), 67);
+    expect(kBuiltin.map((l) => l.id).toSet(), hasLength(67));
     expect(solutions().keys.toList(), kBuiltin.map((l) => l.id).toList());
   });
 

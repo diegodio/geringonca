@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 /// Cores do caderno de laboratório, em claro e escuro (as mesmas da versão HTML).
 class Palette {
-  final Color bg, paper, grid, gridMajor, ink, muted, line, zone, goal, ground, ball, rod, water, cw, ccw, free, mN, mS, accent, lift, door, medal, medalInk;
+  final Color bg, paper, grid, gridMajor, ink, muted, line, zone, goal, ground, ball, rod, water, cw, ccw, free, mN, mS, accent, lift, door, crate, medal, medalInk;
   const Palette({
     required this.bg,
     required this.paper,
@@ -25,6 +25,7 @@ class Palette {
     required this.accent,
     required this.lift,
     required this.door,
+    required this.crate,
     required this.medal,
     required this.medalInk,
   });
@@ -35,7 +36,7 @@ class Palette {
     zone: Color(0xff2f9a5c), goal: Color(0xffd8322b), ground: Color(0xff8a9aa1), ball: Color(0xfff2bb12),
     rod: Color(0xff8b5a2b), water: Color(0xff4f9fd8), cw: Color(0xffe57421), ccw: Color(0xff6a48cc), free: Color(0xff557885),
     mN: Color(0xffd8322b), mS: Color(0xff1f62c9), accent: Color(0xff1f6fb0),
-    lift: Color(0xff2a8a86), door: Color(0xff7b4fa0), medal: Color(0xffd9a414), medalInk: Color(0xff2a1d00),
+    lift: Color(0xff2a8a86), door: Color(0xff7b4fa0), crate: Color(0xffc9a468), medal: Color(0xffd9a414), medalInk: Color(0xff2a1d00),
   );
 
   static const dark = Palette(
@@ -44,7 +45,7 @@ class Palette {
     zone: Color(0xff45c27a), goal: Color(0xfff0564e), ground: Color(0xff4b6370), ball: Color(0xffffd03a),
     rod: Color(0xffc18a52), water: Color(0xff6cb6ee), cw: Color(0xfff4913f), ccw: Color(0xff9a7ef0), free: Color(0xff7fa3b0),
     mN: Color(0xfff0564e), mS: Color(0xff4f8ff0), accent: Color(0xff5fb0ec),
-    lift: Color(0xff3fb7b1), door: Color(0xffa97fcf), medal: Color(0xffe8b93a), medalInk: Color(0xff2a1d00),
+    lift: Color(0xff3fb7b1), door: Color(0xffa97fcf), crate: Color(0xffb08a4e), medal: Color(0xffe8b93a), medalInk: Color(0xff2a1d00),
   );
 
   static Palette of(BuildContext c) => Theme.of(c).brightness == Brightness.dark ? dark : light;

@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../core/i18n.dart';
 import '../game/controller.dart';
 import '../game/palette.dart';
+import 'platform/link.dart';
 
 /// Opções do jogo: sons, vibração e onde ficam as peças e as ferramentas.
 /// Abre pelo ícone discreto do menu inicial e pelo menu ⋮ da bancada.
@@ -60,6 +61,7 @@ class OptionsPanel extends StatelessWidget {
               title: Text(tr('Vibração'), style: title),
               subtitle: Text(tr('Em celulares que vibram pelo navegador (Android)'), style: sub),
             ),
+            if (canFullscreen()) _FullscreenTile(c: c, title: title, sub: sub),
             const SizedBox(height: 8),
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 4, 16, 0),
@@ -91,4 +93,30 @@ class OptionsPanel extends StatelessWidget {
           ]);
         },
       );
+}
+
+/// Liga e desliga a tela cheia do navegador (só aparece onde o navegador permite).
+class _FullscreenTile extends StatefulWidget {
+  final Palette c;
+  final TextStyle title, sub;
+  const _FullscreenTile({required this.c, required this.title, required this.sub});
+  @override
+  State<_FullscreenTile> createState() => _FullscreenTileState();
+}
+
+class _FullscreenTileState extends State<_FullscreenTile> {
+  @override
+  Widget build(BuildContext context) {
+    final on = isFullscreen();
+    return SwitchListTile(
+      value: on,
+      onChanged: (v) async {
+        await setFullscreen(v);
+        if (mounted) setState(() {});
+      },
+      secondary: Icon(on ? Icons.fullscreen_exit : Icons.fullscreen, color: widget.c.ink),
+      title: Text(tr('Tela cheia'), style: widget.title),
+      subtitle: Text(tr('Deixa só o jogo na tela'), style: widget.sub),
+    );
+  }
 }

@@ -242,7 +242,7 @@ mixin _LevelEditor on GameState {
     double mx(double x) => kW - x;
     void pt(Pt p) => p.x = mx(p.x);
     void rect(R r) => r.x = kW - r.x - r.w;
-    for (final r in [...lv.blocks, ...lv.hills, ...lv.doors, lv.zone, lv.goal]) {
+    for (final r in [...lv.blocks, ...lv.hills, ...lv.crates, ...lv.doors, lv.zone, lv.goal]) {
       rect(r);
     }
     for (final s in [...lv.plats, ...lv.seesaws, ...lv.lifts]) {
@@ -323,6 +323,7 @@ mixin _LevelEditor on GameState {
     List<Object> list(String k) => switch (k) {
           'block' => lv.blocks,
           'hill' => lv.hills,
+          'crate' => lv.crates,
           'door' => lv.doors,
           'plat' => lv.plats,
           'seesaw' => lv.seesaws,
@@ -358,6 +359,7 @@ mixin _LevelEditor on GameState {
             (l) => ((p.x - l.a.x).abs() <= l.w / 2 && (p.y - l.a.y).abs() <= kLiftT / 2 + tol * .4) || segDist(p, l.a, l.b) <= tol * .6) ??
         last<Seg>('seesaw', lv.seesaws, (s) => segDist(p, s.a, s.b) <= kSeeT / 2 + tol * .6) ??
         last<R>('door', lv.doors, (d) => d.contains(p)) ??
+        last<R>('crate', lv.crates, (b) => b.contains(p)) ??
         last<Seg>('plat', lv.plats, (s) => segDist(p, s.a, s.b) <= kPlatT / 2 + tol * .6) ??
         last<R>('block', lv.blocks, (b) => b.contains(p)) ??
         last<R>('hill', lv.hills, (h) => inHill(h, p) || (p.x >= h.x && p.x <= h.x + h.w && (p.y - hillY(h, p.x)).abs() <= tol)) ??
@@ -440,6 +442,7 @@ mixin _LevelEditor on GameState {
     final list = switch (s.kind) {
       'block' => lv.blocks,
       'hill' => lv.hills,
+          'crate' => lv.crates,
       'door' => lv.doors,
       'plat' => lv.plats,
       'seesaw' => lv.seesaws,
@@ -462,6 +465,7 @@ mixin _LevelEditor on GameState {
     (switch (s.kind) {
       'block' => lv.blocks,
       'hill' => lv.hills,
+          'crate' => lv.crates,
       'door' => lv.doors,
       'plat' => lv.plats,
       'seesaw' => lv.seesaws,
@@ -645,6 +649,8 @@ mixin _LevelEditor on GameState {
       lv.blocks.add(r);
     } else if (t == 'hill') {
       lv.hills.add(r);
+    } else if (t == 'crate') {
+      lv.crates.add(r);
     } else if (t == 'door') {
       lv.doors.add(r);
     } else if (t == 'zone') {

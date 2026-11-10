@@ -59,18 +59,21 @@ class Progress {
   String? get currentId => store.get<Object?>('cur', null) as String?;
   set currentId(String? id) => store.set('cur', id);
 
-  /// Fases prontas abrem em sequência: a seguinte libera quando a anterior é concluída.
+  /// Fases prontas abrem em sequência, e dá para pular uma que empacar: a fase
+  /// abre quando no máximo uma das anteriores está por fazer.
   /// Fases próprias e importadas estão sempre abertas.
   /// Uma fase já concluída continua aberta, mesmo que entre uma fase nova antes dela.
   bool isUnlocked(String id) {
     final i = kBuiltin.indexWhere((l) => l.id == id);
-    return i <= 0 || _done.contains(kBuiltin[i - 1].id) || _done.contains(id);
+    if (i <= 0 || _done.contains(id)) return true;
+    return kBuiltin.take(i).where((l) => !_done.contains(l.id)).length <= 1;
   }
 
-  /// A fase que precisa ser concluída para liberar [id].
+  /// A fase que precisa ser concluída para liberar [id]: a primeira das anteriores por fazer.
   Level? blocker(String id) {
     final i = kBuiltin.indexWhere((l) => l.id == id);
-    return i > 0 && !isUnlocked(id) ? kBuiltin[i - 1] : null;
+    if (i <= 0 || isUnlocked(id)) return null;
+    return kBuiltin.take(i).firstWhere((l) => !_done.contains(l.id));
   }
 
   // ---------- engenhoca salva por fase ----------
@@ -120,7 +123,7 @@ class Progress {
   /// Registra uma vitória: fase concluída, recordes, medalhas e melhor solução.
   WinRecord recordWin(Level lv, double t, List<Part> parts, Pt ball) {
     final id = lv.id!, n = parts.length, c = costOf(parts), tg = lv.targets;
-    final unlockedBefore = kBuiltin.where((l) => isUnlocked(l.id!)).length;
+    final lockedBefore = kBuiltin.where((l) => !isUnlocked(l.id!)).toList();
     _done.add(id);
     final r = recordOf(id);
     double mn(dynamic a, double b) => a == null ? b : math.min((a as num).toDouble(), b);
@@ -146,9 +149,7 @@ class Progress {
     store.set('recs', _recs);
     store.set('medals', _medals);
     store.set('bests', _bests);
-    final unlocked = kBuiltin.where((l) => isUnlocked(l.id!)).length > unlockedBefore
-        ? kBuiltin.firstWhere((l) => isUnlocked(l.id!) && !_done.contains(l.id))
-        : null;
+    final unlocked = lockedBefore.where((l) => isUnlocked(l.id!)).firstOrNull;
     // desafios extras
     final had = badgesOf(id);
     final now = {

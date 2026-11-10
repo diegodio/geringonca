@@ -233,6 +233,11 @@ class Ink {
       cv.drawRect(r, fill(c.ground));
       cv.drawRect(r, stroke(c.ink, 1.5));
     }
+    for (var i = 0; i < lv.crates.length; i++) {
+      final k = lv.crates[i];
+      final p = s != null ? s.pose(s.crates[i].body) : Pose(k.x + k.w / 2, k.y + k.h / 2, 0);
+      crate(p.x, p.y, k.w, k.h, p.angle);
+    }
     for (var x = 100; x < kW; x += 100) {
       line(x.toDouble(), kH - 10, x.toDouble(), kH, stroke(c.muted, 1));
       text('${x ~/ 100} m', x + 4, kH - 3, lv.ground ? c.paper : c.muted, size: 11);
@@ -330,6 +335,8 @@ class Ink {
           door(r.x, r.y, r.w, r.h, al);
         } else if (d.et == 'hill') {
           hill(r, al);
+        } else if (d.et == 'crate') {
+          crate(r.x + r.w / 2, r.y + r.h / 2, r.w, r.h, 0, al);
         } else {
           cv.drawRect(Rect.fromLTWH(r.x, r.y, r.w, r.h), fill(d.et == 'zone' ? c.zone : d.et == 'goal' ? c.goal : c.ground, al));
         }
@@ -337,6 +344,21 @@ class Ink {
         return;
     }
     if (dist(a, b) > 4) measure(Seg(a, b));
+  }
+
+  /// Caixa solta: caixote de madeira com as diagonais marcadas.
+  void crate(double x, double y, double w, double h, double ang, [double a = 1]) {
+    cv.save();
+    cv.translate(x, y);
+    cv.rotate(ang);
+    final r = Rect.fromCenter(center: Offset.zero, width: w, height: h);
+    cv.drawRect(r, fill(c.crate, a));
+    final st = stroke(c.ink, 1.5, a);
+    cv.drawRect(r, st);
+    final thin = stroke(c.ink, 1, a * .45);
+    cv.drawLine(r.topLeft, r.bottomRight, thin);
+    cv.drawLine(r.topRight, r.bottomLeft, thin);
+    cv.restore();
   }
 
   /// Morro: a curva preenchida até o pé, com contorno só na curva (o pé encosta
