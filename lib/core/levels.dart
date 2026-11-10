@@ -13,10 +13,11 @@ const kChapters = [
   ('Cenário em movimento', 'Elevadores, gangorras e botões', 10),
   ('Ímãs e mecanismos', 'Atração, repulsão e guindastes', 10),
   ('Morros e rampas', 'A gravidade a favor, ou contra', 10),
+  ('Caixas soltas', 'Derrubar, empurrar e usar de degrau', 7),
 ];
 
-/// As 60 fases prontas, em ordem crescente de dificuldade, divididas em 6
-/// capítulos de 10. As ids não seguem a ordem porque as fases mais antigas
+/// As 67 fases prontas, em ordem crescente de dificuldade, divididas em 7
+/// capítulos (os seis primeiros de 10 fases). As ids não seguem a ordem porque as fases mais antigas
 /// mantêm a id original (o progresso salvo usa a id). Cada fase tem uma
 /// solução de referência em test/levels_test.dart, que confere que ela vence,
 /// que as três medalhas são alcançáveis e que os truques simples não bastam.
@@ -785,6 +786,90 @@ List<Level> buildBuiltinLevels() => [
         blocks: [R(0, 250, 340, 310), R(340, 430, 300, 130), R(760, 470, 240, 90), R(450, 0, 160, 150)],
         hills: [R(40, 250, 600, 180)],
         targets: Targets(t: 2.5, n: 6, c: 90),
+      ),
+      // ---------- capítulo: Caixas soltas ----------
+      // 61
+      Level(
+        id: 'l61',
+        name: 'Boliche',
+        tip: 'As caixas são soltas: dá para derrubá-las. Só precisa de embalo.',
+        zone: zone0(),
+        goal: R(790, 360, 180, 140),
+        ball: Pt(170, 440),
+        crates: [R(520, 450, 50, 50), R(520, 400, 50, 50), R(520, 350, 50, 50), R(575, 450, 50, 50), R(575, 400, 50, 50)],
+        targets: Targets(t: 3.6, n: 1, c: 25),
+      ),
+      // 62
+      Level(
+        id: 'l62',
+        name: 'Salto',
+        tip: 'O vão é largo. Rodas grandes andam mais rápido.',
+        ground: false,
+        zone: zone0(),
+        goal: R(800, 360, 180, 140),
+        ball: Pt(190, 440),
+        plats: [_s(0, 508, 440, 508), _s(640, 508, 1000, 508)],
+        targets: Targets(t: 2.2, n: 1, c: 25),
+      ),
+      // 63
+      Level(
+        id: 'l63',
+        name: 'Tapa-buraco',
+        tip: 'O buraco é largo e fundo demais. Empurre a caixa para dentro dele e passe por cima.',
+        ground: false,
+        zone: R(40, 170, 310, 220),
+        goal: R(790, 260, 180, 140),
+        ball: Pt(170, 340),
+        blocks: [R(0, 400, 480, 160), R(720, 400, 280, 160), R(480, 500, 240, 60)],
+        crates: [R(360, 300, 200, 100)],
+        targets: Targets(t: 2.6, n: 6, c: 90),
+      ),
+      // 64
+      Level(
+        id: 'l64',
+        name: 'Muro',
+        tip: 'Arrastada pelo chão, a bola não sobe o muro. Leve-a no alto, entre duas rodas grandes.',
+        zone: zone0(),
+        goal: R(790, 230, 180, 140),
+        ball: Pt(170, 440),
+        blocks: [R(560, 370, 440, 130)],
+        targets: Targets(t: 4.0, n: 6, c: 90),
+      ),
+      // 65
+      Level(
+        id: 'l65',
+        name: 'Antena',
+        tip: 'O botão está no alto, embaixo da plataforma. Algo na engenhoca precisa alcançá-lo.',
+        zone: zone0(),
+        goal: R(855, 360, 135, 140),
+        ball: Pt(170, 440),
+        doors: [R(810, 290, 30, 210)],
+        buttons: [Pt(520, 330)],
+        plats: [_s(480, 290, 560, 290)],
+        blocks: [R(800, 0, 50, 286)],
+        targets: Targets(t: 3.0, n: 7, c: 100),
+      ),
+      // 66
+      Level(
+        id: 'l66',
+        name: 'Roda-gigante',
+        tip: 'A meta fica acima da área verde. Uma barra presa em dois pontos da borda da roda gira junto com ela.',
+        zone: zone0(),
+        goal: R(100, 150, 200, 115),
+        ball: Pt(170, 440),
+        targets: Targets(t: 2.3, n: 6, c: 75),
+      ),
+      // 67
+      Level(
+        id: 'l67',
+        name: 'Degrau de caixa',
+        tip: 'O paredão é alto demais. Empurre a caixa até ele e use-a como degrau.',
+        zone: zone0(),
+        goal: R(800, 110, 180, 150),
+        ball: Pt(170, 440),
+        blocks: [R(660, 260, 340, 240)],
+        crates: [R(400, 380, 240, 120)],
+        targets: Targets(t: 5.0, n: 6, c: 90),
       ),
     ];
 

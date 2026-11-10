@@ -233,8 +233,10 @@ class _GamePageState extends State<GamePage> {
         'edit' => g.editCurrent(),
         'new' => _newLevel(c),
         'help' => _howTo(c),
+        'tutorial' => g.startTutorial(),
         'sound' => g.setSound(!g.soundOn),
         'options' => showOptions(context, g),
+        'full' => setFullscreen(!isFullscreen()),
         _ => null,
       },
       itemBuilder: (_) => [
@@ -254,8 +256,10 @@ class _GamePageState extends State<GamePage> {
         item('edit', Icons.edit_outlined, 'Editar esta fase', enabled: build),
         item('new', Icons.add_box_outlined, 'Criar fase nova', enabled: build),
         item('help', Icons.help_outline, 'Como jogar'),
+        item('tutorial', Icons.school_outlined, 'Tutorial', enabled: !edit && !g.testing),
         const PopupMenuDivider(),
         item('sound', g.soundOn ? Icons.volume_up_outlined : Icons.volume_off_outlined, 'Sons', check: g.soundOn),
+        if (canFullscreen()) item('full', isFullscreen() ? Icons.fullscreen_exit : Icons.fullscreen, 'Tela cheia', check: isFullscreen()),
         item('options', Icons.tune, 'Opções…'),
       ],
     );
@@ -283,7 +287,7 @@ class _GamePageState extends State<GamePage> {
       Expanded(
         child: SingleChildScrollView(
           child: Column(children: [
-            _hintLine(c),
+            if (g.tutOn) Padding(padding: const EdgeInsets.fromLTRB(8, 8, 8, 0), child: _coach(c)) else _hintLine(c),
             if (portrait && box.maxWidth < 700 && !edit)
               Padding(
                 padding: const EdgeInsets.all(16),
@@ -313,14 +317,19 @@ class _GamePageState extends State<GamePage> {
             Expanded(
               child: SingleChildScrollView(
                 padding: const EdgeInsets.fromLTRB(8, 8, 8, 8),
-                child: g.mode == Mode.edit ? _editorPanel(c) : _dockBody(c, true),
+                child: g.mode == Mode.edit
+                    ? _editorPanel(c)
+                    : Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+                        if (g.tutOn) Padding(padding: const EdgeInsets.only(bottom: 8), child: _coach(c, dense: true)),
+                        _dockBody(c, true),
+                      ]),
               ),
             ),
             if (g.mode == Mode.edit) ...[
               Divider(height: 1, color: c.line),
               Padding(padding: const EdgeInsets.fromLTRB(8, 8, 8, 8), child: _editorActions(c)),
             ],
-            if (g.winInfo == null && g.hint.isNotEmpty) ...[
+            if (g.winInfo == null && g.hint.isNotEmpty && !g.tutOn) ...[
               Divider(height: 1, color: c.line),
               Padding(
                 padding: const EdgeInsets.fromLTRB(10, 6, 10, 6),
@@ -362,7 +371,7 @@ class _GamePageState extends State<GamePage> {
                     bottom: 8,
                     child: g.mode == Mode.run
                         ? RoundAction(c: c, icon: Icons.stop_rounded, tooltip: 'Parar e voltar a construir', danger: true, onTap: g.togglePlay)
-                        : RoundAction(c: c, icon: Icons.play_arrow_rounded, tooltip: 'Rodar', onTap: g.togglePlay),
+                        : Pulse(c: c, on: g.tutTarget == 'play', round: true, child: RoundAction(c: c, icon: Icons.play_arrow_rounded, tooltip: 'Rodar', onTap: g.togglePlay)),
                   ),
                 if (g.cam.z > 1.01 || g.panMode)
                   Positioned(
@@ -416,6 +425,39 @@ class _GamePageState extends State<GamePage> {
           ],
         ]),
       );
+
+  /// Cartão do tutorial guiado: passo atual, texto e os botões de pular e avançar.
+  /// [dense]: no painel lateral, mais estreito e baixo, o cartão fica mais enxuto.
+  Widget _coach(Palette c, {bool dense = false}) {
+    final s = g.tut!, i = g.tutStep!;
+    return Container(
+      padding: dense ? const EdgeInsets.fromLTRB(10, 7, 10, 8) : const EdgeInsets.fromLTRB(12, 10, 12, 10),
+      decoration: BoxDecoration(color: c.paper, borderRadius: BorderRadius.circular(10), border: Border.all(color: c.accent, width: 2)),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisSize: MainAxisSize.min, children: [
+        Row(children: [
+          // no painel estreito o rótulo encurta, para caber numa linha ao lado de Pular
+          Expanded(child: label(c, dense ? '${tr('Tutorial')} ${i + 1}/${kTutorial.length}' : tr('Tutorial · passo {i} de {n}', {'i': i + 1, 'n': kTutorial.length}))),
+          // pular fica discreto, no canto do cartão
+          if (i < kTutorial.length - 1)
+            InkWell(
+              borderRadius: BorderRadius.circular(6),
+              onTap: () => g.endTutorial(skipped: true),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+                child: Text(tr('Pular tutorial'),
+                    style: GoogleFonts.ibmPlexSans(fontSize: 12.5, color: c.muted, decoration: TextDecoration.underline, decorationColor: c.muted)),
+              ),
+            ),
+        ]),
+        const SizedBox(height: 2),
+        Text(tr(s.text), style: GoogleFonts.ibmPlexSans(fontSize: dense ? 12.5 : 14, height: dense ? 1.25 : 1.35, color: c.ink)),
+        if (s.next != null) ...[
+          SizedBox(height: dense ? 6 : 8),
+          TB(c: c, small: true, primary: true, label: s.next!, onTap: g.tutNext),
+        ],
+      ]),
+    );
+  }
 
   /// Para as partes em outros arquivos (game_page_*.dart) pedirem para redesenhar.
   void _rebuild(VoidCallback f) => setState(f);

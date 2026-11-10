@@ -276,3 +276,73 @@ class MedalChip extends StatelessWidget {
         ]),
       );
 }
+
+/// Destaque pulsante em volta de um botão (o tutorial usa para mostrar onde tocar).
+/// Desligado, devolve o próprio [child], sem custo.
+class Pulse extends StatefulWidget {
+  final Palette c;
+  final bool on, round;
+  final Widget child;
+  const Pulse({super.key, required this.c, required this.on, required this.child, this.round = false});
+  @override
+  State<Pulse> createState() => _PulseState();
+}
+
+class _PulseState extends State<Pulse> with SingleTickerProviderStateMixin {
+  AnimationController? _a;
+
+  void _sync() {
+    if (widget.on && _a == null) {
+      _a = AnimationController(vsync: this, duration: const Duration(milliseconds: 1100))..repeat(reverse: true);
+      // traz o botão destacado para a parte visível, se a lista estiver rolada
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted && widget.on) Scrollable.ensureVisible(context, alignment: .5, duration: const Duration(milliseconds: 250));
+      });
+    } else if (!widget.on && _a != null) {
+      _a!.dispose();
+      _a = null;
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _sync();
+  }
+
+  @override
+  void didUpdateWidget(Pulse old) {
+    super.didUpdateWidget(old);
+    _sync();
+  }
+
+  @override
+  void dispose() {
+    _a?.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final a = _a;
+    if (a == null) return widget.child;
+    // quem pediu menos movimento vê o destaque parado
+    final still = MediaQuery.maybeOf(context)?.disableAnimations ?? false;
+    return AnimatedBuilder(
+      animation: a,
+      child: widget.child,
+      builder: (context, child) {
+        final t = still ? 0.0 : a.value;
+        return DecoratedBox(
+          position: DecorationPosition.foreground,
+          decoration: BoxDecoration(
+            shape: widget.round ? BoxShape.circle : BoxShape.rectangle,
+            borderRadius: widget.round ? null : BorderRadius.circular(12),
+            border: Border.all(color: widget.c.accent.withValues(alpha: 1 - .55 * t), width: 3 + 2 * t),
+          ),
+          child: child,
+        );
+      },
+    );
+  }
+}

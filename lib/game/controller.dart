@@ -5,6 +5,7 @@
 //   camera_input.dart  câmera, zoom e toques na bancada
 //   run_control.dart   simulação, pausa, câmera lenta, rastro e vitória
 //   level_editor.dart  editor de fases
+//   tutorial.dart      tutorial guiado da primeira fase
 // O progresso (medalhas, recordes, fases liberadas) fica em progress.dart.
 library;
 
@@ -27,6 +28,7 @@ part 'build_tools.dart';
 part 'camera_input.dart';
 part 'level_editor.dart';
 part 'run_control.dart';
+part 'tutorial.dart';
 
 enum Mode { build, run, edit }
 
@@ -49,6 +51,7 @@ const kHints = {
 const kEHints = {
   'eselect': 'Toque num elemento para selecionar. Arraste para mover; arraste as bolinhas para mudar o tamanho.',
   'block': 'Arraste para desenhar um bloco.',
+  'crate': 'Arraste para desenhar uma caixa solta. Ela cai, pode ser empurrada e aperta botões.',
   'hill': 'Arraste para desenhar um morro: a largura é a base, a altura é o topo.',
   'plat': 'Arraste para desenhar uma plataforma. Inclinada, vira rampa.',
   'lift': 'Arraste do ponto de partida até o ponto de chegada do elevador.',
@@ -226,7 +229,7 @@ abstract class GameState extends ChangeNotifier {
   void _editUp();
 }
 
-class GameController extends GameState with _BuildTools, _CameraInput, _RunControl, _LevelEditor {
+class GameController extends GameState with _BuildTools, _CameraInput, _RunControl, _LevelEditor, _Tutorial {
   GameController(super.store) {
     applyLang();
     final id = progress.currentId;

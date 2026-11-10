@@ -258,6 +258,9 @@ class Level {
   /// Morros: cada um ocupa o retângulo dado e tem a forma de uma lombada suave,
   /// do pé (embaixo, nas pontas) até o topo (em cima, no meio). Veja [hillY].
   List<R> hills;
+
+  /// Caixas soltas: cenário com gravidade, que cai, pode ser empurrado e aperta botões.
+  List<R> crates;
   List<Seg> plats, seesaws;
   List<Lift> lifts;
   List<FixedMag> magnets;
@@ -287,6 +290,7 @@ class Level {
     required this.ball,
     List<R>? blocks,
     List<R>? hills,
+    List<R>? crates,
     List<R>? doors,
     List<Seg>? plats,
     List<Seg>? seesaws,
@@ -300,6 +304,7 @@ class Level {
     this.verified = false,
   })  : blocks = blocks ?? [],
         hills = hills ?? [],
+        crates = crates ?? [],
         doors = doors ?? [],
         plats = plats ?? [],
         seesaws = seesaws ?? [],
@@ -320,6 +325,7 @@ class Level {
         'ball': ball.toJson(),
         'blocks': blocks.map((e) => e.toJson()).toList(),
         if (hills.isNotEmpty) 'hills': hills.map((e) => e.toJson()).toList(),
+        if (crates.isNotEmpty) 'crates': crates.map((e) => e.toJson()).toList(),
         'plats': plats.map((e) => e.toJson()).toList(),
         'magnets': magnets.map((e) => e.toJson()).toList(),
         'lifts': lifts.map((e) => e.toJson()).toList(),
@@ -348,6 +354,7 @@ class Level {
       ball: Pt.fromJson(m['ball']) ?? Pt(170, 440),
       blocks: arr(m['blocks'], 80, R.fromJson),
       hills: arr(m['hills'], 20, R.fromJson),
+      crates: arr(m['crates'], 40, R.fromJson),
       plats: arr(m['plats'], 80, Seg.fromJson),
       seesaws: arr(m['seesaws'], 20, Seg.fromJson),
       lifts: arr(m['lifts'], 20, (l) {

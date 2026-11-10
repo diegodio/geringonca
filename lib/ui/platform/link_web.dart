@@ -31,3 +31,21 @@ Future<bool> systemShare(String url, String title) async {
     return false; // cancelado ou bloqueado: quem chamou copia o link
   }
 }
+
+/// O navegador deixa a página ocupar a tela inteira? (No iPhone, não: lá o jogo
+/// já ocupa toda a área da página.)
+bool canFullscreen() => web.document.fullscreenEnabled && (web.document.documentElement?.has('requestFullscreen') ?? false);
+
+bool isFullscreen() => web.document.fullscreenElement != null;
+
+Future<void> setFullscreen(bool on) async {
+  try {
+    if (on) {
+      await web.document.documentElement?.requestFullscreen().toDart;
+    } else if (isFullscreen()) {
+      await web.document.exitFullscreen().toDart;
+    }
+  } catch (_) {
+    // recusado pelo navegador: fica como estava
+  }
+}

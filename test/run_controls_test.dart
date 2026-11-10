@@ -16,29 +16,30 @@ void main() {
   setUpAll(() async => initializeForge2D());
 
   group('fases em sequência', () {
-    test('só a primeira fase começa liberada', () {
+    test('começam liberadas a primeira fase e a seguinte (dá para pular uma)', () {
       final g = GameController(Store(null));
       expect(g.progress.isUnlocked('l1'), isTrue);
-      expect(g.progress.isUnlocked('l2'), isFalse);
-      expect(g.progress.blocker(kBuiltin[2].id!)!.id, 'l2'); // a terceira fase espera a Rampa
+      expect(g.progress.isUnlocked('l2'), isTrue);
+      expect(g.progress.isUnlocked(kBuiltin[2].id!), isFalse);
+      expect(g.progress.blocker(kBuiltin[2].id!)!.id, 'l1'); // falta uma das duas primeiras
     });
 
     test('escolher fase bloqueada explica o que falta e não troca', () {
       final g = GameController(Store(null))..chooseLevel(kBuiltin[2].id!);
       expect(g.level.id, 'l1');
-      expect(g.hint, contains('Rampa'));
+      expect(g.hint, contains('Primeiros passos'));
     });
 
-    test('vencer libera a próxima e avisa', () {
+    test('vencer libera mais uma fase e avisa', () {
       final g = GameController(Store(null))..togglePlay();
       _frames(g, 4);
       expect(g.won, isTrue);
-      expect(g.winInfo!.unlocked, 'Rampa');
-      expect(g.progress.isUnlocked('l2'), isTrue);
-      expect(g.progress.isUnlocked(kBuiltin[2].id!), isFalse);
+      expect(g.winInfo!.unlocked, kBuiltin[2].name);
+      expect(g.progress.isUnlocked(kBuiltin[2].id!), isTrue); // pulando a Rampa
+      expect(g.progress.isUnlocked(kBuiltin[3].id!), isFalse); // mas não duas
       g.stop();
-      g.chooseLevel('l2');
-      expect(g.level.id, 'l2');
+      g.chooseLevel(kBuiltin[2].id!);
+      expect(g.level.id, kBuiltin[2].id);
     });
 
     test('fases próprias estão sempre liberadas', () {

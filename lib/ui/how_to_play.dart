@@ -12,9 +12,9 @@ class HowToPlay extends StatelessWidget {
   static const notes = [
     ('O objetivo', 'Monte uma engenhoca na área verde e toque em Rodar. A fase termina quando a bola amarela fica inteira dentro da área vermelha.'),
     ('Medalhas',
-        'Cada fase tem três: tempo, número de peças e custo. Não precisa ganhar todas na mesma engenhoca. A solução mais rápida fica guardada em Melhor solução. Concluir uma fase libera a seguinte.'),
+        'Cada fase tem três: tempo, número de peças e custo. Não precisa ganhar todas na mesma engenhoca. A solução mais rápida fica guardada em Melhor solução. As fases abrem em sequência, e dá para pular uma que empacar.'),
     ('Cenário que se move',
-        'Elevadores sobem e descem sem parar. Gangorras giram no eixo do meio. Portas abrem quando algo pisa num botão; numa fase sem botões, elas abrem e fecham a cada 2 s.'),
+        'Elevadores sobem e descem sem parar. Gangorras giram no eixo do meio. Caixas soltas caem, podem ser empurradas e apertam botões. Portas abrem quando algo pisa num botão; numa fase sem botões, elas abrem e fecham a cada 2 s.'),
     ('Seleção e zoom',
         'Use dois dedos para aproximar e arrastar a tela (no computador, Ctrl + rolagem). Em Selecionar, marque várias peças para mover, duplicar ou girar de uma vez.'),
     ('Peças entre si',

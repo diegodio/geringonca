@@ -66,6 +66,7 @@ void main() {
       for (final (t, s, _) in kChapters) ...[t, s],
       ...kPieceNames.values,
       ...kHints.values,
+      for (final st in kTutorial) ...[st.text, ?st.next],
       ...kEHints.values,
       for (final (_, n, d) in kChallenges) ...[n, d],
       blankLevel().name,

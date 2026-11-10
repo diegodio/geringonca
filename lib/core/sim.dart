@@ -18,7 +18,7 @@ const int catEnv = 1, catRod = 2, catWater = 4, catBall = 8, catScen = 16, catCi
 const int catParts = catRod | catCirc;
 
 // Matter.js usa densidade por px²; aqui é por m² (fator 10⁴), o que mantém as mesmas massas.
-const double _dPart = 20, _dBall = 15, _dSeesaw = 20;
+const double _dPart = 20, _dBall = 15, _dSeesaw = 20, _dCrate = 8;
 // Arrasto do ar do Matter.js (frictionAir = 0,01 por passo) em amortecimento por segundo.
 const double _airDamping = 0.6;
 // Rodas motorizadas: 0,2 rad por passo de 1/60 s no Matter.js.
@@ -71,6 +71,12 @@ class SimSeesaw {
   SimSeesaw(this.body, this.len);
 }
 
+class SimCrate {
+  final R c;
+  final Body body;
+  SimCrate(this.c, this.body);
+}
+
 class SimPart {
   final Part part;
   final Body body;
@@ -96,6 +102,7 @@ class Sim {
   final List<SimDoor> doors = [];
   final List<SimButton> buttons = [];
   final List<SimSeesaw> seesaws = [];
+  final List<SimCrate> crates = [];
   final List<Body> _motors = [];
   final List<int> _motorDir = [];
   final List<(Body, String, bool)> _mags = []; // corpo, polo, fixo
@@ -198,7 +205,7 @@ class Sim {
       final body = _static(bt.x, bt.y - 12);
       final sh = body.createShape(
         Polygon.box(27 / kScale, 12 / kScale),
-        ShapeDef(isSensor: true, enableSensorEvents: true, filter: Filter(categoryBits: catEnv, maskBits: catParts | catBall)),
+        ShapeDef(isSensor: true, enableSensorEvents: true, filter: Filter(categoryBits: catEnv, maskBits: catParts | catBall | catScen)),
       );
       buttons.add(SimButton(bt, sh));
     }
@@ -222,6 +229,22 @@ class Sim {
       final pivot = _static(mid.x, mid.y);
       world.createRevoluteJoint(RevoluteJointDef(bodyA: pivot, bodyB: body));
       seesaws.add(SimSeesaw(body, len));
+    }
+
+    // Caixas soltas: cenário que cai, pode ser empurrado e aperta botões.
+    for (final c in lv.crates) {
+      crates.add(SimCrate(
+          c,
+          _box(c.x + c.w / 2, c.y + c.h / 2, c.w, c.h,
+              type: BodyType.dynamic,
+              def: ShapeDef(
+                density: _dCrate,
+                material: SurfaceMaterial(friction: .5),
+                enableSensorEvents: true,
+                filter: Filter(categoryBits: catScen, maskBits: catEnv | catParts | catBall | catScen),
+              ))
+            ..linearDamping = _airDamping
+            ..angularDamping = _airDamping));
     }
 
     // Bola. Numa fase com bola solta, nada se prende a ela.
