@@ -113,6 +113,25 @@ mixin _BuildTools on GameState {
   /// Bola fora da área verde fica onde está: a fase quer que a engenhoca a alcance.
   bool get _ballMovable => level.zone.contains(ball0);
 
+  // ---------- barras mal postas ----------
+  /// Barras que começam cruzando uma peça não ligada a elas, a bola ou o cenário.
+  Map<Part, String> get clashMap => clashes(parts, level, ball0);
+
+  static String _clashMsg(String why) => switch (why) {
+        'bola' => tr('A barra não pode atravessar a bola. Prenda a ponta nela ou passe por fora.'),
+        'cenario' => tr('A barra não pode entrar no chão nem no cenário.'),
+        _ => tr('A barra não pode cruzar outra peça, só as que estão ligadas a ela por uma junta.'),
+      };
+
+  /// Recusa a mudança se ela deixou alguma barra mal posta que antes não estava.
+  /// Verdadeiro quando recusou (quem chamou desfaz a mudança).
+  bool _newClash(Map<Part, String> before) {
+    final fresh = clashMap.entries.where((e) => !before.containsKey(e.key)).firstOrNull;
+    if (fresh == null) return false;
+    _deny(_clashMsg(fresh.value));
+    return true;
+  }
+
   // ---------- seleção ----------
   List<Pt> _selPoints() => [for (final q in sel) ...q.points, if (selBall) ball0];
 
@@ -152,6 +171,7 @@ mixin _BuildTools on GameState {
       return notifyListeners();
     }
     const offs = [[40, -40], [40, 40], [-40, -40], [-40, 40], [80, 0], [-80, 0], [0, -80], [0, 80], [20, -20], [-20, 20]];
+    final before = clashMap;
     for (final o in offs) {
       final cl = list.map((q) => q.copy()).toList();
       var ok = true;
@@ -163,6 +183,7 @@ mixin _BuildTools on GameState {
         }
       }
       if (!ok) continue;
+      if (clashes([...parts, ...cl], level, ball0).keys.any((q) => !before.containsKey(q))) continue;
       _pushUndo();
       parts.addAll(cl);
       sel = cl.toSet();
@@ -192,11 +213,20 @@ mixin _BuildTools on GameState {
       _deny(tr('Girando, a seleção sairia da área verde. Mova antes de girar.'));
       return notifyListeners();
     }
-    _pushUndo();
-    for (var i = 0; i < pts.length; i++) {
-      pts[i].x = next[i].x;
-      pts[i].y = next[i].y;
+    void place(List<Pt> to) {
+      for (var i = 0; i < pts.length; i++) {
+        pts[i].x = to[i].x;
+        pts[i].y = to[i].y;
+      }
     }
+
+    final before = clashMap, old = [for (final p in pts) p.copy()];
+    place(next);
+    final refused = _newClash(before);
+    place(old);
+    if (refused) return notifyListeners();
+    _pushUndo();
+    place(next);
     for (final q in sel) {
       if (q.isWheel) q.rot += a;
     }
@@ -316,6 +346,7 @@ mixin _BuildTools on GameState {
       }
       _pushUndo();
       action = Act('drag')
+        ..clash0 = clashMap
         ..refs = refs
         ..followers = followers
         ..orig = [for (final pt in [...refs, ...followers.map((f) => f.$1)]) (pt, pt.x, pt.y)];
@@ -329,6 +360,7 @@ mixin _BuildTools on GameState {
         final pts = _selPoints();
         _pushUndo();
         action = Act('selmove')
+          ..clash0 = clashMap
           ..start = p
           ..q = q
           ..onBall = onBall
@@ -407,10 +439,21 @@ mixin _BuildTools on GameState {
     action = null;
     snapHint = null;
     if (a == null) return;
+    // arraste que deixou uma barra mal posta volta para onde estava
+    void revert() {
+      for (final (pt, x, y) in a.orig) {
+        pt.x = x;
+        pt.y = y;
+      }
+      if (_undo.isNotEmpty) _undo.removeLast();
+    }
+
     switch (a.type) {
       case 'drag':
+        if (_newClash(a.clash0)) return revert();
         _saveBuild();
       case 'selmove':
+        if (a.moved && _newClash(a.clash0)) return revert();
         if (a.moved) {
           _saveBuild();
         } else {
@@ -440,12 +483,26 @@ mixin _BuildTools on GameState {
         if (d.isRod) {
           if (dist(d.a!, d.b!) < 14) return;
           if (!level.zone.contains(d.b!)) return _deny(tr('As duas pontas precisam ficar na área verde.'));
+          final before = clashMap;
+          parts.add(d);
+          if (_newClash(before)) {
+            parts.removeLast();
+            return;
+          }
+          parts.removeLast();
           _pushUndo();
           parts.add(d);
           fx(Sfx.place);
         } else {
-          _pushUndo();
           d.r = d.r.roundToDouble();
+          final before = clashMap;
+          parts.add(d);
+          if (_newClash(before)) {
+            parts.removeLast();
+            return;
+          }
+          parts.removeLast();
+          _pushUndo();
           parts.add(d);
           fx(Sfx.place);
           if (d.isWheel && d.k != 'free' && !hubConnected(d, parts, hubBall)) {

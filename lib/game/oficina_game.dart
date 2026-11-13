@@ -14,6 +14,7 @@ import 'package:flutter/services.dart';
 import 'package:forge2d/forge2d.dart' show Body;
 
 import '../core/i18n.dart';
+import '../core/clash.dart';
 import '../core/model.dart';
 import '../core/sim.dart';
 import 'controller.dart';
@@ -206,9 +207,15 @@ class _BuildLayer extends Component {
       return;
     }
     i.parts(g.parts);
+    // barras mal postas ficam marcadas em vermelho
+    final bad = i.stroke(i.c.goal, 9, .45)..strokeCap = StrokeCap.round;
+    for (final q in g.clashMap.keys) {
+      i.line(q.a!.x, q.a!.y, q.b!.x, q.b!.y, bad);
+    }
     if (a != null && a.type == 'draft') {
       final d = a.d!;
       if (d.isRod) {
+        if (dist(d.a!, d.b!) >= 14 && clashOf(d, [...g.parts, d], g.level, g.ball0) != null) i.line(d.a!.x, d.a!.y, d.b!.x, d.b!.y, bad);
         i.rod(d.a!.x, d.a!.y, d.b!.x, d.b!.y, d.k, .6);
         i.text('${fmt(dist(d.a!, d.b!) / 100)} m', d.b!.x + 12, d.b!.y - 12, i.c.ink);
       } else if (d.isWheel) {

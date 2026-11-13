@@ -25,7 +25,7 @@ Map<String, (Level, List<Part>, Pt)> scenarios() {
   final crank = Part.wheel('cw', Pt(b.x + 60, b.y + 10), 40, 0.2617993877991494); // girada 15°
   return {
     'carrinho na fase 1': sample('l1'),
-    'rampa': sample('l2'),
+    'salto': sample('l62'),
     'ímã no carrinho': sample('l4', [Part.mag('N', Pt(_lv('l4').ball.x - 40, _lv('l4').ball.y - 40))]),
     'elevador': sample('l5'),
     'gangorra': sample('l6'),
@@ -45,12 +45,12 @@ Map<String, (Level, List<Part>, Pt)> scenarios() {
 /// e num Box2D compilado com FMA ligado e -ffp-contract=off (o caso dos celulares ARM).
 const golden = <String, String>{
   'carrinho na fase 1': '2193eb16',
-  'rampa': '00db768d',
+  'salto': '11919da3',
   'ímã no carrinho': '1028a26f',
-  'elevador': '06b32513',
+  'elevador': '2f0a15f2',
   'gangorra': '040d33be',
-  'porta e botão': '1b2fbffa',
-  'manivela': '2e2f45af',
+  'porta e botão': '2e7b786c',
+  'manivela': '288efbb2',
   'motor com o centro solto': '358c5e37',
   'boliche': '1fae6dc7',
   'degrau de caixa': '0ec02ab8',

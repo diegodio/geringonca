@@ -2,6 +2,7 @@ import 'dart:math' as math;
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:forge2d/forge2d.dart';
+import 'package:geringonca/core/clash.dart';
 import 'package:geringonca/core/levels.dart';
 import 'package:geringonca/core/model.dart';
 import 'package:geringonca/core/sim.dart';
@@ -87,16 +88,44 @@ void main() {
     s.dispose();
   });
 
-  test('barras cruzadas em X no início não se empurram', () {
-    final s = _run([
-      Part.rod('solid', Pt(300, 200), Pt(460, 310)),
-      Part.rod('solid', Pt(300, 310), Pt(460, 200)),
-    ], .2);
-    // ainda no ar: caem juntas, sem serem lançadas para os lados
-    for (final b in s.bodies) {
-      expect(b.body.linearVelocity.x.abs(), lessThan(.3));
-    }
-    s.dispose();
+  group('barras não começam cruzando nada que não esteja ligado a elas', () {
+    final lv = _lab(), ball = Pt(900, 470);
+    Map<Part, String> cl(List<Part> ps) => clashes(ps, lv, ball);
+
+    test('barras em X, ou em T sem junta, são recusadas', () {
+      final x = [Part.rod('solid', Pt(300, 200), Pt(460, 310)), Part.rod('solid', Pt(300, 310), Pt(460, 200))];
+      expect(cl(x).values, everyElement('parte'));
+      final t = [Part.rod('solid', Pt(300, 300), Pt(460, 300)), Part.rod('solid', Pt(380, 300), Pt(380, 200))];
+      expect(cl(t), hasLength(2));
+    });
+
+    test('barras presas na mesma junta, no eixo ou na borda da roda podem se tocar', () {
+      final w = Part.wheel('cw', Pt(400, 400), 40);
+      expect(cl([Part.rod('solid', Pt(300, 300), Pt(400, 300)), Part.rod('solid', Pt(400, 300), Pt(450, 200))]), isEmpty);
+      expect(cl([w, Part.rod('solid', Pt(400, 400), Pt(300, 300))]), isEmpty, reason: 'barra no eixo passa por dentro da roda');
+      expect(cl([w, Part.rod('solid', w.perim[0], Pt(300, 300))]), isEmpty, reason: 'barra na borda gira junto, como manivela');
+      expect(cl([w, Part.rod('solid', Pt(350, 300), Pt(450, 420))]), isNotEmpty, reason: 'barra solta atravessando a roda');
+    });
+
+    test('a bola e o cenário também contam', () {
+      expect(cl([Part.rod('solid', Pt(850, 470), Pt(950, 470))]).values, ['bola']);
+      expect(cl([Part.rod('solid', Pt(850, 470), ball.copy())]), isEmpty, reason: 'presa na bola');
+      expect(cl([Part.rod('solid', Pt(300, 499), Pt(400, 499))]).values, ['cenario']);
+      expect(cl([Part.rod('solid', Pt(300, 496), Pt(400, 496))]), isEmpty, reason: 'apoiada no chão');
+    });
+
+    test('borracha: o corpo cruza tudo, as pontas não', () {
+      final wood = Part.rod('solid', Pt(300, 300), Pt(460, 300));
+      expect(cl([wood, Part.rod('water', Pt(380, 250), Pt(380, 350))]), isEmpty);
+      expect(cl([wood, Part.rod('water', Pt(380, 300), Pt(380, 400))]), isNotEmpty, reason: 'ponta dentro da madeira');
+    });
+
+    test('na simulação, peças soltas que começam encostadas batem', () {
+      // roda pousada na barra, sem junta: não pode afundar nela
+      final s = _run([Part.rod('solid', Pt(300, 495), Pt(500, 495)), Part.wheel('free', Pt(400, 463), 28)], 1);
+      expect(s.pose(s.bodies[1].body).y, closeTo(463, 2));
+      s.dispose();
+    });
   });
 
   test('roda cai sobre outra roda e para em cima', () {

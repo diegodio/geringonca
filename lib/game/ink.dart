@@ -216,7 +216,8 @@ class Ink {
     text(tr('META'), lv.goal.x + 6, lv.goal.y - 7, c.goal);
   }
 
-  void scenery(Level lv, Sim? s) {
+  /// [rulers]: as marcas de metro embaixo (as miniaturas do menu não usam).
+  void scenery(Level lv, Sim? s, {bool rulers = true}) {
     if (lv.ground) {
       cv.drawRect(const Rect.fromLTWH(0, 500, kW, kH - 500), fill(c.ground));
       line(0, 500, kW, 500, stroke(c.ink, 1.5));
@@ -238,7 +239,7 @@ class Ink {
       final p = s != null ? s.pose(s.crates[i].body) : Pose(k.x + k.w / 2, k.y + k.h / 2, 0);
       crate(p.x, p.y, k.w, k.h, p.angle);
     }
-    for (var x = 100; x < kW; x += 100) {
+    for (var x = 100; rulers && x < kW; x += 100) {
       line(x.toDouble(), kH - 10, x.toDouble(), kH, stroke(c.muted, 1));
       text('${x ~/ 100} m', x + 4, kH - 3, lv.ground ? c.paper : c.muted, size: 11);
     }

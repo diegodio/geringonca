@@ -31,11 +31,7 @@ void main() {
     await _png('$out/favicon-v2.png', 64, 64, (cv) => paintAppIcon(cv, 64, c));
     final (svg, buildMs) = _svg(LogoArt.word());
     File('$out/logo.svg').writeAsStringSync(svg);
-    // a tela de carregamento espera a montagem terminar antes de sumir
-    if (out == 'web') {
-      final idx = File('web/index.html');
-      idx.writeAsStringSync(idx.readAsStringSync().replaceFirst(RegExp(r'/\*montagem\*/\d+'), '/*montagem*/$buildMs'));
-    }
+    buildMs.toString(); // a abertura agora é a do estúdio (web/index.html); o logo.svg fica como prévia
     // prévia da palavra (só quando gera em outra pasta; não vai para o app)
     if (out == 'web') return;
     final word = LogoArt.word();

@@ -90,10 +90,10 @@ void main() {
     test('próxima fase', () {
       final g = _l1WithWheel()..togglePlay();
       _runUntilWin(g);
-      expect(g.winInfo!.next?.id, 'l2');
+      expect(g.winInfo!.next?.id, kBuiltin[1].id);
       g.goNext();
       expect(g.mode, Mode.build);
-      expect(g.level.id, 'l2');
+      expect(g.level.id, kBuiltin[1].id);
     });
 
     test('tentar de novo e melhorar', () {
