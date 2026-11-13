@@ -15,9 +15,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      # versão fixa: uma versão nova do Flutter pode mudar o que a análise acusa
+      # (e travar a publicação) sem nenhuma mudança no jogo
       - uses: subosito/flutter-action@v2
         with:
           channel: stable
+          flutter-version: 3.47.9
       - run: flutter pub get
       # nada é publicado se a análise ou algum teste falhar
       - run: flutter analyze
