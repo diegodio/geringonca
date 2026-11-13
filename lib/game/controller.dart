@@ -14,6 +14,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/foundation.dart';
 
+import '../core/clash.dart';
 import '../core/detmath.dart';
 import '../core/i18n.dart';
 import '../core/levels.dart';
@@ -89,6 +90,7 @@ class Act {
   ({double x0, double x1, double y0, double y1})? bb;
   String? et;
   Pt? down;
+  Map<Part, String> clash0 = const {}; // barras que já estavam mal postas antes do arraste
   Act(this.type);
 }
 

@@ -41,6 +41,10 @@ mixin _RunControl on GameState {
       _deny(tr('Esta fase não permite {p}. Apague essas peças para rodar.', {'p': bad.join(', ')}));
       return notifyListeners();
     }
+    if (!isReplay && clashes(ps, level, b).isNotEmpty) {
+      _deny(tr('Há barras cruzando peças, a bola ou o cenário (em vermelho). Ajuste antes de rodar.'));
+      return notifyListeners();
+    }
     final budget = level.budget;
     if (!isReplay && budget != null && costOf(ps) > budget) {
       _deny(tr('A engenhoca custa \${c}, mas o orçamento desta fase é \${b}.', {'c': costOf(ps), 'b': budget}));

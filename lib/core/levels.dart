@@ -7,18 +7,18 @@ const _noMotor = ['rod', 'water', 'free', 'magN', 'magS'];
 
 /// Capítulos: nome, subtítulo e quantas fases têm, na ordem de [kBuiltin].
 const kChapters = [
-  ('Oficina', 'Aprender cada peça', 10),
-  ('Sem carregar', 'Empurrar e usar a gravidade', 10),
-  ('Estruturas', 'Pontes, chassis e terreno', 10),
-  ('Cenário em movimento', 'Elevadores, gangorras e botões', 10),
-  ('Ímãs e mecanismos', 'Atração, repulsão e guindastes', 10),
-  ('Morros e rampas', 'A gravidade a favor, ou contra', 10),
-  ('Caixas soltas', 'Derrubar, empurrar e usar de degrau', 7),
+  ('Oficina', 'Uma ideia por peça', 10),
+  ('Terreno', 'Pontes, rampas, degraus e morros', 10),
+  ('Carga solta', 'Nada se prende à bola', 10),
+  ('Gravidade', 'Sem motor: rampas, quedas e alavancas', 10),
+  ('Cenário vivo', 'Elevadores, gangorras, portas e botões', 10),
+  ('Ímãs e braços', 'Atração, repulsão e guindastes', 9),
+  ('Mestre de obras', 'Tudo junto, do jeito difícil', 8),
 ];
 
 /// As 67 fases prontas, em ordem crescente de dificuldade, divididas em 7
-/// capítulos (os seis primeiros de 10 fases). As ids não seguem a ordem porque as fases mais antigas
-/// mantêm a id original (o progresso salvo usa a id). Cada fase tem uma
+/// capítulos por tema. Cada fase pede uma ideia própria. As ids não seguem a
+/// ordem porque as fases mantêm a id original (o progresso salvo usa a id). Cada fase tem uma
 /// solução de referência em test/levels_test.dart, que confere que ela vence,
 /// que as três medalhas são alcançáveis e que os truques simples não bastam.
 List<Level> buildBuiltinLevels() => [
@@ -36,18 +36,6 @@ List<Level> buildBuiltinLevels() => [
       ),
       // 2
       Level(
-        id: 'l2',
-        name: 'Rampa',
-        tip: 'A meta fica no alto. Rodas maiores sobem melhor.',
-        zone: zone0(),
-        goal: R(780, 280, 200, 150),
-        ball: Pt(170, 440),
-        blocks: [R(700, 430, 300, 70)],
-        plats: [_s(420, 508, 706, 438)],
-        targets: Targets(t: 1.9, n: 2, c: 35),
-      ),
-      // 3
-      Level(
         id: 'l8',
         name: 'Marcha à ré',
         tip: 'A meta ficou para trás. Qual roda gira para o outro lado?',
@@ -56,7 +44,7 @@ List<Level> buildBuiltinLevels() => [
         ball: Pt(830, 478),
         targets: Targets(t: 1.6, n: 1, c: 25),
       ),
-      // 4
+      // 3
       Level(
         id: 'l14',
         name: 'Degrau',
@@ -67,7 +55,7 @@ List<Level> buildBuiltinLevels() => [
         blocks: [R(600, 460, 400, 40)],
         targets: Targets(t: 2.4, n: 1, c: 25),
       ),
-      // 5
+      // 4
       Level(
         id: 'l9',
         name: 'Túnel',
@@ -78,68 +66,19 @@ List<Level> buildBuiltinLevels() => [
         blocks: [R(420, 0, 280, 410)], // parede que desce do teto: passagem de 90 px
         targets: Targets(t: 2.1, n: 1, c: 25),
       ),
-      // 6
-      Level(
-        id: 'l3',
-        name: 'Vale',
-        tip: 'Sem chão no meio. Faça uma engenhoca comprida o bastante para atravessar.',
-        ground: false,
-        zone: R(40, 270, 330, 220),
-        goal: R(790, 360, 180, 140),
-        ball: Pt(190, 440),
-        plats: [_s(0, 508, 430, 508), _s(570, 508, 1000, 508)],
-        targets: Targets(t: 2.3, n: 2, c: 35),
-      ),
-      // 7
+      // 5
       Level(
         id: 'l7',
-        name: 'Porta e botão',
-        tip: 'A porta só abre quando algo pisa no botão roxo.',
+        name: 'Peso no botão',
+        tip: 'A porta só abre com algo em cima do botão roxo, que fica dentro da área verde.',
         zone: zone0(),
         goal: R(790, 360, 180, 140),
-        ball: Pt(170, 440),
+        ball: Pt(250, 440),
         doors: [R(620, 330, 30, 170)],
-        buttons: [Pt(420, 500)],
-        targets: Targets(t: 1.9, n: 2, c: 35),
+        buttons: [Pt(60, 500)],
+        targets: Targets(t: 1.4, n: 2, c: 40),
       ),
-      // 8
-      Level(
-        id: 'l6',
-        name: 'Gangorra',
-        tip: 'Passe do eixo e a gangorra vira uma ponte até o degrau.',
-        zone: zone0(),
-        goal: R(800, 300, 190, 140),
-        ball: Pt(170, 440),
-        blocks: [R(780, 440, 220, 60)],
-        seesaws: [_s(400, 493, 800, 385)],
-        targets: Targets(t: 2.0, n: 2, c: 35),
-      ),
-      // 9
-      Level(
-        id: 'l5',
-        name: 'Elevador',
-        tip: 'Suba no elevador e espere ele chegar ao topo do bloco.',
-        zone: zone0(),
-        goal: R(790, 170, 190, 130),
-        ball: Pt(170, 440),
-        blocks: [R(760, 300, 240, 200)],
-        lifts: [Lift(Pt(640, 508), Pt(640, 308), 220, 3)],
-        targets: Targets(t: 4.5, n: 2, c: 35),
-      ),
-      // 10
-      Level(
-        id: 'l4',
-        name: 'Campo magnético',
-        tip: 'O ímã fixo é sul. Um ímã norte na engenhoca é puxado por ele; um sul é empurrado.',
-        zone: zone0(),
-        goal: R(790, 360, 180, 140),
-        ball: Pt(170, 440),
-        blocks: [R(560, 460, 40, 40)],
-        magnets: [FixedMag(700, 330, 'S')],
-        targets: Targets(t: 2.5, n: 3, c: 60),
-      ),
-      // ---------- capítulo: Sem carregar ----------
-      // 11
+      // 6
       Level(
         id: 'l10',
         name: 'Entrega',
@@ -153,123 +92,56 @@ List<Level> buildBuiltinLevels() => [
         // o motor só liga com o eixo preso: a solução mais simples tem roda + barra
         targets: Targets(t: 6.0, n: 2, c: 30),
       ),
-      // 12
+      // 7
       Level(
-        id: 'l13',
-        name: 'Ladeira',
-        tip: 'Nesta fase não há motor. Use a rampa: o que rola lá de cima empurra a bola.',
-        zone: R(40, 140, 400, 190),
-        goal: R(520, 360, 220, 140),
-        ball: Pt(390, 312),
-        plats: [_s(40, 220, 330, 340), _s(330, 340, 430, 340)],
-        allowed: ['rod', 'water', 'free', 'magN', 'magS'],
-        targets: Targets(t: 4.6, n: 1, c: 15),
-      ),
-      // 13
-      Level(
-        id: 'l15',
-        name: 'Dominó',
-        tip: 'Sem motor. A bola está fora da área verde: derrube algo em cima dela.',
-        ground: false,
-        zone: R(40, 150, 220, 340),
-        goal: R(470, 400, 420, 155),
-        ball: Pt(300, 478),
-        plats: [_s(0, 508, 330, 508), _s(330, 508, 560, 545), _s(560, 545, 1000, 556)],
+        id: 'l2',
+        name: 'Descida',
+        tip: 'Sem motor. A bola desce a ladeira sozinha, mas para no degrau do fim. Uma roda grande rola por cima dele.',
+        zone: R(40, 120, 300, 180),
+        goal: R(800, 330, 180, 140),
+        ball: Pt(170, 290),
+        plats: [_s(0, 250, 620, 508)],
+        blocks: [R(700, 480, 300, 20)],
         allowed: _noMotor,
-        targets: Targets(t: 4.6, n: 2, c: 25),
+        targets: Targets(t: 4.9, n: 1, c: 15),
       ),
-      // 14
+      // 8
       Level(
-        id: 'l16',
-        name: 'Freio',
-        tip: 'A bola desce rápido demais e passa por cima do buraco. Construa algo para ela bater.',
+        id: 'l3',
+        name: 'Vale',
+        tip: 'Sem chão no meio. Faça uma engenhoca comprida o bastante para atravessar.',
         ground: false,
-        zone: R(660, 260, 200, 230),
-        goal: R(600, 500, 50, 60),
-        ball: Pt(64, 106),
-        plats: [_s(40, 130, 420, 508), _s(420, 508, 592, 508), _s(658, 508, 860, 508)],
-        blocks: [R(590, 560, 70, 40)],
-        allowed: _noMotor,
-        targets: Targets(t: 3.6, n: 3, c: 30),
-      ),
-      // 15
-      Level(
-        id: 'l17',
-        name: 'Defletor',
-        tip: 'A bola voa para a direita, mas a meta fica embaixo, à esquerda. Faça um anteparo.',
-        ground: false,
-        zone: R(480, 220, 220, 270),
-        goal: R(30, 400, 200, 140),
-        ball: Pt(64, 126),
-        plats: [_s(40, 150, 420, 300), _s(0, 548, 720, 508)],
-        allowed: _noMotor,
-        targets: Targets(t: 8.2, n: 3, c: 30),
-      ),
-      // 16
-      Level(
-        id: 'l18',
-        name: 'Braço comprido',
-        tip: 'A bola está numa prateleira fora do alcance das rodas. Um braço firme empurra de longe.',
-        zone: R(40, 250, 250, 240),
-        goal: R(420, 380, 200, 120),
-        ball: Pt(390, 398),
-        blocks: [R(330, 420, 90, 80)],
-        targets: Targets(t: 1.2, n: 5, c: 80),
-      ),
-      // 17
-      Level(
-        id: 'l19',
-        name: 'Bola solta',
-        tip: 'Nada pode ser preso à bola. Leve-a numa gaiola por cima do vão.',
-        ground: false,
-        looseBall: true,
-        zone: zone0(),
-        goal: R(790, 360, 180, 140),
-        ball: Pt(170, 440),
-        plats: [_s(0, 508, 500, 508), _s(580, 508, 1000, 508)],
-        targets: Targets(t: 3.4, n: 6, c: 90),
-      ),
-      // 18
-      Level(
-        id: 'l20',
-        name: 'Gaiola na subida',
-        tip: 'Bola solta e uma rampa forte: a gaiola precisa segurar a bola na subida.',
-        looseBall: true,
-        zone: zone0(),
-        goal: R(780, 210, 200, 150),
-        ball: Pt(170, 440),
-        blocks: [R(720, 360, 280, 140)],
-        plats: [_s(520, 508, 726, 368)],
-        targets: Targets(t: 2.6, n: 6, c: 90),
-      ),
-      // 19
-      Level(
-        id: 'l21',
-        name: 'Catapulta',
-        tip: 'Sem motor. Algo pesado caindo na ponta alta da gangorra lança a bola para a prateleira.',
-        zone: R(200, 40, 220, 220),
-        goal: R(850, 210, 140, 130),
-        ball: Pt(670, 462),
-        blocks: [R(850, 340, 150, 160)],
-        seesaws: [_s(300, 400, 700, 490)],
-        allowed: _noMotor,
-        targets: Targets(t: 2.0, n: 3, c: 40),
-      ),
-      // 20
-      Level(
-        id: 'l22',
-        name: 'Carga no vale',
-        tip: 'Bola solta e um vão no caminho: a gaiola também precisa atravessar.',
-        ground: false,
-        looseBall: true,
         zone: R(40, 270, 330, 220),
         goal: R(790, 360, 180, 140),
         ball: Pt(190, 440),
         plats: [_s(0, 508, 430, 508), _s(570, 508, 1000, 508)],
-        targets: Targets(t: 3.2, n: 5, c: 80),
+        targets: Targets(t: 1.9, n: 1, c: 25),
       ),
-      // ---------- capítulo: Estruturas ----------
-      // 21
+      // 9
+      Level(
+        id: 'l61',
+        name: 'Boliche',
+        tip: 'As caixas são soltas: dá para derrubá-las. Só precisa de embalo.',
+        zone: zone0(),
+        goal: R(790, 360, 180, 140),
+        ball: Pt(170, 440),
+        crates: [R(520, 450, 50, 50), R(520, 400, 50, 50), R(520, 350, 50, 50), R(575, 450, 50, 50), R(575, 400, 50, 50)],
+        targets: Targets(t: 3.6, n: 1, c: 25),
+      ),
+      // 10
+      Level(
+        id: 'l62',
+        name: 'Salto',
+        tip: 'Embale na rampa e salte até a prateleira. Rodas grandes andam mais rápido.',
+        zone: zone0(),
+        goal: R(790, 240, 190, 130),
+        ball: Pt(170, 440),
+        plats: [_s(500, 508, 680, 430)],
+        blocks: [R(760, 380, 240, 120)],
+        targets: Targets(t: 1.9, n: 1, c: 25),
+      ),
+      // ---------- capítulo: Terreno ----------
+      // 11
       Level(
         id: 'l23',
         name: 'Ponte',
@@ -281,7 +153,7 @@ List<Level> buildBuiltinLevels() => [
         plats: [_s(0, 508, 400, 508), _s(700, 508, 1000, 508)],
         targets: Targets(t: 2.7, n: 2, c: 35),
       ),
-      // 22
+      // 12
       Level(
         id: 'l24',
         name: 'Rampa improvisada',
@@ -292,7 +164,7 @@ List<Level> buildBuiltinLevels() => [
         blocks: [R(600, 380, 400, 120)],
         targets: Targets(t: 2.7, n: 2, c: 35),
       ),
-      // 23
+      // 13
       Level(
         id: 'l11',
         name: 'Túnel e fosso',
@@ -305,7 +177,7 @@ List<Level> buildBuiltinLevels() => [
         blocks: [R(380, 0, 200, 410)], // passagem baixa de 90 px
         targets: Targets(t: 2.7, n: 5, c: 80),
       ),
-      // 24
+      // 14
       Level(
         id: 'l25',
         name: 'Escada',
@@ -316,7 +188,104 @@ List<Level> buildBuiltinLevels() => [
         blocks: [R(480, 445, 520, 55), R(620, 390, 380, 55), R(760, 335, 240, 55)],
         targets: Targets(t: 4.0, n: 5, c: 80),
       ),
-      // 25
+      // 15
+      Level(
+        id: 'l57',
+        name: 'Teto no morro',
+        tip: 'Um morro íngreme com o teto quase encostando no topo: só uma engenhoca baixa e forte passa.',
+        zone: R(40, 300, 260, 200),
+        goal: R(780, 380, 190, 120),
+        ball: Pt(150, 472),
+        hills: [R(320, 360, 400, 140)],
+        blocks: [R(420, 0, 200, 300)],
+        targets: Targets(t: 3.5, n: 1, c: 25),
+      ),
+      // 16
+      Level(
+        id: 'l58',
+        name: 'Empurrãozinho',
+        tip: 'A bola equilibra no topo de um morro íngreme. Suba a encosta e dê só um empurrãozinho para o lado da meta.',
+        zone: R(40, 300, 240, 200),
+        goal: R(760, 380, 220, 120),
+        ball: Pt(500, 258),
+        hills: [R(280, 280, 440, 220)],
+        targets: Targets(t: 3.5, n: 2, c: 30),
+      ),
+      // 17
+      Level(
+        id: 'l18',
+        name: 'Braço comprido',
+        tip: 'A bola está numa prateleira fora do alcance das rodas. Um braço firme empurra de longe.',
+        zone: R(40, 250, 250, 240),
+        goal: R(420, 380, 200, 120),
+        ball: Pt(390, 398),
+        blocks: [R(330, 420, 90, 80)],
+        targets: Targets(t: 1.5, n: 5, c: 80),
+      ),
+      // 18
+      Level(
+        id: 'l67',
+        name: 'Degrau de caixa',
+        tip: 'O paredão é alto demais. Empurre a caixa até ele e use-a como degrau.',
+        zone: zone0(),
+        goal: R(800, 110, 180, 150),
+        ball: Pt(170, 440),
+        blocks: [R(660, 260, 340, 240)],
+        crates: [R(400, 380, 240, 120)],
+        targets: Targets(t: 5.0, n: 6, c: 90),
+      ),
+      // 19
+      Level(
+        id: 'l64',
+        name: 'Muro',
+        tip: 'Arrastada pelo chão, a bola não sobe o muro. Leve-a no alto, entre duas rodas grandes.',
+        zone: zone0(),
+        goal: R(790, 230, 180, 140),
+        ball: Pt(170, 440),
+        blocks: [R(560, 370, 440, 130)],
+        targets: Targets(t: 4.0, n: 6, c: 90),
+      ),
+      // 20
+      Level(
+        id: 'l30',
+        name: 'Orçamento curto',
+        tip: 'Dois vãos largos e só \$60 para gastar.',
+        ground: false,
+        budget: 60,
+        zone: R(40, 300, 780, 190),
+        goal: R(840, 360, 150, 140),
+        ball: Pt(120, 440),
+        plats: [_s(0, 508, 250, 508), _s(480, 508, 560, 508), _s(790, 508, 1000, 508)],
+        targets: Targets(t: 2.9, n: 3, c: 45),
+      ),
+      // ---------- capítulo: Carga solta ----------
+      // 21
+      Level(
+        id: 'l19',
+        name: 'Bola solta',
+        tip: 'Nada pode ser preso à bola. Leve-a numa gaiola por cima do vão.',
+        ground: false,
+        looseBall: true,
+        zone: zone0(),
+        goal: R(790, 360, 180, 140),
+        ball: Pt(170, 440),
+        plats: [_s(0, 508, 500, 508), _s(580, 508, 1000, 508)],
+        targets: Targets(t: 3.4, n: 6, c: 90),
+      ),
+      // 22
+      Level(
+        id: 'l20',
+        name: 'Gaiola na subida',
+        tip: 'Bola solta e uma rampa forte: a gaiola precisa segurar a bola na subida.',
+        looseBall: true,
+        zone: zone0(),
+        goal: R(780, 210, 200, 150),
+        ball: Pt(170, 440),
+        blocks: [R(720, 360, 280, 140)],
+        plats: [_s(520, 508, 726, 368)],
+        targets: Targets(t: 2.6, n: 6, c: 90),
+      ),
+      // 23
       Level(
         id: 'l26',
         name: 'Lombadas',
@@ -332,7 +301,21 @@ List<Level> buildBuiltinLevels() => [
         ],
         targets: Targets(t: 2.9, n: 6, c: 90),
       ),
-      // 26
+      // 24
+      Level(
+        id: 'l22',
+        name: 'Carga no túnel',
+        tip: 'Bola solta, um túnel baixo e um vão logo depois: a gaiola precisa ser baixinha.',
+        ground: false,
+        looseBall: true,
+        zone: zone0(),
+        goal: R(790, 360, 180, 140),
+        ball: Pt(170, 446),
+        blocks: [R(420, 0, 280, 400)],
+        plats: [_s(0, 508, 720, 508), _s(800, 508, 1000, 508)],
+        targets: Targets(t: 2.9, n: 6, c: 90),
+      ),
+      // 25
       Level(
         id: 'l27',
         name: 'Ladeira íngreme',
@@ -344,6 +327,19 @@ List<Level> buildBuiltinLevels() => [
         blocks: [R(760, 370, 240, 130)],
         plats: [_s(660, 508, 766, 378)],
         targets: Targets(t: 3.0, n: 6, c: 90),
+      ),
+      // 26
+      Level(
+        id: 'l63',
+        name: 'Tapa-buraco',
+        tip: 'O buraco é largo e fundo demais. Empurre a caixa para dentro dele e passe por cima.',
+        ground: false,
+        zone: R(40, 170, 310, 220),
+        goal: R(790, 260, 180, 140),
+        ball: Pt(170, 340),
+        blocks: [R(0, 400, 480, 160), R(720, 400, 280, 160), R(480, 500, 240, 60)],
+        crates: [R(360, 300, 200, 100)],
+        targets: Targets(t: 2.6, n: 6, c: 90),
       ),
       // 27
       Level(
@@ -360,6 +356,164 @@ List<Level> buildBuiltinLevels() => [
       ),
       // 28
       Level(
+        id: 'l56',
+        name: 'Sobe e desce',
+        tip: 'Bola solta e três morros até o platô da meta.',
+        looseBall: true,
+        zone: R(40, 300, 260, 200),
+        goal: R(860, 260, 130, 140),
+        ball: Pt(160, 420),
+        hills: [R(320, 420, 180, 80), R(510, 400, 180, 100), R(700, 400, 300, 100)],
+        blocks: [R(850, 400, 150, 100)],
+        targets: Targets(t: 4.6, n: 6, c: 90),
+      ),
+      // 29
+      Level(
+        id: 'l59',
+        name: 'Salto do platô',
+        tip: 'Bola solta. A área verde não alcança o outro lado do vale: desça embalado e salte com a bola junto.',
+        ground: false,
+        looseBall: true,
+        zone: R(40, 80, 330, 170),
+        goal: R(780, 260, 210, 120),
+        ball: Pt(150, 150),
+        blocks: [R(0, 250, 380, 250), R(600, 380, 400, 120)],
+        targets: Targets(t: 1.8, n: 6, c: 90),
+      ),
+      // 30
+      Level(
+        id: 'l60',
+        name: 'Grande descida',
+        tip: 'Bola solta e orçamento curto: desça a ladeira, passe por baixo do teto e salte até a meta.',
+        ground: false,
+        looseBall: true,
+        budget: 100,
+        zone: R(40, 80, 300, 170),
+        goal: R(800, 350, 190, 120),
+        ball: Pt(150, 150),
+        blocks: [R(0, 250, 340, 310), R(340, 430, 300, 130), R(760, 470, 240, 90), R(450, 0, 160, 150)],
+        hills: [R(40, 250, 600, 180)],
+        targets: Targets(t: 2.1, n: 6, c: 90),
+      ),
+      // ---------- capítulo: Gravidade ----------
+      // 31
+      Level(
+        id: 'l13',
+        name: 'Ladeira',
+        tip: 'Nesta fase não há motor. Use a rampa: o que rola lá de cima empurra a bola.',
+        zone: R(40, 140, 400, 190),
+        goal: R(520, 360, 220, 140),
+        ball: Pt(390, 312),
+        plats: [_s(40, 220, 330, 340), _s(330, 340, 430, 340)],
+        allowed: ['rod', 'water', 'free', 'magN', 'magS'],
+        targets: Targets(t: 4.6, n: 1, c: 15),
+      ),
+      // 32
+      Level(
+        id: 'l51',
+        name: 'Ladeira abaixo',
+        tip: 'Só barras. A bola sai rolando do poleiro e cai seca no chão: monte uma rampa firme para ela descer embalada até a meta.',
+        allowed: ['rod'],
+        zone: R(40, 120, 330, 380),
+        goal: R(680, 380, 200, 120),
+        ball: Pt(75, 160),
+        plats: [_s(55, 190, 150, 200)],
+        targets: Targets(t: 5, n: 3, c: 30),
+      ),
+      // 33
+      Level(
+        id: 'l15',
+        name: 'Dominó',
+        tip: 'Sem motor. A bola está fora da área verde: derrube algo em cima dela.',
+        ground: false,
+        zone: R(40, 150, 220, 340),
+        goal: R(470, 400, 420, 155),
+        ball: Pt(300, 478),
+        plats: [_s(0, 508, 330, 508), _s(330, 508, 560, 545), _s(560, 545, 1000, 556)],
+        allowed: _noMotor,
+        targets: Targets(t: 4.6, n: 2, c: 25),
+      ),
+      // 34
+      Level(
+        id: 'l16',
+        name: 'Freio',
+        tip: 'A bola desce rápido demais e passa por cima do buraco. Construa algo para ela bater.',
+        ground: false,
+        zone: R(660, 260, 200, 230),
+        goal: R(600, 500, 50, 60),
+        ball: Pt(64, 106),
+        plats: [_s(40, 130, 420, 508), _s(420, 508, 592, 508), _s(658, 508, 860, 508)],
+        blocks: [R(590, 560, 70, 40)],
+        allowed: _noMotor,
+        targets: Targets(t: 3.6, n: 3, c: 30),
+      ),
+      // 35
+      Level(
+        id: 'l52',
+        name: 'Zigue-zague',
+        tip: 'Só barras. A bola desce a prateleira para a direita, mas a meta está embaixo dela, à esquerda.',
+        allowed: ['rod'],
+        zone: R(640, 60, 340, 440),
+        goal: R(220, 400, 200, 100),
+        ball: Pt(150, 228),
+        plats: [_s(120, 240, 700, 330)],
+        targets: Targets(t: 9.5, n: 3, c: 30),
+      ),
+      // 36
+      Level(
+        id: 'l17',
+        name: 'Defletor',
+        tip: 'A bola voa para a direita, mas a meta fica embaixo, à esquerda. Faça um anteparo.',
+        ground: false,
+        zone: R(480, 220, 220, 270),
+        goal: R(30, 400, 200, 140),
+        ball: Pt(64, 126),
+        plats: [_s(40, 150, 420, 300), _s(0, 548, 720, 508)],
+        allowed: _noMotor,
+        targets: Targets(t: 6.0, n: 3, c: 30),
+      ),
+      // 37
+      Level(
+        id: 'l55',
+        name: 'Calha',
+        tip: 'Sem motor. A bola voa do platô e cai antes do pedestal da meta. Pegue-a no ar com uma calha que desça até lá em cima.',
+        allowed: _noMotor,
+        zone: R(380, 200, 240, 300),
+        goal: R(620, 300, 110, 100),
+        ball: Pt(30, 75),
+        blocks: [R(0, 300, 330, 200), R(620, 400, 110, 100)],
+        hills: [R(-330, 100, 660, 200)],
+        targets: Targets(t: 3.5, n: 4, c: 40),
+      ),
+      // 38
+      Level(
+        id: 'l21',
+        name: 'Catapulta',
+        tip: 'Sem motor. Algo pesado caindo na ponta alta da gangorra lança a bola para a prateleira.',
+        zone: R(200, 40, 220, 220),
+        goal: R(850, 210, 140, 130),
+        ball: Pt(670, 462),
+        blocks: [R(850, 340, 150, 160)],
+        seesaws: [_s(300, 400, 700, 490)],
+        allowed: _noMotor,
+        targets: Targets(t: 2.0, n: 3, c: 40),
+      ),
+      // 39
+      Level(
+        id: 'l54',
+        name: 'Trampolim',
+        tip: 'Sem motor. Um calço barra a bola antes do buraco. Apoie uma rampa nele para ela voar até o outro lado.',
+        allowed: _noMotor,
+        ground: false,
+        zone: R(420, 330, 270, 170),
+        goal: R(800, 380, 180, 120),
+        ball: Pt(205, 20),
+        hills: [R(-200, 40, 760, 460)],
+        blocks: [R(0, 500, 690, 60), R(750, 500, 250, 60), R(650, 470, 40, 30)],
+        targets: Targets(t: 5.4, n: 1, c: 10),
+      ),
+      // 40
+      Level(
         id: 'l29',
         name: 'Ponte levadiça',
         tip: 'Sem motor. A porta segura a bola por 2 s: faça algo tombar sobre o vão antes.',
@@ -370,38 +524,49 @@ List<Level> buildBuiltinLevels() => [
         plats: [_s(40, 400, 420, 508), _s(420, 508, 450, 508), _s(650, 508, 1000, 508)],
         doors: [R(150, 300, 20, 110)],
         allowed: _noMotor,
-        targets: Targets(t: 13.8, n: 1, c: 10),
+        targets: Targets(t: 12.0, n: 1, c: 10),
       ),
-      // 29
+      // ---------- capítulo: Cenário vivo ----------
+      // 41
       Level(
-        id: 'l30',
-        name: 'Orçamento curto',
-        tip: 'Dois vãos largos e só \$60 para gastar.',
-        ground: false,
-        budget: 60,
-        zone: R(40, 300, 780, 190),
-        goal: R(840, 360, 150, 140),
-        ball: Pt(120, 440),
-        plats: [_s(0, 508, 250, 508), _s(480, 508, 560, 508), _s(790, 508, 1000, 508)],
-        targets: Targets(t: 2.9, n: 3, c: 45),
+        id: 'l6',
+        name: 'Gangorra',
+        tip: 'Passe do eixo e a gangorra vira uma ponte até o degrau.',
+        zone: zone0(),
+        goal: R(800, 300, 190, 140),
+        ball: Pt(170, 440),
+        blocks: [R(780, 440, 220, 60)],
+        seesaws: [_s(400, 493, 800, 385)],
+        targets: Targets(t: 2.0, n: 1, c: 25),
       ),
-      // 30
+      // 42
       Level(
-        id: 'l12',
-        name: 'Travessia',
-        tip: 'Túnel, fosso e uma porta que só abre com o botão.',
+        id: 'l53',
+        name: 'Caixa no botão',
+        tip: 'O botão está no fundo de um buraco estreito. Empurre a caixa para dentro dele.',
         ground: false,
-        zone: R(40, 270, 330, 220),
+        zone: zone0(),
         goal: R(790, 360, 180, 140),
-        ball: Pt(190, 440),
-        plats: [_s(0, 508, 600, 508), _s(740, 508, 1000, 508)],
-        blocks: [R(380, 0, 200, 410)], // passagem baixa de 90 px
-        buttons: [Pt(500, 500)],
-        doors: [R(750, 300, 30, 200)],
-        targets: Targets(t: 2.9, n: 5, c: 80),
+        ball: Pt(170, 440),
+        blocks: [R(0, 500, 560, 60), R(620, 500, 380, 60), R(560, 550, 60, 10)],
+        crates: [R(460, 450, 50, 50)],
+        buttons: [Pt(590, 550)],
+        doors: [R(680, 330, 30, 170)],
+        targets: Targets(t: 2.8, n: 1, c: 25),
       ),
-      // ---------- capítulo: Cenário em movimento ----------
-      // 31
+      // 43
+      Level(
+        id: 'l5',
+        name: 'Elevador',
+        tip: 'O elevador para 20 cm abaixo do topo do bloco. Uma roda sozinha não sobe esse degrau; duas rodas ligadas sobem.',
+        zone: zone0(),
+        goal: R(790, 150, 190, 130),
+        ball: Pt(170, 440),
+        blocks: [R(760, 280, 240, 220)],
+        lifts: [Lift(Pt(640, 508), Pt(640, 308), 220, 3)],
+        targets: Targets(t: 8.3, n: 5, c: 80),
+      ),
+      // 44
       Level(
         id: 'l31',
         name: 'Elevador e túnel',
@@ -413,7 +578,19 @@ List<Level> buildBuiltinLevels() => [
         lifts: [Lift(Pt(640, 508), Pt(640, 308), 220, 3)],
         targets: Targets(t: 4.5, n: 1, c: 25),
       ),
-      // 32
+      // 45
+      Level(
+        id: 'l33',
+        name: 'Na hora certa',
+        tip: 'O elevador tem seu ritmo. Chegue quando ele estiver embaixo: o tamanho da roda muda a velocidade.',
+        zone: zone0(),
+        goal: R(790, 170, 190, 130),
+        ball: Pt(170, 440),
+        blocks: [R(760, 300, 240, 200)],
+        lifts: [Lift(Pt(640, 508), Pt(640, 308), 220, 2.4)],
+        targets: Targets(t: 5.2, n: 1, c: 25),
+      ),
+      // 46
       Level(
         id: 'l32',
         name: 'Gangorra dupla',
@@ -427,31 +604,7 @@ List<Level> buildBuiltinLevels() => [
         seesaws: [_s(300, 493, 600, 430), _s(600, 470, 860, 440)],
         targets: Targets(t: 5.0, n: 1, c: 25),
       ),
-      // 33
-      Level(
-        id: 'l33',
-        name: 'Na hora certa',
-        tip: 'O elevador tem seu ritmo. Chegue quando ele estiver embaixo: o tamanho da roda muda a velocidade.',
-        zone: zone0(),
-        goal: R(790, 170, 190, 130),
-        ball: Pt(170, 440),
-        blocks: [R(760, 300, 240, 200)],
-        lifts: [Lift(Pt(640, 508), Pt(640, 308), 220, 2.4)],
-        targets: Targets(t: 5.2, n: 1, c: 25),
-      ),
-      // 34
-      Level(
-        id: 'l34',
-        name: 'Dois elevadores',
-        tip: 'Um elevador leva ao primeiro degrau, o outro ao segundo. Eles não andam juntos.',
-        zone: zone0(),
-        goal: R(870, 110, 120, 140),
-        ball: Pt(170, 440),
-        blocks: [R(600, 400, 120, 100), R(860, 250, 140, 250)],
-        lifts: [Lift(Pt(510, 508), Pt(510, 408), 180, 3), Lift(Pt(790, 408), Pt(790, 258), 140, 4.5)],
-        targets: Targets(t: 4.6, n: 1, c: 25),
-      ),
-      // 35
+      // 47
       Level(
         id: 'l35',
         name: 'Elevador e vale',
@@ -463,7 +616,19 @@ List<Level> buildBuiltinLevels() => [
         lifts: [Lift(Pt(640, 508), Pt(640, 308), 220, 3)],
         targets: Targets(t: 4.7, n: 1, c: 25),
       ),
-      // 36
+      // 48
+      Level(
+        id: 'l34',
+        name: 'Dois elevadores',
+        tip: 'Um elevador leva ao primeiro degrau, o outro ao segundo. Eles não andam juntos.',
+        zone: zone0(),
+        goal: R(870, 110, 120, 140),
+        ball: Pt(170, 440),
+        blocks: [R(600, 400, 120, 100), R(860, 250, 140, 250)],
+        lifts: [Lift(Pt(510, 508), Pt(510, 408), 180, 3), Lift(Pt(790, 408), Pt(790, 258), 140, 4.5)],
+        targets: Targets(t: 4.6, n: 1, c: 25),
+      ),
+      // 49
       Level(
         id: 'l36',
         name: 'Botão distante',
@@ -475,7 +640,142 @@ List<Level> buildBuiltinLevels() => [
         buttons: [Pt(60, 500)],
         targets: Targets(t: 1.8, n: 3, c: 55),
       ),
-      // 37
+      // 50
+      Level(
+        id: 'l65',
+        name: 'Antena',
+        tip: 'O botão está no alto, embaixo da plataforma. Algo na engenhoca precisa alcançá-lo.',
+        zone: zone0(),
+        goal: R(855, 360, 135, 140),
+        ball: Pt(170, 440),
+        doors: [R(810, 290, 30, 210)],
+        buttons: [Pt(520, 330)],
+        plats: [_s(480, 290, 560, 290)],
+        blocks: [R(800, 0, 50, 286)],
+        targets: Targets(t: 3.0, n: 7, c: 100),
+      ),
+      // ---------- capítulo: Ímãs e braços ----------
+      // 51
+      Level(
+        id: 'l41',
+        name: 'Atração',
+        tip: 'Sem motor. O ímã fixo é sul: um ímã norte na engenhoca é puxado até ele.',
+        zone: R(300, 300, 250, 190),
+        goal: R(480, 360, 200, 140),
+        ball: Pt(420, 478),
+        magnets: [FixedMag(700, 478, 'S')],
+        allowed: _noMotor,
+        targets: Targets(t: 5.1, n: 3, c: 55),
+      ),
+      // 52
+      Level(
+        id: 'l42',
+        name: 'Repulsão',
+        tip: 'Sem motor. O ímã fixo atrás é norte: norte empurra norte.',
+        zone: R(80, 300, 250, 190),
+        goal: R(380, 360, 220, 140),
+        ball: Pt(200, 478),
+        magnets: [FixedMag(40, 478, 'N')],
+        allowed: _noMotor,
+        targets: Targets(t: 4.4, n: 3, c: 55),
+      ),
+      // 53
+      Level(
+        id: 'l4',
+        name: 'Campo magnético',
+        tip: 'O calombo é alto demais para qualquer roda. Um ímã norte na frente da engenhoca é puxado pelo ímã fixo sul e ajuda a subir.',
+        zone: zone0(),
+        goal: R(790, 360, 180, 140),
+        ball: Pt(170, 440),
+        blocks: [R(560, 440, 40, 60)],
+        magnets: [FixedMag(700, 330, 'S')],
+        targets: Targets(t: 3.0, n: 3, c: 65),
+      ),
+      // 54
+      Level(
+        id: 'l43',
+        name: 'Corrida de ímãs',
+        tip: 'Sem motor. Um ímã atrás empurra, outro na frente puxa: use os dois.',
+        zone: R(80, 300, 200, 190),
+        goal: R(520, 360, 200, 140),
+        ball: Pt(180, 478),
+        magnets: [FixedMag(40, 478, 'N'), FixedMag(740, 478, 'S')],
+        allowed: _noMotor,
+        targets: Targets(t: 10.7, n: 5, c: 95),
+      ),
+      // 55
+      Level(
+        id: 'l44',
+        name: 'Ímã e gaiola',
+        tip: 'Sem motor e com a bola solta: uma gaiola puxada pelo ímã.',
+        looseBall: true,
+        zone: R(300, 300, 250, 190),
+        goal: R(440, 360, 200, 140),
+        ball: Pt(420, 478),
+        magnets: [FixedMag(660, 470, 'S')],
+        allowed: _noMotor,
+        targets: Targets(t: 2.5, n: 7, c: 100),
+      ),
+      // 56
+      Level(
+        id: 'l45',
+        name: 'Guindaste',
+        tip: 'A meta fica numa prateleira. Uma roda com motor presa numa armação gira um braço com a bola na ponta.',
+        zone: R(40, 200, 360, 290),
+        goal: R(380, 150, 120, 130),
+        ball: Pt(150, 230),
+        blocks: [R(380, 280, 200, 220)],
+        targets: Targets(t: 0.9, n: 6, c: 75),
+      ),
+      // 57
+      Level(
+        id: 'l66',
+        name: 'Roda-gigante',
+        tip: 'A meta fica acima da área verde. Uma barra presa em dois pontos da borda da roda gira junto com ela.',
+        zone: zone0(),
+        goal: R(100, 150, 200, 115),
+        ball: Pt(170, 440),
+        targets: Targets(t: 0.7, n: 6, c: 75),
+      ),
+      // 58
+      Level(
+        id: 'l46',
+        name: 'Por cima do muro',
+        tip: 'A meta fica atrás de um muro que nenhum carro sobe. Gire a bola por cima dele com um guindaste.',
+        zone: R(40, 120, 360, 370),
+        goal: R(425, 330, 140, 170),
+        ball: Pt(160, 400),
+        blocks: [R(400, 370, 15, 130)],
+        targets: Targets(t: 2.5, n: 6, c: 75),
+      ),
+      // 59
+      Level(
+        id: 'l47',
+        name: 'Guindaste alto',
+        tip: 'Prateleira mais alta: o guindaste precisa de uma armação mais alta.',
+        zone: R(40, 120, 360, 370),
+        goal: R(400, 40, 140, 140),
+        ball: Pt(120, 150),
+        blocks: [R(400, 180, 200, 320)],
+        targets: Targets(t: 3.5, n: 6, c: 75),
+      ),
+      // ---------- capítulo: Mestre de obras ----------
+      // 60
+      Level(
+        id: 'l12',
+        name: 'Travessia',
+        tip: 'Túnel, fosso e uma porta. O botão fica lá atrás, dentro da área verde.',
+        ground: false,
+        zone: R(40, 270, 330, 220),
+        goal: R(790, 360, 180, 140),
+        ball: Pt(250, 440),
+        plats: [_s(0, 508, 600, 508), _s(740, 508, 1000, 508)],
+        blocks: [R(380, 0, 200, 410)], // passagem baixa de 90 px
+        buttons: [Pt(50, 500)],
+        doors: [R(750, 300, 30, 200)],
+        targets: Targets(t: 2.8, n: 6, c: 95),
+      ),
+      // 61
       Level(
         id: 'l37',
         name: 'Elevador com carga',
@@ -488,7 +788,7 @@ List<Level> buildBuiltinLevels() => [
         lifts: [Lift(Pt(640, 508), Pt(640, 308), 220, 3)],
         targets: Targets(t: 4.6, n: 6, c: 90),
       ),
-      // 38
+      // 62
       Level(
         id: 'l38',
         name: 'Carga na gangorra',
@@ -501,7 +801,7 @@ List<Level> buildBuiltinLevels() => [
         seesaws: [_s(400, 493, 800, 385)],
         targets: Targets(t: 2.6, n: 6, c: 90),
       ),
-      // 39
+      // 63
       Level(
         id: 'l39',
         name: 'Botão e elevador',
@@ -515,7 +815,20 @@ List<Level> buildBuiltinLevels() => [
         buttons: [Pt(60, 500)],
         targets: Targets(t: 10.4, n: 3, c: 55),
       ),
-      // 40
+      // 64
+      Level(
+        id: 'l48',
+        name: 'Guindaste e botão',
+        tip: 'Uma porta fica no caminho do braço. O botão lá atrás abre.',
+        zone: R(100, 200, 300, 290),
+        goal: R(380, 150, 120, 130),
+        ball: Pt(150, 230),
+        blocks: [R(380, 280, 200, 220)],
+        doors: [R(355, 40, 20, 170)],
+        buttons: [Pt(40, 500)],
+        targets: Targets(t: 0.9, n: 8, c: 105),
+      ),
+      // 65
       Level(
         id: 'l40',
         name: 'Hora do rush',
@@ -530,103 +843,7 @@ List<Level> buildBuiltinLevels() => [
         buttons: [Pt(60, 500)],
         targets: Targets(t: 5.0, n: 8, c: 120),
       ),
-      // ---------- capítulo: Ímãs e mecanismos ----------
-      // 41
-      Level(
-        id: 'l41',
-        name: 'Atração',
-        tip: 'Sem motor. O ímã fixo é sul: um ímã norte na engenhoca é puxado até ele.',
-        zone: R(300, 300, 250, 190),
-        goal: R(480, 360, 200, 140),
-        ball: Pt(420, 478),
-        magnets: [FixedMag(700, 478, 'S')],
-        allowed: _noMotor,
-        targets: Targets(t: 5.1, n: 3, c: 55),
-      ),
-      // 42
-      Level(
-        id: 'l42',
-        name: 'Repulsão',
-        tip: 'Sem motor. O ímã fixo atrás é norte: norte empurra norte.',
-        zone: R(80, 300, 250, 190),
-        goal: R(380, 360, 220, 140),
-        ball: Pt(200, 478),
-        magnets: [FixedMag(40, 478, 'N')],
-        allowed: _noMotor,
-        targets: Targets(t: 4.4, n: 3, c: 55),
-      ),
-      // 43
-      Level(
-        id: 'l43',
-        name: 'Corrida de ímãs',
-        tip: 'Sem motor. Um ímã atrás empurra, outro na frente puxa: use os dois.',
-        zone: R(80, 300, 200, 190),
-        goal: R(520, 360, 200, 140),
-        ball: Pt(180, 478),
-        magnets: [FixedMag(40, 478, 'N'), FixedMag(740, 478, 'S')],
-        allowed: _noMotor,
-        targets: Targets(t: 10.7, n: 5, c: 95),
-      ),
-      // 44
-      Level(
-        id: 'l44',
-        name: 'Ímã e gaiola',
-        tip: 'Sem motor e com a bola solta: uma gaiola puxada pelo ímã.',
-        looseBall: true,
-        zone: R(300, 300, 250, 190),
-        goal: R(440, 360, 200, 140),
-        ball: Pt(420, 478),
-        magnets: [FixedMag(660, 470, 'S')],
-        allowed: _noMotor,
-        targets: Targets(t: 2.1, n: 7, c: 100),
-      ),
-      // 45
-      Level(
-        id: 'l45',
-        name: 'Guindaste',
-        tip: 'A meta fica numa prateleira. Uma roda com motor presa numa armação gira um braço com a bola na ponta.',
-        zone: R(40, 200, 360, 290),
-        goal: R(380, 150, 120, 130),
-        ball: Pt(150, 230),
-        blocks: [R(380, 280, 200, 220)],
-        targets: Targets(t: 0.9, n: 6, c: 75),
-      ),
-      // 46
-      Level(
-        id: 'l46',
-        name: 'Guindaste à esquerda',
-        tip: 'Agora a prateleira fica do outro lado. Para que lado o braço precisa girar?',
-        zone: R(600, 200, 360, 290),
-        goal: R(500, 150, 120, 130),
-        ball: Pt(850, 230),
-        blocks: [R(420, 280, 200, 220)],
-        targets: Targets(t: 0.9, n: 6, c: 75),
-      ),
-      // 47
-      Level(
-        id: 'l47',
-        name: 'Guindaste alto',
-        tip: 'Prateleira mais alta: o guindaste precisa de uma armação mais alta.',
-        zone: R(40, 120, 360, 370),
-        goal: R(400, 40, 140, 140),
-        ball: Pt(120, 150),
-        blocks: [R(400, 180, 200, 320)],
-        targets: Targets(t: 3.5, n: 6, c: 75),
-      ),
-      // 48
-      Level(
-        id: 'l48',
-        name: 'Guindaste e botão',
-        tip: 'Uma porta fica no caminho do braço. O botão lá atrás abre.',
-        zone: R(100, 200, 300, 290),
-        goal: R(380, 150, 120, 130),
-        ball: Pt(150, 230),
-        blocks: [R(380, 280, 200, 220)],
-        doors: [R(355, 40, 20, 170)],
-        buttons: [Pt(40, 500)],
-        targets: Targets(t: 0.9, n: 8, c: 105),
-      ),
-      // 49
+      // 66
       Level(
         id: 'l49',
         name: 'Mestre de obras',
@@ -642,7 +859,7 @@ List<Level> buildBuiltinLevels() => [
         buttons: [Pt(40, 500)],
         targets: Targets(t: 4.5, n: 4, c: 65),
       ),
-      // 50
+      // 67
       Level(
         id: 'l50',
         name: 'Grande final',
@@ -658,218 +875,7 @@ List<Level> buildBuiltinLevels() => [
         lifts: [Lift(Pt(650, 508), Pt(650, 308), 200, 3.6)],
         doors: [R(840, 150, 25, 150)],
         buttons: [Pt(40, 500)],
-        targets: Targets(t: 6.5, n: 9, c: 130),
-      ),
-      // ---------- capítulo: Morros e rampas ----------
-      // 51
-      Level(
-        id: 'l51',
-        name: 'Ladeira abaixo',
-        tip: 'Só barras. A bola sai rolando do poleiro e cai seca no chão: monte uma rampa firme para ela descer embalada até a meta.',
-        allowed: ['rod'],
-        zone: R(40, 120, 330, 380),
-        goal: R(680, 380, 200, 120),
-        ball: Pt(75, 160),
-        plats: [_s(55, 190, 150, 200)],
-        targets: Targets(t: 5, n: 3, c: 30),
-      ),
-      // 52
-      Level(
-        id: 'l52',
-        name: 'Zigue-zague',
-        tip: 'Só barras. A bola desce a prateleira para a direita, mas a meta está embaixo dela, à esquerda.',
-        allowed: ['rod'],
-        zone: R(640, 60, 340, 440),
-        goal: R(220, 400, 200, 100),
-        ball: Pt(150, 228),
-        plats: [_s(120, 240, 700, 330)],
-        targets: Targets(t: 9.5, n: 3, c: 30),
-      ),
-      // 53
-      Level(
-        id: 'l53',
-        name: 'Sob o beiral',
-        tip: 'Um teto baixo pendurado antes da meta: engenhocas altas e rodas grandes ficam presas.',
-        zone: R(40, 300, 280, 200),
-        goal: R(780, 380, 190, 120),
-        ball: Pt(150, 478),
-        blocks: [R(480, 0, 240, 395)],
-        targets: Targets(t: 2.5, n: 1, c: 25),
-      ),
-      // 54
-      Level(
-        id: 'l54',
-        name: 'Trampolim',
-        tip: 'Sem motor. Um calço barra a bola antes do buraco. Apoie uma rampa nele para ela voar até o outro lado.',
-        allowed: _noMotor,
-        ground: false,
-        zone: R(420, 330, 270, 170),
-        goal: R(800, 380, 180, 120),
-        ball: Pt(205, 20),
-        hills: [R(-200, 40, 760, 460)],
-        blocks: [R(0, 500, 690, 60), R(750, 500, 250, 60), R(650, 470, 40, 30)],
-        targets: Targets(t: 3.5, n: 1, c: 10),
-      ),
-      // 55
-      Level(
-        id: 'l55',
-        name: 'Calha',
-        tip: 'Sem motor. A bola voa do platô e cai antes do pedestal da meta. Pegue-a no ar com uma calha que desça até lá em cima.',
-        allowed: _noMotor,
-        zone: R(380, 200, 240, 300),
-        goal: R(620, 300, 110, 100),
-        ball: Pt(30, 75),
-        blocks: [R(0, 300, 330, 200), R(620, 400, 110, 100)],
-        hills: [R(-330, 100, 660, 200)],
-        targets: Targets(t: 3.5, n: 4, c: 40),
-      ),
-      // 56
-      Level(
-        id: 'l56',
-        name: 'Sobe e desce',
-        tip: 'Bola solta e três morros até o platô da meta.',
-        looseBall: true,
-        zone: R(40, 300, 260, 200),
-        goal: R(860, 240, 130, 140),
-        ball: Pt(160, 420),
-        hills: [R(320, 400, 180, 100), R(510, 380, 180, 120), R(700, 380, 300, 120)],
-        blocks: [R(850, 380, 150, 120)],
-        targets: Targets(t: 8, n: 6, c: 90),
-      ),
-      // 57
-      Level(
-        id: 'l57',
-        name: 'Teto no morro',
-        tip: 'Um morro íngreme com o teto quase encostando no topo: só uma engenhoca baixa e forte passa.',
-        zone: R(40, 300, 260, 200),
-        goal: R(780, 380, 190, 120),
-        ball: Pt(150, 472),
-        hills: [R(320, 360, 400, 140)],
-        blocks: [R(420, 0, 200, 300)],
-        targets: Targets(t: 3.5, n: 1, c: 25),
-      ),
-      // 58
-      Level(
-        id: 'l58',
-        name: 'Empurrãozinho',
-        tip: 'A bola equilibra no topo de um morro íngreme. Suba a encosta e dê só um empurrãozinho para o lado da meta.',
-        zone: R(40, 300, 240, 200),
-        goal: R(760, 380, 220, 120),
-        ball: Pt(500, 258),
-        hills: [R(280, 280, 440, 220)],
-        targets: Targets(t: 3.5, n: 2, c: 30),
-      ),
-      // 59
-      Level(
-        id: 'l59',
-        name: 'Salto do platô',
-        tip: 'Bola solta. A área verde não alcança o outro lado do vale: desça embalado e salte com a bola junto.',
-        ground: false,
-        looseBall: true,
-        zone: R(40, 80, 330, 170),
-        goal: R(780, 260, 210, 120),
-        ball: Pt(150, 150),
-        blocks: [R(0, 250, 380, 250), R(600, 380, 400, 120)],
-        targets: Targets(t: 3, n: 6, c: 90),
-      ),
-      // 60
-      Level(
-        id: 'l60',
-        name: 'Grande descida',
-        tip: 'Bola solta e orçamento curto: desça a ladeira, passe por baixo do teto e salte até a meta.',
-        ground: false,
-        looseBall: true,
-        budget: 100,
-        zone: R(40, 80, 300, 170),
-        goal: R(800, 350, 190, 120),
-        ball: Pt(150, 150),
-        blocks: [R(0, 250, 340, 310), R(340, 430, 300, 130), R(760, 470, 240, 90), R(450, 0, 160, 150)],
-        hills: [R(40, 250, 600, 180)],
-        targets: Targets(t: 2.5, n: 6, c: 90),
-      ),
-      // ---------- capítulo: Caixas soltas ----------
-      // 61
-      Level(
-        id: 'l61',
-        name: 'Boliche',
-        tip: 'As caixas são soltas: dá para derrubá-las. Só precisa de embalo.',
-        zone: zone0(),
-        goal: R(790, 360, 180, 140),
-        ball: Pt(170, 440),
-        crates: [R(520, 450, 50, 50), R(520, 400, 50, 50), R(520, 350, 50, 50), R(575, 450, 50, 50), R(575, 400, 50, 50)],
-        targets: Targets(t: 3.6, n: 1, c: 25),
-      ),
-      // 62
-      Level(
-        id: 'l62',
-        name: 'Salto',
-        tip: 'O vão é largo. Rodas grandes andam mais rápido.',
-        ground: false,
-        zone: zone0(),
-        goal: R(800, 360, 180, 140),
-        ball: Pt(190, 440),
-        plats: [_s(0, 508, 440, 508), _s(640, 508, 1000, 508)],
-        targets: Targets(t: 2.2, n: 1, c: 25),
-      ),
-      // 63
-      Level(
-        id: 'l63',
-        name: 'Tapa-buraco',
-        tip: 'O buraco é largo e fundo demais. Empurre a caixa para dentro dele e passe por cima.',
-        ground: false,
-        zone: R(40, 170, 310, 220),
-        goal: R(790, 260, 180, 140),
-        ball: Pt(170, 340),
-        blocks: [R(0, 400, 480, 160), R(720, 400, 280, 160), R(480, 500, 240, 60)],
-        crates: [R(360, 300, 200, 100)],
-        targets: Targets(t: 2.6, n: 6, c: 90),
-      ),
-      // 64
-      Level(
-        id: 'l64',
-        name: 'Muro',
-        tip: 'Arrastada pelo chão, a bola não sobe o muro. Leve-a no alto, entre duas rodas grandes.',
-        zone: zone0(),
-        goal: R(790, 230, 180, 140),
-        ball: Pt(170, 440),
-        blocks: [R(560, 370, 440, 130)],
-        targets: Targets(t: 4.0, n: 6, c: 90),
-      ),
-      // 65
-      Level(
-        id: 'l65',
-        name: 'Antena',
-        tip: 'O botão está no alto, embaixo da plataforma. Algo na engenhoca precisa alcançá-lo.',
-        zone: zone0(),
-        goal: R(855, 360, 135, 140),
-        ball: Pt(170, 440),
-        doors: [R(810, 290, 30, 210)],
-        buttons: [Pt(520, 330)],
-        plats: [_s(480, 290, 560, 290)],
-        blocks: [R(800, 0, 50, 286)],
-        targets: Targets(t: 3.0, n: 7, c: 100),
-      ),
-      // 66
-      Level(
-        id: 'l66',
-        name: 'Roda-gigante',
-        tip: 'A meta fica acima da área verde. Uma barra presa em dois pontos da borda da roda gira junto com ela.',
-        zone: zone0(),
-        goal: R(100, 150, 200, 115),
-        ball: Pt(170, 440),
-        targets: Targets(t: 2.3, n: 6, c: 75),
-      ),
-      // 67
-      Level(
-        id: 'l67',
-        name: 'Degrau de caixa',
-        tip: 'O paredão é alto demais. Empurre a caixa até ele e use-a como degrau.',
-        zone: zone0(),
-        goal: R(800, 110, 180, 150),
-        ball: Pt(170, 440),
-        blocks: [R(660, 260, 340, 240)],
-        crates: [R(400, 380, 240, 120)],
-        targets: Targets(t: 5.0, n: 6, c: 90),
+        targets: Targets(t: 4.0, n: 9, c: 130),
       ),
     ];
 

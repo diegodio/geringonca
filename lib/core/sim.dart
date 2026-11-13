@@ -8,6 +8,7 @@ import 'dart:math' as math;
 
 import 'package:forge2d/forge2d.dart';
 
+import 'clash.dart';
 import 'model.dart';
 
 const double kScale = 100; // px por metro
@@ -369,15 +370,16 @@ class Sim {
       bodies.add(SimPart(q, b, halfLen, powered: motorOn(q, parts, lv.looseBall ? null : ball0)));
     }
 
-    // Peças batem umas nas outras e na bola, menos os pedaços que já começam
-    // encostados: as pontas presas na mesma junta, a barra que passa pelo eixo da
-    // roda, barras desenhadas cruzadas. Senão a engenhoca se empurraria ao começar.
-    // Fora isso, madeira não atravessa madeira, roda, ímã nem a bola.
+    // Peças batem umas nas outras e na bola. Só peças ligadas por uma junta
+    // ignoram os pedaços que já começam encostados ali (as pontas presas na mesma
+    // junta, a barra que passa pelo eixo da roda); o resto delas bate normalmente.
+    // Peças que não estão ligadas sempre batem, mesmo que comecem encostadas.
+    final partOf = {for (final s in bodies) s.body: s.part};
     for (var i = 0; i < pieces.length; i++) {
       final (bi, si, ai, ci, ri) = pieces[i];
       for (var j = i + 1; j < pieces.length; j++) {
         final (bj, sj, aj, cj, rj) = pieces[j];
-        if (identical(bi, bj)) continue;
+        if (identical(bi, bj) || !linked(partOf[bi]!, partOf[bj]!)) continue;
         if (segSegDist(ai, ci, aj, cj) < ri + rj + 1.5) _noCollide(si, sj);
       }
     }

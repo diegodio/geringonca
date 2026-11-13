@@ -948,4 +948,72 @@ const kEn = <String, String>{
       'Level complete! Now explore the levels, go for the medals (★) and make your own in the editor. Tip: pinch to zoom in and build precisely.',
   'Concluir':
       'Finish',
+  'Há barras cruzando peças, a bola ou o cenário (em vermelho). Ajuste antes de rodar.':
+      'Some bars cross parts, the ball or the scenery (in red). Fix them before running.',
+  'A barra não pode atravessar a bola. Prenda a ponta nela ou passe por fora.':
+      'A bar can\'t go through the ball. Attach its end to the ball or go around it.',
+  'A barra não pode entrar no chão nem no cenário.':
+      'A bar can\'t go into the ground or the scenery.',
+  'A barra não pode cruzar outra peça, só as que estão ligadas a ela por uma junta.':
+      'A bar can\'t cross another part, only the ones attached to it by a joint.',
+  'Peso no botão':
+      'Weight on the button',
+  'A porta só abre com algo em cima do botão roxo, que fica dentro da área verde.':
+      'The door only opens with something on the purple button, which is inside the green area.',
+  'Descida':
+      'Downhill',
+  'Sem motor. A bola desce a ladeira sozinha, mas para no degrau do fim. Uma roda grande rola por cima dele.':
+      'No motors. The ball rolls down the slope by itself, but stops at the step at the bottom. A big wheel rolls over it.',
+  'Embale na rampa e salte até a prateleira. Rodas grandes andam mais rápido.':
+      'Build up speed on the ramp and jump onto the shelf. Big wheels go faster.',
+  'Carga no túnel':
+      'Cargo in the tunnel',
+  'Bola solta, um túnel baixo e um vão logo depois: a gaiola precisa ser baixinha.':
+      'Loose ball, a low tunnel and a gap right after it: the cage has to be really low.',
+  'Caixa no botão':
+      'Crate on the button',
+  'O botão está no fundo de um buraco estreito. Empurre a caixa para dentro dele.':
+      'The button is at the bottom of a narrow hole. Push the crate into it.',
+  'O elevador para 20 cm abaixo do topo do bloco. Uma roda sozinha não sobe esse degrau; duas rodas ligadas sobem.':
+      'The elevator stops 20 cm below the top of the block. A single wheel can\'t climb that step; two linked wheels can.',
+  'O calombo é alto demais para qualquer roda. Um ímã norte na frente da engenhoca é puxado pelo ímã fixo sul e ajuda a subir.':
+      'The bump is too high for any wheel. A north magnet on the front of the contraption is pulled by the fixed south magnet and helps it climb.',
+  'Por cima do muro':
+      'Over the wall',
+  'A meta fica atrás de um muro que nenhum carro sobe. Gire a bola por cima dele com um guindaste.':
+      'The goal is behind a wall no car can climb. Swing the ball over it with a crane.',
+  'Túnel, fosso e uma porta. O botão fica lá atrás, dentro da área verde.':
+      'Tunnel, pit and a door. The button is back there, inside the green area.',
+  'Uma ideia por peça':
+      'One idea per part',
+  'Terreno':
+      'Terrain',
+  'Pontes, rampas, degraus e morros':
+      'Bridges, ramps, steps and hills',
+  'Carga solta':
+      'Loose cargo',
+  'Nada se prende à bola':
+      'Nothing attaches to the ball',
+  'Gravidade':
+      'Gravity',
+  'Sem motor: rampas, quedas e alavancas':
+      'No motors: ramps, drops and levers',
+  'Cenário vivo':
+      'Living scenery',
+  'Elevadores, gangorras, portas e botões':
+      'Elevators, seesaws, doors and buttons',
+  'Ímãs e braços':
+      'Magnets and arms',
+  'Tudo junto, do jeito difícil':
+      'Everything together, the hard way',
+  'OK':
+      'OK',
+  'CAPÍTULO {n}':
+      'CHAPTER {n}',
+  'FICHA DE PROGRESSO':
+      'PROGRESS SHEET',
+  'fases':
+      'levels',
+  'medalhas':
+      'medals',
 };

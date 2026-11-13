@@ -19,7 +19,7 @@ void main() {
     test('começam liberadas a primeira fase e a seguinte (dá para pular uma)', () {
       final g = GameController(Store(null));
       expect(g.progress.isUnlocked('l1'), isTrue);
-      expect(g.progress.isUnlocked('l2'), isTrue);
+      expect(g.progress.isUnlocked(kBuiltin[1].id!), isTrue);
       expect(g.progress.isUnlocked(kBuiltin[2].id!), isFalse);
       expect(g.progress.blocker(kBuiltin[2].id!)!.id, 'l1'); // falta uma das duas primeiras
     });
@@ -108,7 +108,7 @@ void main() {
       final g = GameController(Store(null))..togglePlay();
       _frames(g, 4);
       g.stop();
-      g.chooseLevel('l2');
+      g.chooseLevel(kBuiltin[1].id!);
       expect(g.lastTrail, isEmpty);
     });
 
