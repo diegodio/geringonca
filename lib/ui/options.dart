@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../core/i18n.dart';
+import '../core/version.dart';
 import '../game/controller.dart';
 import '../game/palette.dart';
 import 'platform/link.dart';
@@ -23,7 +24,12 @@ Future<void> showOptions(BuildContext context, GameController g) {
           width: 380,
           child: SingleChildScrollView(child: OptionsPanel(g: g, c: c)),
         ),
-        actions: [TextButton(onPressed: () => Navigator.of(ctx).pop(), child: Text(tr('Fechar')))],
+        actionsAlignment: MainAxisAlignment.spaceBetween,
+        actions: [
+          // versão do jogo num canto da janela
+          Padding(padding: const EdgeInsets.only(left: 12), child: Text(versionLabel, style: GoogleFonts.ibmPlexMono(fontSize: 11, color: c.muted))),
+          TextButton(onPressed: () => Navigator.of(ctx).pop(), child: Text(tr('Fechar'))),
+        ],
       ),
     ),
   );
