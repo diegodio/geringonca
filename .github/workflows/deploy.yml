@@ -27,7 +27,8 @@ jobs:
       - run: flutter test
       # WebAssembly (com a versão JS para navegadores sem suporte) e o motor
       # gráfico servido junto do jogo (sem CDN), para o modo offline guardar tudo
-      - run: flutter build web --wasm --release --no-web-resources-cdn --base-href "/geringonca/"
+      # a versão sobe a cada publicação (número da execução) e leva a data do dia
+      - run: flutter build web --wasm --release --no-web-resources-cdn --base-href "/geringonca/" --dart-define=APP_VERSION=1.${{ github.run_number }} --dart-define=APP_DATE=$(date -u +%Y-%m-%d)
       # service worker com a lista de arquivos e a versão desta publicação
       - run: python3 tool/gen_sw.py build/web
       - uses: actions/upload-pages-artifact@v3

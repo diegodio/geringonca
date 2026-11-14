@@ -6,6 +6,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../core/i18n.dart';
 import '../core/levels.dart';
 import '../core/model.dart';
+import '../core/version.dart';
 import '../game/controller.dart';
 import '../game/ink.dart';
 import '../game/palette.dart';
@@ -139,6 +140,9 @@ class MenuPage extends StatelessWidget {
                           ]),
                         ),
                       ],
+                      // versão do jogo, discreta no pé da página
+                      const SizedBox(height: 28),
+                      Text(versionLabel, textAlign: TextAlign.center, style: GoogleFonts.ibmPlexMono(fontSize: 11, color: c.muted)),
                     ]),
                   ),
                 ),
