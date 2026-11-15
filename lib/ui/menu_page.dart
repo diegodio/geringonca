@@ -143,19 +143,20 @@ class MenuPage extends StatelessWidget {
                       ],
                       // pé da página: versão (abre o histórico de versões) e créditos do estúdio
                       const SizedBox(height: 28),
-                      Center(
-                        child: InkWell(
-                          borderRadius: BorderRadius.circular(6),
+                      // só o número da versão é link; a fase e a data ficam em texto comum
+                      Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                        InkWell(
+                          borderRadius: BorderRadius.circular(4),
                           onTap: () => showChangelog(context, c),
                           child: Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-                            child: Text(versionLabel,
-                                textAlign: TextAlign.center,
+                            padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 6),
+                            child: Text('v$kAppVersion',
                                 style: GoogleFonts.ibmPlexMono(
                                     fontSize: 11.5, color: c.accent, decoration: TextDecoration.underline, decorationColor: c.accent)),
                           ),
                         ),
-                      ),
+                        Text(versionLabel.substring('v$kAppVersion'.length), style: GoogleFonts.ibmPlexMono(fontSize: 11.5, color: c.muted)),
+                      ]),
                       Text('© 2026 Aftershock Studios', textAlign: TextAlign.center, style: GoogleFonts.ibmPlexMono(fontSize: 11, color: c.muted)),
                     ]),
                   ),
