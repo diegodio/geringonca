@@ -1,15 +1,17 @@
-/// Versão do jogo, posta pela publicação (veja .github/workflows/deploy.yml):
-/// `0.N`, com N o número da publicação: o número sobe a cada publicação e a data é a do dia em que ela saiu.
-/// Rodando localmente, sem a publicação, aparece "dev".
-const kAppVersion = String.fromEnvironment('APP_VERSION', defaultValue: 'dev');
-const kAppDate = String.fromEnvironment('APP_DATE');
+import 'changelog.dart';
+
+/// Versão do jogo: a entrada mais nova do histórico (changelog.dart). Uma
+/// publicação só muda a versão quando ganha uma entrada nova lá; ajustes que não
+/// acrescentam entrada saem com a mesma versão. Datas em GMT-3.
+final String kAppVersion = kChangelog.first.version;
+final String kAppDate = kChangelog.first.date;
 
 /// Fase do jogo: beta enquanto as fases e as regras ainda estão sendo acertadas
-/// com quem joga. Na versão 1.0, troque para '' (e a publicação para 1.x).
+/// com quem joga. Na versão 1.0, troque para ''.
 const kAppStage = 'beta';
 
-/// Texto curto para mostrar num canto: "v0.20 beta · 2026-11-14".
+/// Texto curto para mostrar num canto: "v0.21 beta · 2026-11-14".
 String get versionLabel {
   final v = kAppStage.isEmpty ? 'v$kAppVersion' : 'v$kAppVersion $kAppStage';
-  return kAppDate.isEmpty ? v : '$v · $kAppDate';
+  return '$v · $kAppDate';
 }

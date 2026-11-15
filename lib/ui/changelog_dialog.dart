@@ -3,15 +3,14 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../core/changelog.dart';
 import '../core/i18n.dart';
-import '../core/version.dart';
 import '../game/palette.dart';
 
-/// Janela "Novidades": o que mudou em cada publicação, da mais nova para a mais antiga.
+/// Histórico de versões: o que mudou em cada versão, da mais nova para a mais antiga.
 Future<void> showChangelog(BuildContext context, Palette c) => showDialog<void>(
       context: context,
       builder: (ctx) => AlertDialog(
         backgroundColor: c.paper,
-        title: Text(tr('Novidades'), style: GoogleFonts.chakraPetch(fontWeight: FontWeight.w700, color: c.ink)),
+        title: Text(tr('Versões'), style: GoogleFonts.chakraPetch(fontWeight: FontWeight.w700, color: c.ink)),
         content: SizedBox(
           width: 420,
           child: SingleChildScrollView(
@@ -19,7 +18,7 @@ Future<void> showChangelog(BuildContext context, Palette c) => showDialog<void>(
               for (final (i, e) in kChangelog.indexed) ...[
                 if (i > 0) Divider(height: 24, color: c.line),
                 Row(children: [
-                  Text('v${e.version ?? kAppVersion}', style: GoogleFonts.chakraPetch(fontSize: 16, fontWeight: FontWeight.w700, color: c.ink)),
+                  Text('v${e.version}', style: GoogleFonts.chakraPetch(fontSize: 16, fontWeight: FontWeight.w700, color: c.ink)),
                   const SizedBox(width: 8),
                   Text(e.date, style: GoogleFonts.ibmPlexMono(fontSize: 11.5, color: c.muted)),
                   if (i == 0) ...[
