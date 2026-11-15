@@ -1016,4 +1016,32 @@ const kEn = <String, String>{
       'levels',
   'medalhas':
       'medals',
+  'Novidades':
+      'What\'s new',
+  'esta versão':
+      'this version',
+  'Créditos do estúdio no pé do menu.':
+      'Studio credits at the bottom of the menu.',
+  'Esta janela de novidades: toque na versão para abri-la.':
+      'This what\'s new window: tap the version to open it.',
+  'A versão do jogo aparece no pé do menu e nas Opções.':
+      'The game version shows at the bottom of the menu and in Options.',
+  'Barras de madeira não podem começar cruzando nada que não esteja ligado a elas por uma junta.':
+      'Wooden bars can\'t start out crossing anything that isn\'t attached to them by a joint.',
+  'As 67 fases foram revistas e reorganizadas em 7 capítulos, em ordem de dificuldade.':
+      'All 67 levels were reworked and reorganized into 7 chapters, in order of difficulty.',
+  'Menu novo, como um caderno de laboratório, com a miniatura de cada fase.':
+      'New menu, like a lab notebook, with a thumbnail of each level.',
+  'Abertura nova do Aftershock Studios.':
+      'New Aftershock Studios intro.',
+  'Tutorial guiado na primeira fase.':
+      'Guided tutorial on the first level.',
+  'Caixas soltas: caem, podem ser empurradas e apertam botões.':
+      'Loose crates: they fall, can be pushed and press buttons.',
+  'Dá para pular uma fase que empacar.':
+      'You can skip a level you get stuck on.',
+  'Tela cheia nas Opções.':
+      'Full screen in Options.',
+  'Madeira não atravessa madeira nem outras peças; a borracha atravessa, mas as pontas batem.':
+      'Wood doesn\'t pass through wood or other parts; rubber passes through, but its ends collide.',
 };
