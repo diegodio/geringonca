@@ -1016,14 +1016,10 @@ const kEn = <String, String>{
       'levels',
   'medalhas':
       'medals',
-  'Novidades':
-      'What\'s new',
   'esta versão':
       'this version',
   'Créditos do estúdio no pé do menu.':
       'Studio credits at the bottom of the menu.',
-  'Esta janela de novidades: toque na versão para abri-la.':
-      'This what\'s new window: tap the version to open it.',
   'A versão do jogo aparece no pé do menu e nas Opções.':
       'The game version shows at the bottom of the menu and in Options.',
   'Barras de madeira não podem começar cruzando nada que não esteja ligado a elas por uma junta.':
@@ -1044,4 +1040,58 @@ const kEn = <String, String>{
       'Full screen in Options.',
   'Madeira não atravessa madeira nem outras peças; a borracha atravessa, mas as pontas batem.':
       'Wood doesn\'t pass through wood or other parts; rubber passes through, but its ends collide.',
+  'Versões':
+      'Versions',
+  'Histórico de versões: toque na versão, no pé do menu, para abrir.':
+      'Version history: tap the version at the bottom of the menu to open it.',
+  'Capítulo Morros e rampas: o morro entra no cenário e no editor, com 10 fases novas.':
+      'Hills and ramps chapter: hills join the scenery and the editor, with 10 new levels.',
+  'O jogo carrega mais rápido (WebAssembly e fontes embutidas) e grava o progresso com menos frequência.':
+      'The game loads faster (WebAssembly and bundled fonts) and saves progress less often.',
+  'Testar uma fase do editor volta a funcionar com o celular em pé.':
+      'Testing a level from the editor works again with the phone upright.',
+  'Editor de fases completo: ajustar elementos, propriedades, testar sem sair, verificação, modelos e abas.':
+      'Full level editor: adjust elements, properties, test without leaving, verification, templates and tabs.',
+  'Dá para jogar sem internet.':
+      'You can play offline.',
+  'Compartilhar uma fase com a engenhoca por link.':
+      'Share a level with your contraption by link.',
+  'Versão em inglês.':
+      'English version.',
+  'Melhor desempenho em celulares simples e ícones novos.':
+      'Better performance on simple phones, and new icons.',
+  'A tela de carregamento monta a palavra peça por peça; um toque pula.':
+      'The loading screen builds the word piece by piece; a tap skips it.',
+  'Com a tela deitada, peças e ferramentas ficam na lateral.':
+      'In landscape, parts and tools sit on the side.',
+  'Opções, sons e vibração.':
+      'Options, sounds and vibration.',
+  'Tela de carregamento com o pingo do i quicando.':
+      'Loading screen with the dot of the i bouncing.',
+  'Logotipo e ícone desenhados com as peças do jogo.':
+      'Logo and icon drawn with the game\'s parts.',
+  'O app instalado funciona com a tela deitada, e as rodas batem em toda madeira.':
+      'The installed app works in landscape, and wheels hit every wooden bar.',
+  '50 fases em 5 capítulos.':
+      '50 levels in 5 chapters.',
+  'Elevador com poço, bola solta e orçamento máximo.':
+      'Elevator with a shaft, loose ball and budget limit.',
+  'O motor só gira com o eixo da roda preso a alguma coisa.':
+      'A motor only turns with the wheel\'s axle attached to something.',
+  'Interface pensada para celular e tablet.':
+      'Interface designed for phones and tablets.',
+  'Tela de vitória, peças permitidas por fase e desafios extras.':
+      'Victory screen, allowed parts per level and extra challenges.',
+  'Menu inicial e 5 fases novas em ordem de dificuldade.':
+      'Main menu and 5 new levels in order of difficulty.',
+  'Pausa, câmera lenta e rastro da bola.':
+      'Pause, slow motion and ball trail.',
+  'Fases liberadas em sequência.':
+      'Levels unlock in order.',
+  'A mesma física em todo aparelho.':
+      'The same physics on every device.',
+  'Bancada nova, peças sólidas, setas nas rodas, botão de encaixe e o nome Geringonça.':
+      'New workbench, solid parts, arrows on wheels, snap button and the name Geringonça.',
+  'Primeira versão publicada na web.':
+      'First version published on the web.',
 };

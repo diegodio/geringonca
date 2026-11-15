@@ -1,18 +1,23 @@
-// Novidades de cada publicação, da mais nova para a mais antiga. A janela
-// "Novidades" do menu mostra esta lista. Ao publicar algo que o jogador nota,
-// acrescente uma entrada no topo (os textos passam por tr(); a tradução fica em
-// i18n_en.dart). O número é o da publicação (veja version.dart).
+// Histórico de versões, da mais nova para a mais antiga. A primeira entrada é a
+// versão atual do jogo (veja version.dart); a janela que abre ao tocar na versão,
+// no pé do menu, mostra a lista inteira.
+//
+// Versão nova: acrescente uma entrada no topo, com o próximo número e a data do
+// dia em GMT-3 (horário de Brasília). Ajustes que não mudam a versão só editam a
+// entrada atual. Os textos passam por tr(); a tradução fica em i18n_en.dart.
+//
+// Os números vêm das publicações no GitHub Pages (a 0.18 falhou e não saiu; o
+// conteúdo dela foi na 0.19).
 
-/// Uma publicação: número (null = a que está rodando agora), data e o que mudou.
-typedef ChangelogEntry = ({String? version, String date, List<String> items});
+typedef ChangelogEntry = ({String version, String date, List<String> items});
 
 const List<ChangelogEntry> kChangelog = [
   (
-    version: null,
-    date: '2026-11-15',
+    version: '0.21',
+    date: '2026-11-14',
     items: [
       'Créditos do estúdio no pé do menu.',
-      'Esta janela de novidades: toque na versão para abri-la.',
+      'Histórico de versões: toque na versão, no pé do menu, para abrir.',
     ],
   ),
   (
@@ -42,10 +47,102 @@ const List<ChangelogEntry> kChangelog = [
   ),
   (
     version: '0.16',
-    date: '2026-11-10',
+    date: '2026-11-09',
     items: ['Madeira não atravessa madeira nem outras peças; a borracha atravessa, mas as pontas batem.'],
+  ),
+  (
+    version: '0.15',
+    date: '2026-11-08',
+    items: ['Capítulo Morros e rampas: o morro entra no cenário e no editor, com 10 fases novas.'],
+  ),
+  (
+    version: '0.14',
+    date: '2026-11-08',
+    items: ['O jogo carrega mais rápido (WebAssembly e fontes embutidas) e grava o progresso com menos frequência.'],
+  ),
+  (
+    version: '0.13',
+    date: '2026-11-08',
+    items: ['Testar uma fase do editor volta a funcionar com o celular em pé.'],
+  ),
+  (
+    version: '0.12',
+    date: '2026-11-08',
+    items: ['Editor de fases completo: ajustar elementos, propriedades, testar sem sair, verificação, modelos e abas.'],
+  ),
+  (
+    version: '0.11',
+    date: '2026-11-07',
+    items: [
+      'Dá para jogar sem internet.',
+      'Compartilhar uma fase com a engenhoca por link.',
+      'Versão em inglês.',
+      'Melhor desempenho em celulares simples e ícones novos.',
+    ],
+  ),
+  (
+    version: '0.10',
+    date: '2026-11-07',
+    items: ['A tela de carregamento monta a palavra peça por peça; um toque pula.'],
+  ),
+  (
+    version: '0.9',
+    date: '2026-11-06',
+    items: [
+      'Com a tela deitada, peças e ferramentas ficam na lateral.',
+      'Opções, sons e vibração.',
+      'Tela de carregamento com o pingo do i quicando.',
+    ],
+  ),
+  (
+    version: '0.8',
+    date: '2026-11-06',
+    items: ['Logotipo e ícone desenhados com as peças do jogo.'],
+  ),
+  (
+    version: '0.7',
+    date: '2026-11-06',
+    items: ['O app instalado funciona com a tela deitada, e as rodas batem em toda madeira.'],
+  ),
+  (
+    version: '0.6',
+    date: '2026-11-05',
+    items: ['50 fases em 5 capítulos.', 'Elevador com poço, bola solta e orçamento máximo.'],
+  ),
+  (
+    version: '0.5',
+    date: '2026-11-04',
+    items: [
+      'O motor só gira com o eixo da roda preso a alguma coisa.',
+      'Interface pensada para celular e tablet.',
+      'Tela de vitória, peças permitidas por fase e desafios extras.',
+    ],
+  ),
+  (
+    version: '0.4',
+    date: '2026-11-03',
+    items: ['Menu inicial e 5 fases novas em ordem de dificuldade.'],
+  ),
+  (
+    version: '0.3',
+    date: '2026-11-03',
+    items: [
+      'Pausa, câmera lenta e rastro da bola.',
+      'Fases liberadas em sequência.',
+      'A mesma física em todo aparelho.',
+    ],
+  ),
+  (
+    version: '0.2',
+    date: '2026-11-03',
+    items: ['Bancada nova, peças sólidas, setas nas rodas, botão de encaixe e o nome Geringonça.'],
+  ),
+  (
+    version: '0.1',
+    date: '2026-11-02',
+    items: ['Primeira versão publicada na web.'],
   ),
 ];
 
-/// Todos os textos das novidades (para o teste de tradução).
+/// Todos os textos do histórico (para o teste de tradução).
 List<String> get changelogTexts => [for (final e in kChangelog) ...e.items];

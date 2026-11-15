@@ -141,7 +141,7 @@ class MenuPage extends StatelessWidget {
                           ]),
                         ),
                       ],
-                      // pé da página: versão (abre as novidades) e créditos do estúdio
+                      // pé da página: versão (abre o histórico de versões) e créditos do estúdio
                       const SizedBox(height: 28),
                       Center(
                         child: InkWell(
@@ -149,16 +149,10 @@ class MenuPage extends StatelessWidget {
                           onTap: () => showChangelog(context, c),
                           child: Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-                            child: Text.rich(
-                              TextSpan(children: [
-                                TextSpan(text: '$versionLabel · '),
-                                TextSpan(
-                                    text: tr('Novidades'),
-                                    style: TextStyle(color: c.accent, decoration: TextDecoration.underline, decorationColor: c.accent)),
-                              ]),
-                              textAlign: TextAlign.center,
-                              style: GoogleFonts.ibmPlexMono(fontSize: 11.5, color: c.muted),
-                            ),
+                            child: Text(versionLabel,
+                                textAlign: TextAlign.center,
+                                style: GoogleFonts.ibmPlexMono(
+                                    fontSize: 11.5, color: c.accent, decoration: TextDecoration.underline, decorationColor: c.accent)),
                           ),
                         ),
                       ),
