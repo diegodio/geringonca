@@ -12,6 +12,7 @@ import '../game/ink.dart';
 import '../game/palette.dart';
 import 'game_page.dart';
 import 'how_to_play.dart';
+import 'changelog_dialog.dart';
 import 'level_thumb.dart';
 import 'logo.dart';
 import 'options.dart';
@@ -140,9 +141,28 @@ class MenuPage extends StatelessWidget {
                           ]),
                         ),
                       ],
-                      // versão do jogo, discreta no pé da página
+                      // pé da página: versão (abre as novidades) e créditos do estúdio
                       const SizedBox(height: 28),
-                      Text(versionLabel, textAlign: TextAlign.center, style: GoogleFonts.ibmPlexMono(fontSize: 11, color: c.muted)),
+                      Center(
+                        child: InkWell(
+                          borderRadius: BorderRadius.circular(6),
+                          onTap: () => showChangelog(context, c),
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                            child: Text.rich(
+                              TextSpan(children: [
+                                TextSpan(text: '$versionLabel · '),
+                                TextSpan(
+                                    text: tr('Novidades'),
+                                    style: TextStyle(color: c.accent, decoration: TextDecoration.underline, decorationColor: c.accent)),
+                              ]),
+                              textAlign: TextAlign.center,
+                              style: GoogleFonts.ibmPlexMono(fontSize: 11.5, color: c.muted),
+                            ),
+                          ),
+                        ),
+                      ),
+                      Text('© 2026 Aftershock Studios', textAlign: TextAlign.center, style: GoogleFonts.ibmPlexMono(fontSize: 11, color: c.muted)),
                     ]),
                   ),
                 ),

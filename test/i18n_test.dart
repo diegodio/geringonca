@@ -4,6 +4,7 @@ library;
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:geringonca/core/changelog.dart';
 import 'package:geringonca/core/i18n.dart';
 import 'package:geringonca/core/i18n_en.dart';
 import 'package:geringonca/core/levels.dart';
@@ -67,6 +68,7 @@ void main() {
       ...kPieceNames.values,
       ...kHints.values,
       for (final st in kTutorial) ...[st.text, ?st.next],
+      ...changelogTexts,
       ...kEHints.values,
       for (final (_, n, d) in kChallenges) ...[n, d],
       blankLevel().name,
