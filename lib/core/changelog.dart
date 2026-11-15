@@ -2,18 +2,28 @@
 // versão atual do jogo (veja version.dart); a janela que abre ao tocar na versão,
 // no pé do menu, mostra a lista inteira.
 //
-// Versão nova: acrescente uma entrada no topo, com o próximo número e a data do
-// dia em GMT-3 (horário de Brasília). Ajustes que não mudam a versão só editam a
-// entrada atual. Os textos passam por tr(); a tradução fica em i18n_en.dart.
+// Formato 0.xx.yy: xx sobe a cada atualização grande (e yy volta a 00); yy
+// conta as pequenas atualizações da mesma versão. Toda publicação ganha uma
+// entrada no topo, com a data do dia em GMT-3 (horário de Brasília). Os textos
+// passam por tr(); a tradução fica em i18n_en.dart.
 //
-// Os números vêm das publicações no GitHub Pages (a 0.18 falhou e não saiu; o
-// conteúdo dela foi na 0.19).
+// As versões até a 0.21.00 vêm das publicações no GitHub Pages (a 0.18 falhou
+// e não saiu; o conteúdo dela foi na 0.19.00).
 
 typedef ChangelogEntry = ({String version, String date, List<String> items});
 
 const List<ChangelogEntry> kChangelog = [
   (
-    version: '0.21',
+    version: '0.21.01',
+    date: '2026-11-14',
+    items: [
+      'Histórico com todas as versões, desde a primeira.',
+      'Versões no formato 0.xx.yy: o último número conta as pequenas atualizações.',
+      'Datas no horário de Brasília.',
+    ],
+  ),
+  (
+    version: '0.21.00',
     date: '2026-11-14',
     items: [
       'Créditos do estúdio no pé do menu.',
@@ -21,12 +31,12 @@ const List<ChangelogEntry> kChangelog = [
     ],
   ),
   (
-    version: '0.20',
+    version: '0.20.00',
     date: '2026-11-14',
     items: ['A versão do jogo aparece no pé do menu e nas Opções.'],
   ),
   (
-    version: '0.19',
+    version: '0.19.00',
     date: '2026-11-13',
     items: [
       'Barras de madeira não podem começar cruzando nada que não esteja ligado a elas por uma junta.',
@@ -36,7 +46,7 @@ const List<ChangelogEntry> kChangelog = [
     ],
   ),
   (
-    version: '0.17',
+    version: '0.17.00',
     date: '2026-11-10',
     items: [
       'Tutorial guiado na primeira fase.',
@@ -46,32 +56,32 @@ const List<ChangelogEntry> kChangelog = [
     ],
   ),
   (
-    version: '0.16',
+    version: '0.16.00',
     date: '2026-11-09',
     items: ['Madeira não atravessa madeira nem outras peças; a borracha atravessa, mas as pontas batem.'],
   ),
   (
-    version: '0.15',
+    version: '0.15.00',
     date: '2026-11-08',
     items: ['Capítulo Morros e rampas: o morro entra no cenário e no editor, com 10 fases novas.'],
   ),
   (
-    version: '0.14',
+    version: '0.14.00',
     date: '2026-11-08',
     items: ['O jogo carrega mais rápido (WebAssembly e fontes embutidas) e grava o progresso com menos frequência.'],
   ),
   (
-    version: '0.13',
+    version: '0.13.00',
     date: '2026-11-08',
     items: ['Testar uma fase do editor volta a funcionar com o celular em pé.'],
   ),
   (
-    version: '0.12',
+    version: '0.12.00',
     date: '2026-11-08',
     items: ['Editor de fases completo: ajustar elementos, propriedades, testar sem sair, verificação, modelos e abas.'],
   ),
   (
-    version: '0.11',
+    version: '0.11.00',
     date: '2026-11-07',
     items: [
       'Dá para jogar sem internet.',
@@ -81,12 +91,12 @@ const List<ChangelogEntry> kChangelog = [
     ],
   ),
   (
-    version: '0.10',
+    version: '0.10.00',
     date: '2026-11-07',
     items: ['A tela de carregamento monta a palavra peça por peça; um toque pula.'],
   ),
   (
-    version: '0.9',
+    version: '0.09.00',
     date: '2026-11-06',
     items: [
       'Com a tela deitada, peças e ferramentas ficam na lateral.',
@@ -95,22 +105,22 @@ const List<ChangelogEntry> kChangelog = [
     ],
   ),
   (
-    version: '0.8',
+    version: '0.08.00',
     date: '2026-11-06',
     items: ['Logotipo e ícone desenhados com as peças do jogo.'],
   ),
   (
-    version: '0.7',
+    version: '0.07.00',
     date: '2026-11-06',
     items: ['O app instalado funciona com a tela deitada, e as rodas batem em toda madeira.'],
   ),
   (
-    version: '0.6',
+    version: '0.06.00',
     date: '2026-11-05',
     items: ['50 fases em 5 capítulos.', 'Elevador com poço, bola solta e orçamento máximo.'],
   ),
   (
-    version: '0.5',
+    version: '0.05.00',
     date: '2026-11-04',
     items: [
       'O motor só gira com o eixo da roda preso a alguma coisa.',
@@ -119,12 +129,12 @@ const List<ChangelogEntry> kChangelog = [
     ],
   ),
   (
-    version: '0.4',
+    version: '0.04.00',
     date: '2026-11-03',
     items: ['Menu inicial e 5 fases novas em ordem de dificuldade.'],
   ),
   (
-    version: '0.3',
+    version: '0.03.00',
     date: '2026-11-03',
     items: [
       'Pausa, câmera lenta e rastro da bola.',
@@ -133,12 +143,12 @@ const List<ChangelogEntry> kChangelog = [
     ],
   ),
   (
-    version: '0.2',
+    version: '0.02.00',
     date: '2026-11-03',
     items: ['Bancada nova, peças sólidas, setas nas rodas, botão de encaixe e o nome Geringonça.'],
   ),
   (
-    version: '0.1',
+    version: '0.01.00',
     date: '2026-11-02',
     items: ['Primeira versão publicada na web.'],
   ),

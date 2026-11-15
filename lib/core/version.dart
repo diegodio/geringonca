@@ -10,7 +10,7 @@ final String kAppDate = kChangelog.first.date;
 /// com quem joga. Na versão 1.0, troque para ''.
 const kAppStage = 'beta';
 
-/// Texto curto para mostrar num canto: "v0.21 beta · 2026-11-14".
+/// Texto curto para mostrar num canto: "v0.21.01 beta · 2026-11-14".
 String get versionLabel {
   final v = kAppStage.isEmpty ? 'v$kAppVersion' : 'v$kAppVersion $kAppStage';
   return '$v · $kAppDate';

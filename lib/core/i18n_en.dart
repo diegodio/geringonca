@@ -1094,4 +1094,10 @@ const kEn = <String, String>{
       'New workbench, solid parts, arrows on wheels, snap button and the name Geringonça.',
   'Primeira versão publicada na web.':
       'First version published on the web.',
+  'Histórico com todas as versões, desde a primeira.':
+      'History with every version, since the first one.',
+  'Versões no formato 0.xx.yy: o último número conta as pequenas atualizações.':
+      'Versions in the 0.xx.yy format: the last number counts small updates.',
+  'Datas no horário de Brasília.':
+      'Dates in Brasília time.',
 };
