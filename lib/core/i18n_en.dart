@@ -1100,4 +1100,6 @@ const kEn = <String, String>{
       'Versions in the 0.xx.yy format: the last number counts small updates.',
   'Datas no horário de Brasília.':
       'Dates in Brasília time.',
+  'No pé do menu, só o número da versão abre o histórico.':
+      'At the bottom of the menu, only the version number opens the history.',
 };
