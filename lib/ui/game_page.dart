@@ -25,7 +25,6 @@ import '../game/palette.dart';
 import '../game/progress.dart';
 import 'how_to_play.dart';
 import 'options.dart';
-import 'templates.dart';
 import 'platform/link.dart';
 import 'widgets.dart';
 import 'win_panel.dart';
@@ -55,6 +54,7 @@ List<(String, String, String, Widget)> _pieces(Palette c) => [
 class _GamePageState extends State<GamePage> {
   GameController get g => widget.g;
   late final OficinaGame _game;
+  final _benchKey = GlobalKey();
   final _name = TextEditingController();
   final _tg = {'t': TextEditingController(), 'n': TextEditingController(), 'c': TextEditingController()};
   final _budget = TextEditingController();
@@ -234,6 +234,7 @@ class _GamePageState extends State<GamePage> {
         'new' => _newLevel(c),
         'help' => _howTo(c),
         'tutorial' => g.startTutorial(),
+        'ground' => g.toggleGround(),
         'sound' => g.setSound(!g.soundOn),
         'options' => showOptions(context, g),
         'full' => setFullscreen(!isFullscreen()),
@@ -255,6 +256,7 @@ class _GamePageState extends State<GamePage> {
         item('share', Icons.ios_share, 'Compartilhar ou abrir link', enabled: build),
         item('edit', Icons.edit_outlined, 'Editar esta fase', enabled: build),
         item('new', Icons.add_box_outlined, 'Criar fase nova', enabled: build),
+        if (edit) item('ground', Icons.horizontal_rule, 'Chão', check: g.editLevel!.ground),
         item('help', Icons.help_outline, 'Como jogar'),
         item('tutorial', Icons.school_outlined, 'Tutorial', enabled: !edit && !g.testing),
         const PopupMenuDivider(),
@@ -361,7 +363,10 @@ class _GamePageState extends State<GamePage> {
                 Positioned.fill(
                   child: MouseRegion(
                     cursor: g.panMode ? SystemMouseCursors.grab : SystemMouseCursors.precise,
-                    child: GameWidget(game: _game),
+                    // a chave global faz o Flutter mudar a bancada de lugar sem desmontá-la
+                    // (ao ir do editor para o teste com o celular em pé, por exemplo);
+                    // e qualquer toque acorda o laço do jogo antes de chegar às peças
+                    child: Listener(onPointerDown: (_) => _game.wake(), child: GameWidget(key: _benchKey, game: _game)),
                   ),
                 ),
                 if (g.showSelBar) Positioned(left: 6, right: floatAction ? 76 : 6, bottom: 6, child: _selectionBar(c)),

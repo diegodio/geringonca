@@ -72,7 +72,6 @@ void main() {
       ...kEHints.values,
       for (final (_, n, d) in kChallenges) ...[n, d],
       blankLevel().name,
-      for (final (_, n, d, _) in kTemplates) ...[n, d],
     ];
     expect(need.where((k) => !kEn.containsKey(k)).toList(), isEmpty);
   });

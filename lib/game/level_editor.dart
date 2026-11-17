@@ -4,18 +4,6 @@ part of 'controller.dart';
 /// Tipos: block, door, plat, seesaw, lift, magnet, button (listas) e zone, goal, ball (únicos).
 typedef ESel = ({String kind, int i});
 
-/// Modelos para começar uma fase nova: id, nome, descrição e, se vier de uma fase
-/// pronta, o nome dela.
-const kTemplates = [
-  ('vazio', 'Vazio com chão', 'Chão, área de construção e meta.', null),
-  ('semchao', 'Sem chão', 'Só dois apoios: o resto é vazio.', null),
-  ('vale', 'Vale', 'Um vão no meio do caminho.', 'Vale'),
-  ('escada', 'Escada', 'Degraus até a meta.', 'Escada'),
-  ('elevador', 'Elevador', 'Um elevador até um bloco alto.', 'Elevador'),
-  ('porta', 'Porta e botão', 'Uma porta que abre com um botão.', 'Porta e botão'),
-  ('gangorra', 'Gangorra', 'Uma gangorra até um degrau.', 'Gangorra'),
-];
-
 /// Editor de fases: desenhar e ajustar o cenário, regras, metas, testar sem sair,
 /// verificar a fase, salvar e excluir.
 mixin _LevelEditor on GameState {
@@ -63,30 +51,8 @@ mixin _LevelEditor on GameState {
     _enterEdit(lv);
   }
 
-  /// Fase nova a partir de um modelo de [kTemplates] (vazio por padrão).
-  void newLevel([String template = 'vazio']) => _enterEdit(templateLevel(template));
-
-  static Level templateLevel(String id) {
-    final t = kTemplates.where((t) => t.$1 == id).firstOrNull;
-    final from = t?.$4 == null ? null : kBuiltin.where((l) => l.name == t!.$4).firstOrNull;
-    if (from != null) {
-      return from.copy()
-        ..id = null
-        ..name = tr('Fase nova')
-        ..tip = ''
-        ..targets = Targets()
-        ..allowed = null
-        ..looseBall = false
-        ..budget = null
-        ..verified = false;
-    }
-    final lv = blankLevel()..name = tr('Fase nova');
-    if (id == 'semchao') {
-      lv.ground = false;
-      lv.blocks.addAll([R(lv.zone.x - 10, lv.zone.y + lv.zone.h, lv.zone.w + 20, 20), R(lv.goal.x - 10, lv.goal.y + lv.goal.h, lv.goal.w + 20, 20)]);
-    }
-    return lv;
-  }
+  /// Fase nova: sempre em branco, com chão, área de construção, meta e bola.
+  void newLevel() => _enterEdit(blankLevel()..name = tr('Fase nova'));
 
   void _exitEdit() {
     mode = Mode.build;
@@ -207,6 +173,11 @@ mixin _LevelEditor on GameState {
       _deny(tr('Coloque a bola dentro da área de construção antes de salvar.'));
       return notifyListeners();
     }
+    // só fases com solução: o autor precisa vencer no Testar, do jeito que a fase está
+    if (!lv.verified) {
+      _deny(tr('Só dá para salvar uma fase que tem solução: toque em Testar e vença a fase do jeito que ela está.'));
+      return notifyListeners();
+    }
     lv.name = lv.name.trim().isEmpty ? tr('Fase sem nome') : lv.name.trim();
     if (asCopy) {
       lv.id = null;
@@ -221,7 +192,7 @@ mixin _LevelEditor on GameState {
       this.parts = parts.map((q) => q.copy()).toList();
       _saveBuild();
     }
-    say(tr(lv.verified ? 'Fase "{n}" salva e verificada.' : 'Fase "{n}" salva. Monte uma engenhoca e teste.', {'n': lv.name}));
+    say(tr('Fase "{n}" salva e verificada.', {'n': lv.name}));
     fx(Sfx.place);
     notifyListeners();
   }
