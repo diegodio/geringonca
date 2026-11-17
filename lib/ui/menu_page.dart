@@ -16,7 +16,6 @@ import 'changelog_dialog.dart';
 import 'level_thumb.dart';
 import 'logo.dart';
 import 'options.dart';
-import 'templates.dart';
 import 'widgets.dart';
 
 /// Menu inicial: continuar, escolher fase, criar fase e como jogar.
@@ -100,10 +99,7 @@ class MenuPage extends StatelessWidget {
                             c: c,
                             icon: Icons.architecture,
                             label: 'Criar fase',
-                            onTap: () async {
-                              final t = await pickTemplate(context, c);
-                              if (t != null && context.mounted) _play(context, () => g.newLevel(t));
-                            }),
+                            onTap: () => _play(context, g.newLevel)),
                         TB(c: c, icon: Icons.menu_book_outlined, label: 'Como jogar', onTap: () => _howTo(context, c)),
                       ]),
                       const SizedBox(height: 18),

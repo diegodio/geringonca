@@ -14,6 +14,16 @@ typedef ChangelogEntry = ({String version, String date, List<String> items});
 
 const List<ChangelogEntry> kChangelog = [
   (
+    version: '0.22.00',
+    date: '2026-11-17',
+    items: [
+      'Barra ou borracha com a ponta fora da área de construção fica vermelha antes de soltar.',
+      'Criar fase sempre começa em branco, com chão; o chão liga e desliga no editor e no menu ⋮.',
+      'Só dá para salvar uma fase depois de vencê-la no Testar.',
+      'Editor mais firme ao ir e voltar do teste.',
+    ],
+  ),
+  (
     version: '0.21.02',
     date: '2026-11-14',
     items: ['No pé do menu, só o número da versão abre o histórico.'],

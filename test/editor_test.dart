@@ -20,7 +20,7 @@ void _tap(GameController g, Pt p) {
   g.pointerUp(1);
 }
 
-GameController _editor([String template = 'vazio']) => GameController(Store(null))..newLevel(template);
+GameController _editor() => GameController(Store(null))..newLevel();
 
 void main() {
   setUpAll(() async => initializeForge2D()); // no navegador o Box2D precisa ser carregado antes
@@ -110,7 +110,8 @@ void main() {
     });
 
     test('espelhar duas vezes volta ao original', () {
-      final g = _editor('vale');
+      final g = _editor();
+      g.editLevel!.plats.add(Seg(Pt(400, 500), Pt(600, 420)));
       final before = jsonEncode(g.editLevel!.toJson());
       g.mirrorLevel();
       expect(jsonEncode(g.editLevel!.toJson()), isNot(before));
@@ -147,13 +148,26 @@ void main() {
       expect([b.x, b.y, b.w, b.h], [505, 300, 80, 75]);
     });
 
-    test('todos os modelos abrem com a bola na área verde', () {
-      for (final (id, _, _, _) in kTemplates) {
-        final lv = GameController(Store(null)).let((g) => g..newLevel(id)).editLevel!;
-        expect(lv.zone.contains(lv.ball), isTrue, reason: id);
-        expect(lv.id, isNull);
-      }
-      expect(_editor('semchao').editLevel!.ground, isFalse);
+    test('fase nova começa em branco, com chão, e o chão liga e desliga', () {
+      final g = _editor();
+      final lv = g.editLevel!;
+      expect(lv.id, isNull);
+      expect(lv.ground, isTrue);
+      expect([...lv.blocks, ...lv.hills, ...lv.crates, ...lv.doors], isEmpty);
+      expect([...lv.plats, ...lv.seesaws, ...lv.lifts, ...lv.magnets, ...lv.buttons], isEmpty);
+      expect(lv.zone.contains(lv.ball), isTrue);
+      g.toggleGround();
+      expect(g.editLevel!.ground, isFalse);
+      g.toggleGround();
+      expect(g.editLevel!.ground, isTrue);
+    });
+
+    test('só salva fase com solução: vencida no teste do jeito que está', () {
+      final g = _editor();
+      g.saveEdit();
+      expect(g.mode, Mode.edit, reason: 'sem vencer no teste, não salva');
+      expect(g.progress.custom, isEmpty);
+      expect(g.hint, contains('Testar'));
     });
   });
 
@@ -233,8 +247,4 @@ void main() {
       expect(g.progress.find(id)!.verified, isTrue);
     });
   });
-}
-
-extension<T> on T {
-  U let<U>(U Function(T) f) => f(this);
 }

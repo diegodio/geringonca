@@ -1102,4 +1102,14 @@ const kEn = <String, String>{
       'Dates in Brasília time.',
   'No pé do menu, só o número da versão abre o histórico.':
       'At the bottom of the menu, only the version number opens the history.',
+  'Só dá para salvar uma fase que tem solução: toque em Testar e vença a fase do jeito que ela está.':
+      'You can only save a level that has a solution: tap Test and beat the level as it is.',
+  'Barra ou borracha com a ponta fora da área de construção fica vermelha antes de soltar.':
+      'A bar or rubber band with an end outside the build area turns red before you let go.',
+  'Criar fase sempre começa em branco, com chão; o chão liga e desliga no editor e no menu ⋮.':
+      'Create level always starts blank, with ground; the ground turns on and off in the editor and in the ⋮ menu.',
+  'Só dá para salvar uma fase depois de vencê-la no Testar.':
+      'You can only save a level after beating it in Test.',
+  'Editor mais firme ao ir e voltar do teste.':
+      'The editor is steadier when going to and from testing.',
 };

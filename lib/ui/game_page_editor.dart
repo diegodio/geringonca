@@ -19,10 +19,8 @@ extension _Editor on _GamePageState {
       ]);
 
   /// Fase nova: escolhe o modelo e abre o editor.
-  Future<void> _newLevel(Palette c) async {
-    final t = await pickTemplate(context, c);
-    if (t != null) g.newLevel(t);
-  }
+  /// Fase nova: sempre em branco, com chão (o chão liga e desliga no editor).
+  void _newLevel(Palette c) => g.newLevel();
 
   /// Editor em três abas (Desenhar, Regras e Fase), com Testar, Cancelar e Salvar
   /// sempre à vista.

@@ -215,7 +215,10 @@ class _BuildLayer extends Component {
     if (a != null && a.type == 'draft') {
       final d = a.d!;
       if (d.isRod) {
-        if (dist(d.a!, d.b!) >= 14 && clashOf(d, [...g.parts, d], g.level, g.ball0) != null) i.line(d.a!.x, d.a!.y, d.b!.x, d.b!.y, bad);
+        // vermelha quando não vai ser construída: cruzando algo ou com uma ponta fora da área verde
+        if (dist(d.a!, d.b!) >= 14 && (!g.level.zone.contains(d.b!) || clashOf(d, [...g.parts, d], g.level, g.ball0) != null)) {
+          i.line(d.a!.x, d.a!.y, d.b!.x, d.b!.y, bad);
+        }
         i.rod(d.a!.x, d.a!.y, d.b!.x, d.b!.y, d.k, .6);
         i.text('${fmt(dist(d.a!, d.b!) / 100)} m', d.b!.x + 12, d.b!.y - 12, i.c.ink);
       } else if (d.isWheel) {
