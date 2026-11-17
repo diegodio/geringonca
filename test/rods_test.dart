@@ -224,4 +224,15 @@ void main() {
     expect(won, isTrue);
     s.dispose();
   });
+
+  test('ponta presa na argola da roda não conta: vale o círculo da roda', () {
+    final w = Part.wheel('cw', Pt(400, 460), 40);
+    // barra presa na argola de baixo, rente ao chão: a ponta fica para fora do círculo
+    final r = Part.rod('solid', w.perim[1].copy(), Pt(300, 440));
+    expect(clashes([w, r], _lab(), Pt(900, 470)), isEmpty);
+    // e a roda gira e anda sem a ponta raspar no chão
+    final s = _run([w, r, Part.rod('water', Pt(400, 460), Pt(370, 420))], 1);
+    expect(s.pose(s.bodies[0].body).x, greaterThan(500));
+    s.dispose();
+  });
 }

@@ -1112,4 +1112,14 @@ const kEn = <String, String>{
       'You can only save a level after beating it in Test.',
   'Editor mais firme ao ir e voltar do teste.':
       'The editor is steadier when going to and from testing.',
+  'A peça precisa caber inteira na área verde.':
+      'The part has to fit entirely inside the green area.',
+  'Há peças saindo da área verde (em vermelho). Ajuste antes de rodar.':
+      'Some parts stick out of the green area (in red). Fix them before running.',
+  'Rodas, ímãs e barras precisam caber inteiros na área de construção; o que passa da borda fica vermelho e não é construído.':
+      'Wheels, magnets and bars must fit entirely inside the build area; anything past the edge turns red and isn\'t built.',
+  'A área de construção vai até o chão.':
+      'The build area reaches down to the ground.',
+  'As argolas na borda das rodas não batem em nada: quem bate é o círculo da roda.':
+      'The rings on a wheel\'s rim don\'t hit anything: the wheel\'s circle does.',
 };

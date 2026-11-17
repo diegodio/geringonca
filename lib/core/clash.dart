@@ -101,9 +101,18 @@ List<_Shape> _scenery(Level lv) {
 
 /// Forma de uma peça para o teste: barra de madeira inteira, pontas da borracha
 /// (o corpo dela atravessa tudo), roda e ímã.
-List<_Cap> _capsOf(Part q) => q.isRod
-    ? (q.k == 'solid' ? [_Cap(q.a!, q.b!, kRodR)] : [_Cap(q.a!, q.a!, kTipR), _Cap(q.b!, q.b!, kTipR)])
-    : [_Cap(q.c!, q.c!, q.r)];
+/// Pontas presas nas argolas da borda de uma roda ficam de fora (vale o círculo da roda).
+List<_Cap> _capsOf(Part q, List<Part> parts) {
+  if (!q.isRod) return [_Cap(q.c!, q.c!, q.r)];
+  final ra = onWheelRim(q.a!, parts), rb = onWheelRim(q.b!, parts);
+  if (q.k != 'solid') return [if (!ra) _Cap(q.a!, q.a!, kTipR), if (!rb) _Cap(q.b!, q.b!, kTipR)];
+  if (!ra && !rb) return [_Cap(q.a!, q.b!, kRodR)];
+  // a madeira começa depois do pedaço da ponta (o mesmo da física)
+  final len = dist(q.a!, q.b!), e = math.min(12.0, len / 3);
+  Pt along(double d) => Pt(q.a!.x + (q.b!.x - q.a!.x) * d / len, q.a!.y + (q.b!.y - q.a!.y) * d / len);
+  final a = ra ? along(e) : q.a!, b = rb ? along(len - e) : q.b!;
+  return [_Cap(a, b, kRodR)];
+}
 
 /// O que a barra [q] invade: 'parte', 'bola' ou 'cenario'; null se estiver livre.
 /// [ball] é a bola (nula se a fase é de bola solta: aí nada se liga a ela, mas ela
@@ -112,12 +121,12 @@ String? clashOf(Part q, List<Part> parts, Level lv, Pt ballPos) => _clash(q, par
 
 String? _clash(Part q, List<Part> parts, Pt ballPos, bool looseBall, List<_Shape> scenery) {
   if (!q.isRod) return null;
-  final mine = _capsOf(q);
+  final mine = _capsOf(q, parts);
   bool hits(_Shape s) => mine.any((c) => s.distTo(c.a, c.b) < c.r - kClashTol);
   for (final o in parts) {
     if (identical(o, q) || linked(q, o)) continue;
     // madeira contra madeira e roda/ímã; pontas de borracha contra qualquer peça sólida
-    for (final oc in _capsOf(o)) {
+    for (final oc in _capsOf(o, parts)) {
       if (hits(oc)) return 'parte';
     }
   }

@@ -50,7 +50,7 @@ const golden = <String, String>{
   'elevador': '2f0a15f2',
   'gangorra': '040d33be',
   'porta e botão': '2e7b786c',
-  'manivela': '288efbb2',
+  'manivela': '26d49241',
   'motor com o centro solto': '358c5e37',
   'boliche': '1fae6dc7',
   'degrau de caixa': '0ec02ab8',

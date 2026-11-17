@@ -212,6 +212,14 @@ class _BuildLayer extends Component {
     for (final q in g.clashMap.keys) {
       i.line(q.a!.x, q.a!.y, q.b!.x, q.b!.y, bad);
     }
+    // peças saindo da área verde também
+    for (final q in g.outOfZone) {
+      if (q.isRod) {
+        i.line(q.a!.x, q.a!.y, q.b!.x, q.b!.y, bad);
+      } else {
+        canvas.drawCircle(Offset(q.c!.x, q.c!.y), q.r, i.stroke(i.c.goal, 6, .5));
+      }
+    }
     if (a != null && a.type == 'draft') {
       final d = a.d!;
       if (d.isRod) {
@@ -226,6 +234,8 @@ class _BuildLayer extends Component {
       } else {
         i.magnet(d.c!.x, d.c!.y, d.r, d.k, false, .6);
       }
+      // roda ou ímã que não cabe inteiro na área verde fica vermelho
+      if (!d.isRod && !partInZone(d, g.level.zone)) canvas.drawCircle(Offset(d.c!.x, d.c!.y), d.r, i.stroke(i.c.goal, 6, .5));
     }
     if (a != null && a.type == 'band') {
       final r = R.fromPoints(a.a!, a.b!);

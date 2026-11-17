@@ -91,6 +91,8 @@ class Act {
   String? et;
   Pt? down;
   Map<Part, String> clash0 = const {}; // barras que já estavam mal postas antes do arraste
+  Set<Part> out0 = const {}; // peças que já estavam fora da área verde antes do arraste
+  double inset = 0; // raio da roda ou ímã cujo centro está sendo arrastado
   Act(this.type);
 }
 
