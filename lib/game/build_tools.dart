@@ -132,6 +132,36 @@ mixin _BuildTools on GameState {
     return true;
   }
 
+  // ---------- área de construção ----------
+  /// Peças que saem da área verde (rodas e ímãs contam o círculo inteiro).
+  List<Part> get outOfZone => [for (final q in parts) if (!partInZone(q, level.zone)) q];
+
+  /// Recusa a mudança se ela deixou alguma peça para fora da área verde.
+  bool _newOutOfZone(Set<Part> before) {
+    if (!outOfZone.any((q) => !before.contains(q))) return false;
+    _deny(tr('A peça precisa caber inteira na área verde.'));
+    return true;
+  }
+
+  /// Retângulo que envolve a seleção, contando o raio das rodas e dos ímãs.
+  ({double x0, double x1, double y0, double y1}) _selBox() {
+    final xs = <double>[], ys = <double>[];
+    void add(double x, double y, double r) {
+      xs..add(x - r)..add(x + r);
+      ys..add(y - r)..add(y + r);
+    }
+    for (final q in sel) {
+      if (q.isRod) {
+        add(q.a!.x, q.a!.y, 0);
+        add(q.b!.x, q.b!.y, 0);
+      } else {
+        add(q.c!.x, q.c!.y, q.r);
+      }
+    }
+    if (selBall) add(ball0.x, ball0.y, 0);
+    return (x0: xs.reduce(math.min), x1: xs.reduce(math.max), y0: ys.reduce(math.min), y1: ys.reduce(math.max));
+  }
+
   // ---------- seleção ----------
   List<Pt> _selPoints() => [for (final q in sel) ...q.points, if (selBall) ball0];
 
@@ -179,8 +209,8 @@ mixin _BuildTools on GameState {
         for (final pt in q.points) {
           pt.x = rnd(pt.x + o[0]);
           pt.y = rnd(pt.y + o[1]);
-          if (!level.zone.contains(pt)) ok = false;
         }
+        if (!partInZone(q, level.zone)) ok = false;
       }
       if (!ok) continue;
       if (clashes([...parts, ...cl], level, ball0).keys.any((q) => !before.containsKey(q))) continue;
@@ -220,9 +250,9 @@ mixin _BuildTools on GameState {
       }
     }
 
-    final before = clashMap, old = [for (final p in pts) p.copy()];
+    final before = clashMap, out0 = outOfZone.toSet(), old = [for (final p in pts) p.copy()];
     place(next);
-    final refused = _newClash(before);
+    final refused = _newOutOfZone(out0) || _newClash(before);
     place(old);
     if (refused) return notifyListeners();
     _pushUndo();
@@ -346,6 +376,8 @@ mixin _BuildTools on GameState {
       }
       _pushUndo();
       action = Act('drag')
+        ..out0 = outOfZone.toSet()
+        ..inset = [for (final q in parts) if (q.isCircle && refs.contains(q.c)) q.r].fold(0.0, math.max)
         ..clash0 = clashMap
         ..refs = refs
         ..followers = followers
@@ -360,11 +392,12 @@ mixin _BuildTools on GameState {
         final pts = _selPoints();
         _pushUndo();
         action = Act('selmove')
+          ..out0 = outOfZone.toSet()
           ..clash0 = clashMap
           ..start = p
           ..q = q
           ..onBall = onBall
-          ..bb = _bbox(pts)
+          ..bb = _selBox()
           ..orig = [for (final pt in pts) (pt, pt.x, pt.y)];
       } else {
         action = Act('band')
@@ -399,7 +432,9 @@ mixin _BuildTools on GameState {
     if (a == null) return;
     switch (a.type) {
       case 'drag':
-        final c = clampToRect(p, level.zone), cx = rnd(c.x), cy = rnd(c.y);
+        // o centro de uma roda ou ímã arrastado fica a um raio da borda da área verde
+        final z = level.zone, m = math.min(a.inset, math.min(z.w, z.h) / 2);
+        final c = clampToRect(p, R(z.x + m, z.y + m, z.w - 2 * m, z.h - 2 * m)), cx = rnd(c.x), cy = rnd(c.y);
         for (final pt in a.refs) {
           pt.x = cx;
           pt.y = cy;
@@ -450,10 +485,10 @@ mixin _BuildTools on GameState {
 
     switch (a.type) {
       case 'drag':
-        if (_newClash(a.clash0)) return revert();
+        if (_newOutOfZone(a.out0) || _newClash(a.clash0)) return revert();
         _saveBuild();
       case 'selmove':
-        if (a.moved && _newClash(a.clash0)) return revert();
+        if (a.moved && (_newOutOfZone(a.out0) || _newClash(a.clash0))) return revert();
         if (a.moved) {
           _saveBuild();
         } else {
@@ -495,6 +530,7 @@ mixin _BuildTools on GameState {
           fx(Sfx.place);
         } else {
           d.r = d.r.roundToDouble();
+          if (!partInZone(d, level.zone)) return _deny(tr('A peça precisa caber inteira na área verde.'));
           final before = clashMap;
           parts.add(d);
           if (_newClash(before)) {

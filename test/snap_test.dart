@@ -41,4 +41,14 @@ void main() {
     expect(g.parts.length, n);
     expect(g.hint, contains('não pode'));
   });
+
+  test('roda que não cabe inteira na área verde é recusada', () {
+    final g = GameController(Store(null));
+    final n = g.parts.length;
+    g.setTool('cw');
+    g.pointerDown(1, Pt(50, 470)); // área verde começa em x = 40: uma roda de raio 28 sai pela esquerda
+    g.pointerUp(1);
+    expect(g.parts.length, n);
+    expect(g.hint, contains('inteira'));
+  });
 }

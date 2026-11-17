@@ -298,6 +298,8 @@ class Sim {
           enableSensorEvents: true,
           filter: Filter(categoryBits: catRod, maskBits: catEnv | catBall | catScen | catCirc | catRod),
         );
+        // ponta presa na argola de uma roda: tem massa, mas não bate em nada
+        final rimDef = ShapeDef(density: _dPart, filter: Filter(categoryBits: catRod, maskBits: 0));
         if (q.k == 'solid') {
           // Madeira em três pedaços (ponta, meio, ponta): na junta só as pontas se
           // ignoram; o resto da barra bate em tudo, inclusive em outra barra presa ali.
@@ -308,12 +310,15 @@ class Sim {
           final e = math.min(12.0, len / 3);
           for (final (from, to) in [(0.0, e), (e, len - e), (len - e, len)]) {
             final mid = from > 0 && to < len;
+            // ponta presa numa argola da borda de uma roda: quem bate é a roda (o
+            // círculo dela), não a ponta da barra, que fica um pouco para fora
+            final onRim = !mid && onWheelRim(from == 0 ? q.a! : q.b!, parts);
             final piece = b.createShape(
               mid
                   ? Polygon.offsetBox((to - from) / 2 / kScale + 2 / kScale, 4 / kScale,
                       center: Vector2((from + to) / 2 - len / 2, 0) / kScale, rotation: 0)
                   : Capsule(center1: Vector2(from - len / 2, 0) / kScale, center2: Vector2(to - len / 2, 0) / kScale, radius: 4 / kScale),
-              solidDef,
+              onRim ? rimDef : solidDef,
             );
             _tag(piece);
             pieces.add((b, piece, along(from), along(to), 4));
@@ -327,7 +332,7 @@ class Sim {
           );
           _tag(sh);
           for (final (x, end) in [(-len / 2, q.a!), (len / 2, q.b!)]) {
-            final tip = b.createShape(Circle(radius: kTipR / kScale, center: Vector2(x, 0) / kScale), solidDef);
+            final tip = b.createShape(Circle(radius: kTipR / kScale, center: Vector2(x, 0) / kScale), onWheelRim(end, parts) ? rimDef : solidDef);
             _tag(tip);
             pieces.add((b, tip, end, end, kTipR));
           }

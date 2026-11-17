@@ -14,6 +14,15 @@ typedef ChangelogEntry = ({String version, String date, List<String> items});
 
 const List<ChangelogEntry> kChangelog = [
   (
+    version: '0.23.00',
+    date: '2026-11-17',
+    items: [
+      'Rodas, ímãs e barras precisam caber inteiros na área de construção; o que passa da borda fica vermelho e não é construído.',
+      'A área de construção vai até o chão.',
+      'As argolas na borda das rodas não batem em nada: quem bate é o círculo da roda.',
+    ],
+  ),
+  (
     version: '0.22.00',
     date: '2026-11-17',
     items: [

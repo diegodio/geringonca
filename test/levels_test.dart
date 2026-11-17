@@ -126,16 +126,16 @@ List<Part> buttonPresser(double x, [double r = 24]) => [wh('ccw', x, 500 - r - 4
 Map<String, (List<Part>, Pt?)> solutionsWithBall() {
   final l = {for (final lv in kBuiltin) lv.id!: lv};
   (List<Part>, Pt?) p(List<Part> parts) => (parts, null);
-  final car12 = [wh('cw', 140, 470, 40), wh('cw', 360, 470, 40), rod(140, 470, 360, 470), rod(140, 470, 250, 440), rod(250, 440, 360, 470)];
+  final car12 = [wh('cw', 130, 460, 40), wh('cw', 330, 460, 40), rod(130, 460, 330, 460), rod(130, 460, 250, 434), rod(250, 434, 330, 460)];
   final (cage50, ball50) = cageB(300, 50, w: 70);
   return {
     // ---------- capítulo 1: Oficina ----------
     'l1': p(axle(l['l1']!, 60)),
-    'l8': p(axle(l['l8']!, 60, 'ccw')),
+    'l8': ([Part.wheel('ccw', Pt(830, 440), 60)], Pt(830, 440)),
     'l14': p(axle(l['l14']!, 60)),
     'l9': p(axle(l['l9']!, 40)),
     // uma roda sem motor em cima do botão, outra leva a bola
-    'l7': p([wh('free', 60, 472, 28), ...axle(l['l7']!, 60)]),
+    'l7': p([wh('free', 70, 472, 28), ...axle(l['l7']!, 60)]),
     'l10': p(pusher(l['l10']!, 28)),
     // roda grande sem motor desce a ladeira e passa o degrau
     'l2': ([Part.wheel('free', Pt(170, 240), 60)], Pt(170, 240)),
@@ -146,14 +146,14 @@ Map<String, (List<Part>, Pt?)> solutionsWithBall() {
     'l23': p([rod(370, 488, 730, 488), wh('cw', 120, 440, 40)]),
     // a barra se apoia na quina do bloco, sem entrar nele
     'l24': p([rod(380, 490, 640, 354), wh('cw', 150, 440, 40)]),
-    'l11': p(rigid(l['l11']!, 40, 130)),
-    'l25': ([wh('cw', 60, 440, 60), wh('cw', 280, 440, 60), rod(60, 440, 280, 440), rod(60, 440, 170, 400), rod(280, 440, 170, 400)], Pt(170, 400)),
+    'l11': ([wh('cw', 80, 460, 40), wh('cw', 300, 460, 40), rod(80, 460, 300, 460), rod(80, 460, 190, 434), rod(190, 434, 300, 460)], Pt(190, 434)),
+    'l25': ([wh('cw', 100, 440, 60), wh('cw', 290, 440, 60), rod(100, 440, 290, 440), rod(100, 440, 195, 400), rod(290, 440, 195, 400)], Pt(195, 400)),
     'l57': p(axle(l['l57']!, 28)),
     // roda grande sobe o morro íngreme e empurra a bola do topo
     'l58': p([wh('cw', 160, 440, 60), rod(160, 440, 130, 400, 'water')]),
-    'l18': p([wh('cw', 50, 474, 24), wh('cw', 150, 474, 24), rod(50, 474, 150, 474), rod(50, 474, 289, 402), rod(150, 474, 289, 402)]),
-    'l67': cageB(170, 60),
-    'l64': cageB(170, 60),
+    'l18': p([wh('cw', 66, 476, 24), wh('cw', 166, 476, 24), rod(66, 476, 166, 476), rod(66, 476, 289, 402), rod(166, 476, 289, 402)]),
+    'l67': cageB(175, 60, w: 75),
+    'l64': cageB(180, 60),
     'l30': p([rod(230, 488, 500, 488), rod(540, 488, 815, 488), wh('cw', 120, 440, 40)]),
     // ---------- capítulo 3: Carga solta ----------
     'l19': p(cage(l['l19']!.ball, 28)),
@@ -164,16 +164,16 @@ Map<String, (List<Part>, Pt?)> solutionsWithBall() {
       wh('cw', 90, 460, 40), wh('cw', 250, 460, 40), rod(90, 460, 250, 460), //
       rod(90, 460, 140, 380), rod(250, 460, 200, 380), rod(140, 380, 200, 380),
     ], Pt(170, 434)),
-    'l63': cageB(170, 60, floor: 400),
+    'l63': cageB(170, 60, floor: 400, w: 70),
     'l28': p([rod(370, 488, 730, 488), ...cage(l['l28']!.ball, 28)]),
-    'l56': cageB(160, 50, w: 80, h: 60, half: 50),
-    'l59': p(cage(l['l59']!.ball, 60, floor: 250)),
-    'l60': cageB(150, 40, floor: 250),
+    'l56': cageB(170, 50, w: 80, h: 60, half: 50),
+    'l59': cageB(180, 60, floor: 250),
+    'l60': cageB(160, 40, floor: 250, w: 70),
     // ---------- capítulo 4: Gravidade ----------
     'l13': p([wh('free', 90, 197, 28)]),
     // rampa em triângulo: a bola desce embalada do poleiro
     'l51': p([rod(150, 215, 360, 490), rod(150, 215, 150, 495), rod(150, 495, 360, 490)]),
-    'l15': p([rod(200, 490, 250, 220), wh('free', 250, 220, 28)]),
+    'l15': p([rod(200, 490, 230, 220), wh('free', 230, 220, 28)]),
     'l16': p([rod(670, 490, 670, 300), rod(730, 490, 670, 300), rod(670, 490, 730, 490)]),
     // rampa no canto direito devolve a bola para baixo da prateleira
     'l52': p([rod(970, 330, 700, 492), rod(970, 330, 970, 495), rod(970, 495, 700, 492)]),
@@ -187,7 +187,7 @@ Map<String, (List<Part>, Pt?)> solutionsWithBall() {
     // ---------- capítulo 5: Cenário vivo ----------
     'l6': p(axle(l['l6']!, 60)),
     'l53': p(axle(l['l53']!, 60)),
-    'l5': p([wh('cw', 60, 470, 60), wh('cw', 280, 470, 60), rod(60, 470, 280, 470), rod(60, 470, 170, 440), rod(170, 440, 280, 470)]),
+    'l5': ([wh('cw', 100, 440, 60), wh('cw', 290, 440, 60), rod(100, 440, 290, 440), rod(100, 440, 195, 400), rod(290, 440, 195, 400)], Pt(195, 400)),
     'l31': p(axle(l['l31']!, 40)),
     'l33': p(axle(l['l33']!, 28)),
     'l32': p(axle(l['l32']!, 60)),
@@ -197,11 +197,11 @@ Map<String, (List<Part>, Pt?)> solutionsWithBall() {
     // carro com antena: a ponta passa embaixo da plataforma e aperta o botão
     'l65': p([...rigid(l['l65']!, 28, 70), rod(170, 440, 170, 315), rod(240, 470, 170, 315)]),
     // ---------- capítulo 6: Ímãs e braços ----------
-    'l41': p([wh('free', 420, 478, 28), Part.mag('N', Pt(470, 478)), rod(420, 478, 470, 478)]),
-    'l42': p([wh('free', 200, 478, 28), Part.mag('N', Pt(110, 470)), rod(200, 478, 110, 470)]),
+    'l41': ([wh('free', 420, 472, 28), Part.mag('N', Pt(470, 478)), rod(420, 472, 470, 478)], Pt(420, 472)),
+    'l42': ([wh('free', 200, 472, 28), Part.mag('N', Pt(110, 470)), rod(200, 472, 110, 470)], Pt(200, 472)),
     // o ímã norte na frente é puxado para cima do calombo
     'l4': p([...axle(l['l4']!, 60), rod(170, 440, 250, 420), Part.mag('N', Pt(250, 420))]),
-    'l43': p([wh('free', 180, 478, 28), Part.mag('N', Pt(100, 470)), rod(180, 478, 100, 470), Part.mag('N', Pt(260, 470)), rod(180, 478, 260, 470)]),
+    'l43': ([wh('free', 180, 472, 28), Part.mag('N', Pt(100, 470)), rod(180, 472, 100, 470), Part.mag('N', Pt(260, 470)), rod(180, 472, 260, 470)], Pt(180, 472)),
     'l44': ([
       wh('free', 350, 472, 28), wh('free', 490, 472, 28), rod(350, 472, 490, 472), //
       rod(350, 472, 420, 400), rod(490, 472, 420, 400), Part.mag('N', Pt(535, 460)), rod(490, 472, 535, 460),
@@ -215,12 +215,12 @@ Map<String, (List<Part>, Pt?)> solutionsWithBall() {
     ]),
     // ---------- capítulo 7: Mestre de obras ----------
     // carro em triângulo e uma roda solta em cima do botão
-    'l12': p([...car12, wh('free', 55, 476, 24)]),
+    'l12': ([...car12, wh('free', 66, 476, 24)], Pt(250, 434)),
     'l37': p(cage(l['l37']!.ball, 28)),
     'l38': cageB(170, 40),
     'l39': p([wh('cw', 330, 440, 28), wh('ccw', 190, 472, 28), rod(190, 472, 210, 440, 'water')]),
     'l48': p([...crane(300, 380, Pt(150, 230)), wh('ccw', 130, 472, 24), rod(130, 472, 135, 430, 'water')]),
-    'l40': p([...cage(Pt(300, 440), 28), wh('ccw', 170, 472, 24), rod(170, 472, 175, 430, 'water')]),
+    'l40': ([...cageB(290, 28, w: 70).$1, wh('ccw', 176, 476, 24), rod(176, 476, 181, 434, 'water')], cageB(290, 28, w: 70).$2),
     'l49': p([rod(420, 488, 560, 488), wh('cw', 330, 440, 60), wh('ccw', 140, 472, 24), rod(140, 472, 145, 430, 'water')]),
     'l50': ([rod(420, 488, 560, 488), ...cage50, wh('ccw', 160, 472, 24), rod(160, 472, 165, 430, 'water')], ball50),
   };
@@ -240,7 +240,7 @@ Map<String, Map<String, List<Part>>> tooSimple() {
     'l4': {'roda grande sem ímã': axle(l['l4']!, 60), 'carro rígido sem ímã': rigid(l['l4']!, 60, 130)},
     'l22': {'carrinho de exemplo': sampleFor(l['l22']!, l['l22']!.ball)!, 'empurrador': pusher(l['l22']!, 28)},
     'l46': {'roda grande': axle(l['l46']!, 60)},
-    'l12': {'carro sem peso no botão': [wh('cw', 140, 470, 40), wh('cw', 360, 470, 40), rod(140, 470, 360, 470), rod(140, 470, 250, 440), rod(250, 440, 360, 470)]},
+    'l12': {'carro sem peso no botão': [wh('cw', 130, 460, 40), wh('cw', 330, 460, 40), rod(130, 460, 330, 460), rod(130, 460, 250, 434), rod(250, 434, 330, 460)]},
     'l53': {'nada': none()},
     'l56': {'nada': none()},
     'l64': {'roda grande': axle(l['l64']!, 60), 'carro rígido': rigid(l['l64']!, 60, 130)},
@@ -316,7 +316,7 @@ void main() {
   for (final MapEntry(key: id, value: (parts, ball0)) in solutionsWithBall().entries) {
     test('$id ${_lv(id).name}: vence e ganha as três medalhas', () {
       final lv = _lv(id), tg = lv.targets, ball = ball0 ?? lv.ball;
-      expect(parts.every((q) => q.points.every(lv.zone.contains)), isTrue, reason: 'solução fora da área verde');
+      expect(parts.where((q) => !partInZone(q, lv.zone)).map((q) => q.toJson()).toList(), isEmpty, reason: 'peça saindo da área verde');
       if (ball0 != null) expect(lv.zone.contains(ball0), isTrue, reason: 'a bola só pode ser posta na área verde');
       expect(clashes(parts, lv, ball), isEmpty, reason: 'barra sobrepondo uma peça, a bola ou o cenário');
       expect(parts.every((q) => lv.allowed == null || lv.allowed!.contains(toolOf(q))), isTrue, reason: 'solução usa peça proibida na fase');

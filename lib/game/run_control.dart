@@ -41,6 +41,10 @@ mixin _RunControl on GameState {
       _deny(tr('Esta fase não permite {p}. Apague essas peças para rodar.', {'p': bad.join(', ')}));
       return notifyListeners();
     }
+    if (!isReplay && ps.any((q) => !partInZone(q, level.zone))) {
+      _deny(tr('Há peças saindo da área verde (em vermelho). Ajuste antes de rodar.'));
+      return notifyListeners();
+    }
     if (!isReplay && clashes(ps, level, b).isNotEmpty) {
       _deny(tr('Há barras cruzando peças, a bola ou o cenário (em vermelho). Ajuste antes de rodar.'));
       return notifyListeners();

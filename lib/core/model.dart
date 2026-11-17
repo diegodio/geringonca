@@ -381,7 +381,18 @@ class Level {
   String get signature => (toJson(withId: false)..remove('verified')).toString();
 }
 
-R zone0() => R(40, 270, 310, 220);
+R zone0() => R(40, 270, 310, 230); // até o chão (y = 500)
+
+/// O ponto está numa das 4 argolas da borda de alguma roda de [parts]?
+bool onWheelRim(Pt p, List<Part> parts) => parts.any((w) => w.isWheel && w.perim.any((pp) => dist(p, pp) < .75));
+
+/// A peça cabe inteira na área de construção? Barras: as duas pontas dentro.
+/// Rodas e ímãs: o círculo todo dentro (não só o centro).
+bool partInZone(Part q, R z) {
+  if (q.isRod) return z.contains(q.a!) && z.contains(q.b!);
+  final c = q.c!, r = q.r, e = 1e-6;
+  return c.x - r >= z.x - e && c.x + r <= z.x + z.w + e && c.y - r >= z.y - e && c.y + r <= z.y + z.h + e;
+}
 
 /// Altura (y) da superfície do morro [r] na posição [x]: uma lombada de cosseno,
 /// plana nos pés e no topo, para a bola e as rodas rolarem sem tranco.
