@@ -70,7 +70,8 @@ extension _Editor on _GamePageState {
         TB(c: c, small: true, icon: Icons.grid_4x4, label: 'Grade', tooltip: 'Encaixar de 20 em 20 cm (desligada: de 5 em 5)', pressed: g.egrid, onTap: g.toggleGrid),
         TB(c: c, small: true, label: 'Chão', pressed: lv.ground, onTap: g.toggleGround),
         TB(c: c, small: true, icon: Icons.flip, label: 'Espelhar', tooltip: 'Inverter a fase da esquerda para a direita', onTap: g.mirrorLevel),
-        TB(c: c, small: true, icon: Icons.undo, label: 'Desfazer', onTap: g.editUndo),
+        TB(c: c, small: true, icon: Icons.undo, label: 'Desfazer', onTap: g.canEditUndo ? g.editUndo : null),
+        TB(c: c, small: true, icon: Icons.redo, label: 'Refazer', onTap: g.canEditRedo ? g.editRedo : null),
       ]),
       if (g.selected != null) _selPanel(c),
     ];

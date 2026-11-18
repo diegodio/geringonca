@@ -195,7 +195,10 @@ class _BuildLayer extends Component {
   _BuildLayer(this.game) : super(priority: 5);
 
   @override
-  void render(Canvas canvas) {
+  void render(Canvas canvas) => paintBuild(game, canvas);
+
+  /// Desenha a bola, as peças e o que está sendo montado. A lupa usa também.
+  static void paintBuild(OficinaGame game, Canvas canvas) {
     final g = game.g, i = game.ink.on(canvas);
     if (g.mode == Mode.run) return;
     final bp = g.mode == Mode.edit ? g.cur.ball : g.ball0;
@@ -327,6 +330,7 @@ class _Hud extends Component {
   @override
   void render(Canvas canvas) {
     final g = game.g, s = g.sim;
+    if (g.mode == Mode.build) _lens(canvas);
     if (g.mode != Mode.run || s == null) return;
     final i = game.ink.on(canvas);
     final hs = clampD((14 * kW / math.max(1, game.size.x)).roundToDouble(), 14, 30);
@@ -341,6 +345,47 @@ class _Hud extends Component {
       final sp = g.speed == 1 ? '' : g.speed == .5 ? '½×' : '¼×';
       i.text([if (g.paused) tr('PAUSADO'), if (sp.isNotEmpty) tr('CÂMERA LENTA {s}', {'s': sp})].join(' · '), 16, 12 + hs * line, i.c.goal, size: hs);
     }
+  }
+}
+
+extension _Lens on _Hud {
+  /// Lupa: enquanto o dedo arrasta a ponta de uma barra (ou uma junta), mostra
+  /// ampliado o que está embaixo dele, num círculo acima do dedo.
+  void _lens(Canvas canvas) {
+    final g = game.g, a = g.action;
+    if (a == null) return;
+    final Pt p;
+    if (a.type == 'draft' && a.d!.isRod) {
+      p = a.d!.b!;
+    } else if (a.type == 'drag' && a.refs.isNotEmpty) {
+      p = a.refs.first;
+    } else {
+      return;
+    }
+    final cam = g.cam;
+    final s = Offset((p.x - cam.x) * cam.z, (p.y - cam.y) * cam.z); // onde está o dedo, na bancada
+    final u = kW / math.max(1, game.size.x); // unidades da bancada por pixel de tela
+    final r = 54 * u, gap = 46 * u;
+    var c = s.translate(0, -(r + gap)); // acima do dedo; sem espaço, embaixo
+    if (c.dy - r < 0) c = s.translate(0, r + gap);
+    c = Offset(clampD(c.dx, r, kW - r), c.dy);
+    const mag = 3.0; // aumento em relação ao que está na tela
+    canvas.save();
+    canvas.clipPath(Path()..addOval(Rect.fromCircle(center: c, radius: r)));
+    canvas.translate(c.dx, c.dy);
+    canvas.scale(cam.z * mag);
+    canvas.translate(-p.x, -p.y);
+    final i = game.ink.on(canvas);
+    i.grid();
+    i.zones(g.cur);
+    i.scenery(g.cur, null, rulers: false);
+    _BuildLayer.paintBuild(game, canvas);
+    canvas.restore();
+    final ink = game.ink.on(canvas);
+    canvas.drawCircle(c, r, ink.stroke(ink.c.ink, 2 * u));
+    final cross = ink.stroke(ink.c.accent, 1.5 * u);
+    canvas.drawLine(c.translate(-7 * u, 0), c.translate(7 * u, 0), cross);
+    canvas.drawLine(c.translate(0, -7 * u), c.translate(0, 7 * u), cross);
   }
 }
 

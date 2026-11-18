@@ -1122,4 +1122,10 @@ const kEn = <String, String>{
       'The build area reaches down to the ground.',
   'As argolas na borda das rodas não batem em nada: quem bate é o círculo da roda.':
       'The rings on a wheel\'s rim don\'t hit anything: the wheel\'s circle does.',
+  'Refazer':
+      'Redo',
+  'Botão Refazer ao lado do Desfazer, na construção e no editor.':
+      'Redo button next to Undo, when building and in the editor.',
+  'Lupa: ao arrastar a ponta de uma barra ou uma junta, um círculo acima do dedo mostra ampliado o que está embaixo dele.':
+      'Magnifier: when you drag a bar\'s end or a joint, a circle above your finger shows what\'s under it, enlarged.',
 };

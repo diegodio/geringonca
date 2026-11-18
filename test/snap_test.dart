@@ -51,4 +51,25 @@ void main() {
     expect(g.parts.length, n);
     expect(g.hint, contains('inteira'));
   });
+
+  test('desfazer e refazer na construção; uma mudança nova apaga o refazer', () {
+    final g = GameController(Store(null));
+    final n = g.parts.length;
+    g.clear();
+    expect(g.parts, isEmpty);
+    expect(g.canRedo, isFalse);
+    g.undo();
+    expect(g.parts.length, n);
+    expect(g.canRedo, isTrue);
+    g.redo();
+    expect(g.parts, isEmpty);
+    g.undo();
+    expect(g.parts.length, n);
+    // tocar sem mexer não apaga o refazer; uma peça nova apaga
+    g.setTool('cw');
+    g.pointerDown(1, Pt(200, 300));
+    g.pointerUp(1);
+    expect(g.parts.length, n + 1);
+    expect(g.canRedo, isFalse);
+  });
 }

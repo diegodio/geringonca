@@ -31,7 +31,8 @@ extension _Dock on _GamePageState {
       IconBtn(c: c, icon: Icons.open_with, tooltip: 'Mover juntas e a bola', pressed: g.tool == 'move', onTap: () => g.setTool('move')),
       IconBtn(c: c, icon: Icons.highlight_alt, tooltip: 'Selecionar', pressed: g.tool == 'select', onTap: () => g.setTool('select')),
       IconBtn(c: c, icon: Icons.delete_outline, tooltip: 'Apagar peça', pressed: g.tool == 'del', onTap: () => g.setTool('del')),
-      IconBtn(c: c, icon: Icons.undo, tooltip: 'Desfazer', onTap: g.undo),
+      IconBtn(c: c, icon: Icons.undo, tooltip: 'Desfazer', onTap: g.canUndo ? g.undo : null),
+      IconBtn(c: c, icon: Icons.redo, tooltip: 'Refazer', onTap: g.canRedo ? g.redo : null),
       IconBtn(
           c: c,
           icon: g.snapOn ? Icons.link : Icons.link_off,

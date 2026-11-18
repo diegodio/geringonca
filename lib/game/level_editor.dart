@@ -11,6 +11,7 @@ mixin _LevelEditor on GameState {
   @override
   String get etoolName => etool;
   final List<String> _editUndo = [];
+  final List<String> _editRedo = [];
 
   /// Incrementado quando o editor precisa reler nome, dica e metas (desfazer, metas sugeridas).
   int editRev = 0;
@@ -31,6 +32,7 @@ mixin _LevelEditor on GameState {
     if (mode == Mode.run) stop();
     editLevel = lv;
     _editUndo.clear();
+    _editRedo.clear();
     esel = null;
     testBest = null;
     _testParts = [];
@@ -80,13 +82,30 @@ mixin _LevelEditor on GameState {
   void _pushEU() {
     _editUndo.add(jsonEncode(editLevel!.toJson()));
     if (_editUndo.length > 100) _editUndo.removeAt(0);
+    _editRedo.clear();
     editLevel!.verified = false;
     testBest = null;
   }
 
+  bool get canEditUndo => _editUndo.isNotEmpty;
+  bool get canEditRedo => _editRedo.isNotEmpty;
+
+  /// Refaz o que o Desfazer do editor desfez (até a próxima mudança nova).
+  void editRedo() {
+    if (_editRedo.isEmpty) return;
+    _editUndo.add(jsonEncode(editLevel!.toJson()));
+    _restoreEdit(_editRedo.removeLast());
+  }
+
   void editUndo() {
     if (_editUndo.isEmpty) return;
-    editLevel = Level.fromJson(jsonDecode(_editUndo.removeLast()));
+    _editRedo.add(jsonEncode(editLevel!.toJson()));
+    _restoreEdit(_editUndo.removeLast());
+  }
+
+  void _restoreEdit(String snap) {
+    final id = editLevel!.id;
+    editLevel = Level.fromJson(jsonDecode(snap))..id = id;
     esel = null;
     testBest = null;
     editRev++;
@@ -555,6 +574,7 @@ mixin _LevelEditor on GameState {
     _pending = null;
     _editUndo.add(pend);
     if (_editUndo.length > 100) _editUndo.removeAt(0);
+    _editRedo.clear();
     editLevel!.verified = false;
     testBest = null;
   }

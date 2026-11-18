@@ -5,6 +5,8 @@ mixin _BuildTools on GameState {
   @override
   String tool = 'rod';
   final List<String> _undo = [];
+  final List<String> _redo = [];
+  List<String> _redoKeep = []; // o refazer de antes de uma mudança que acabou não acontecendo
   Set<Part> sel = {};
   bool selBall = false;
   Pt? snapHint;
@@ -54,12 +56,40 @@ mixin _BuildTools on GameState {
 
   // ---------- desfazer ----------
   void _pushUndo() {
-    _undo.add(jsonEncode({'parts': parts.map((q) => q.toJson()).toList(), 'ball': ball0.toJson()}));
+    _undo.add(_buildSnap());
     if (_undo.length > 100) _undo.removeAt(0);
+    // mudança nova: o que dava para refazer se perde (guardado, caso a mudança desista)
+    _redoKeep = List.of(_redo);
+    _redo.clear();
   }
 
   @override
-  void _clearUndo() => _undo.clear();
+  void _clearUndo() {
+    _undo.clear();
+    _redo.clear();
+  }
+
+  String _buildSnap() => jsonEncode({'parts': parts.map((q) => q.toJson()).toList(), 'ball': ball0.toJson()});
+
+  /// Uma mudança registrada que acabou não acontecendo (arraste cancelado, toque sem mover).
+  void _dropUndo() {
+    if (_undo.isNotEmpty) _undo.removeLast();
+    _redo
+      ..clear()
+      ..addAll(_redoKeep);
+  }
+
+  bool get canUndo => _undo.isNotEmpty;
+  bool get canRedo => _redo.isNotEmpty;
+
+  void _restoreBuild(String snap) {
+    final o = jsonDecode(snap) as Map;
+    parts = (o['parts'] as List).map((q) => Part.fromJson(q)).whereType<Part>().toList();
+    ball0 = Pt.fromJson(o['ball'])!;
+    _clearSel();
+    _saveBuild();
+    notifyListeners();
+  }
 
   @override
   void _clearSel() {
@@ -70,12 +100,16 @@ mixin _BuildTools on GameState {
   void undo() {
     if (_undo.isEmpty) return;
     fx(Sfx.undo);
-    final o = jsonDecode(_undo.removeLast()) as Map;
-    parts = (o['parts'] as List).map((q) => Part.fromJson(q)).whereType<Part>().toList();
-    ball0 = Pt.fromJson(o['ball'])!;
-    _clearSel();
-    _saveBuild();
-    notifyListeners();
+    _redo.add(_buildSnap());
+    _restoreBuild(_undo.removeLast());
+  }
+
+  /// Refaz o que o Desfazer desfez (até a próxima mudança nova).
+  void redo() {
+    if (_redo.isEmpty) return;
+    fx(Sfx.undo);
+    _undo.add(_buildSnap());
+    _restoreBuild(_redo.removeLast());
   }
 
   void clear() {
@@ -327,7 +361,7 @@ mixin _BuildTools on GameState {
         pt.x = x;
         pt.y = y;
       }
-      if (_undo.isNotEmpty) _undo.removeLast();
+      _dropUndo();
     }
     action = null;
     snapHint = null;
@@ -480,7 +514,7 @@ mixin _BuildTools on GameState {
         pt.x = x;
         pt.y = y;
       }
-      if (_undo.isNotEmpty) _undo.removeLast();
+      _dropUndo();
     }
 
     switch (a.type) {
@@ -492,7 +526,7 @@ mixin _BuildTools on GameState {
         if (a.moved) {
           _saveBuild();
         } else {
-          if (_undo.isNotEmpty) _undo.removeLast();
+          _dropUndo();
           if (a.q != null) {
             sel.remove(a.q);
           } else if (a.onBall) {
