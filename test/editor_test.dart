@@ -247,4 +247,17 @@ void main() {
       expect(g.progress.find(id)!.verified, isTrue);
     });
   });
+
+  test('editor: desfazer e refazer', () {
+    final g = GameController(Store(null))..newLevel();
+    g.setETool('block');
+    _drag(g, Pt(500, 300), Pt(600, 380));
+    expect(g.editLevel!.blocks, hasLength(1));
+    g.editUndo();
+    expect(g.editLevel!.blocks, isEmpty);
+    expect(g.canEditRedo, isTrue);
+    g.editRedo();
+    expect(g.editLevel!.blocks, hasLength(1));
+    expect(g.canEditRedo, isFalse);
+  });
 }
