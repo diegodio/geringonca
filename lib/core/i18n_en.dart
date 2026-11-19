@@ -1128,4 +1128,80 @@ const kEn = <String, String>{
       'Redo button next to Undo, when building and in the editor.',
   'Lupa: ao arrastar a ponta de uma barra ou uma junta, um círculo acima do dedo mostra ampliado o que está embaixo dele.':
       'Magnifier: when you drag a bar\'s end or a joint, a circle above your finger shows what\'s under it, enlarged.',
+  'Esse e-mail não parece válido.':
+      'That email doesn\'t look valid.',
+  'A senha precisa ter pelo menos 6 caracteres.':
+      'The password must have at least 6 characters.',
+  'Escolha um nome para aparecer no jogo.':
+      'Choose a name to show in the game.',
+  'Conta criada! Abra o link que enviamos para {e} e depois entre aqui.':
+      'Account created! Open the link we sent to {e} and then sign in here.',
+  'Escreva o seu e-mail acima e toque de novo em "Esqueci minha senha".':
+      'Type your email above and tap "Forgot my password" again.',
+  'Se houver uma conta com esse e-mail, chega um link para criar uma senha nova.':
+      'If there\'s an account with that email, a link to create a new password is on its way.',
+  'Senha nova salva.':
+      'New password saved.',
+  'Escolha a senha nova da sua conta.':
+      'Choose a new password for your account.',
+  'Sincronizando…':
+      'Syncing…',
+  'Progresso salvo na nuvem às {h}.':
+      'Progress saved to the cloud at {h}.',
+  'Progresso salvo na nuvem.':
+      'Progress saved to the cloud.',
+  'Todas as fases liberadas. O progresso e as fases que você cria ficam iguais em qualquer aparelho em que entrar.':
+      'All levels unlocked. Your progress and the levels you create stay the same on every device you sign in on.',
+  'Com uma conta você joga todas as fases (sem conta, só as {n} primeiras) e guarda o progresso e as suas fases na nuvem.':
+      'With an account you play every level (without one, only the first {n}) and keep your progress and your levels in the cloud.',
+  'Entrar':
+      'Sign in',
+  'Criar conta':
+      'Create account',
+  'Esqueci minha senha':
+      'Forgot my password',
+  'Salvar senha':
+      'Save password',
+  'Sincronizar agora':
+      'Sync now',
+  'Sair':
+      'Sign out',
+  'Sem conta você joga as {n} primeiras fases. Entre para liberar todas e guardar o progresso na nuvem.':
+      'Without an account you play the first {n} levels. Sign in to unlock them all and keep your progress in the cloud.',
+  'Só com conta':
+      'Account only',
+  'Sua conta':
+      'Your account',
+  'Entre na sua conta para jogar a partir da fase {n}.':
+      'Sign in to play from level {n} on.',
+  'A engenhoca de "{lv}" ficou guardada. Entre na sua conta para jogar esta fase.':
+      'The contraption for "{lv}" was saved. Sign in to play this level.',
+  'Senha nova':
+      'New password',
+  'Nome':
+      'Name',
+  'E-mail':
+      'Email',
+  'Senha':
+      'Password',
+  'E-mail ou senha incorretos.':
+      'Wrong email or password.',
+  'Confirme o e-mail antes de entrar: abra o link que enviamos.':
+      'Confirm your email before signing in: open the link we sent.',
+  'Já existe uma conta com esse e-mail.':
+      'There is already an account with that email.',
+  'Muitas tentativas seguidas. Espere um pouco e tente de novo.':
+      'Too many attempts in a row. Wait a bit and try again.',
+  'Sem conexão com o servidor. Confira a internet e tente de novo.':
+      'No connection to the server. Check your internet and try again.',
+  'Não deu certo. Tente de novo.':
+      'That didn\'t work. Try again.',
+  'Não deu para sincronizar agora.':
+      'Couldn\'t sync right now.',
+  'Entre na sua conta primeiro.':
+      'Sign in first.',
+  'Contas: sem conta você joga as 7 primeiras fases; com conta, todas, com o progresso e as suas fases salvos na nuvem.':
+      'Accounts: without one you play the first 7 levels; with one, all of them, with your progress and your levels saved in the cloud.',
+  'Corrigida a trava ao salvar uma fase do editor e voltar ao menu.':
+      'Fixed the freeze when saving a level in the editor and going back to the menu.',
 };

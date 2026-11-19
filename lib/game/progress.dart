@@ -5,7 +5,11 @@ import 'dart:math' as math;
 
 import '../core/levels.dart';
 import '../core/model.dart';
+import 'progress_sync.dart';
 import 'storage.dart';
+
+/// Sem conta, só as primeiras fases ficam abertas (quando o jogo tem servidor).
+const kGuestLevels = 7;
 
 /// Desafios extras: medalhas bônus que valem em qualquer fase, além de tempo,
 /// peças e custo. Nem toda fase permite todos; eles só aparecem depois de ganhos.
@@ -31,6 +35,10 @@ class Progress {
   late List<Level> custom;
   late final Map<String, dynamic> _builds, _balls, _medals, _recs, _bests, _badges, _tries;
   late final Set<String> _done;
+
+  /// Chamado quando o progresso ou as fases próprias mudam (a conta manda para a nuvem).
+  void Function()? onChanged;
+  void _changed() => onChanged?.call();
 
   Progress(this.store) {
     custom = store.get<List>('levels', []).map(Level.fromJson).toList();
@@ -65,14 +73,27 @@ class Progress {
   /// Uma fase já concluída continua aberta, mesmo que entre uma fase nova antes dela.
   bool isUnlocked(String id) {
     final i = kBuiltin.indexWhere((l) => l.id == id);
+    if (needsAccount(id)) return false;
     if (i <= 0 || _done.contains(id)) return true;
     return kBuiltin.take(i).where((l) => !_done.contains(l.id)).length <= 1;
   }
 
+  /// Sem conta, só as [kGuestLevels] primeiras fases prontas abrem. Nulo: sem
+  /// limite (o jogo não tem servidor, ou a pessoa entrou na conta).
+  int? guestLimit;
+
+  /// A fase só abre para quem entrou na conta?
+  bool needsAccount(String id) {
+    final lim = guestLimit;
+    if (lim == null) return false;
+    return kBuiltin.indexWhere((l) => l.id == id) >= lim;
+  }
+
   /// A fase que precisa ser concluída para liberar [id]: a primeira das anteriores por fazer.
+  /// Nulo também quando o que falta é entrar na conta (veja [needsAccount]).
   Level? blocker(String id) {
     final i = kBuiltin.indexWhere((l) => l.id == id);
-    if (i <= 0 || isUnlocked(id)) return null;
+    if (i <= 0 || isUnlocked(id) || needsAccount(id)) return null;
     return kBuiltin.take(i).firstWhere((l) => !_done.contains(l.id));
   }
 
@@ -115,6 +136,7 @@ class Progress {
     final n = ((_tries[id] as num?) ?? 0).toInt() + 1;
     _tries[id] = n;
     store.set('tries', _tries);
+    _changed();
     return n;
   }
 
@@ -160,13 +182,17 @@ class Progress {
     final all = {...had, ...now};
     _badges[id] = [for (final c in kChallenges) if (all.contains(c.$1)) c.$1];
     store.set('badges', _badges);
+    _changed();
     return WinRecord(m, fresh, unlocked, all, now.difference(had));
   }
 
   // ---------- fases próprias ----------
   String _newId() => 'c${DateTime.now().millisecondsSinceEpoch.toRadixString(36)}';
 
-  void _saveCustom() => store.set('levels', custom.map((l) => l.toJson()).toList());
+  void _saveCustom() {
+    store.set('levels', custom.map((l) => l.toJson()).toList());
+    _changed();
+  }
 
   /// Salva uma fase do editor. Mudou a fase, zera o progresso dela.
   String saveLevel(Level lv) {
@@ -224,5 +250,62 @@ class Progress {
     _balls[id] = ball?.toJson();
     store.set('builds', _builds);
     store.set('balls', _balls);
+  }
+
+  // ---------- nuvem ----------
+  /// O que vai para a nuvem (veja progress_sync.dart).
+  Map<String, dynamic> syncData() => {
+        'done': _done.toList()..sort(),
+        'medals': _medals,
+        'recs': _recs,
+        'bests': _bests,
+        'badges': _badges,
+        'tries': _tries,
+      };
+
+  /// Junta o progresso que veio da nuvem com o deste aparelho e grava o resultado.
+  Map<String, dynamic> mergeFrom(Map<String, dynamic> remote) {
+    final m = mergeProgress(syncData(), remote);
+    _done
+      ..clear()
+      ..addAll((m['done'] as List).whereType<String>());
+    for (final (key, mine) in [('medals', _medals), ('recs', _recs), ('bests', _bests), ('badges', _badges), ('tries', _tries)]) {
+      mine
+        ..clear()
+        ..addAll(Map<String, dynamic>.from(m[key] as Map));
+      store.set(key, mine);
+    }
+    store.set('done', _done.toList());
+    return m;
+  }
+
+  /// Id na nuvem de cada fase própria (id local -> id remoto).
+  late final Map<String, dynamic> _remote = Map<String, dynamic>.from(store.get<Map>('remote-levels', {}));
+  String? remoteIdOf(String localId) => _remote[localId] as String?;
+  Map<String, String> get remoteIds => _remote.map((k, v) => MapEntry(k, v as String));
+
+  void setRemoteId(String localId, String? remoteId) {
+    if (remoteId == null) {
+      _remote.remove(localId);
+    } else {
+      _remote[localId] = remoteId;
+    }
+    store.set('remote-levels', _remote);
+  }
+
+  /// Fase que veio da nuvem: entra (ou é atualizada) entre as fases próprias,
+  /// com o id local ligado ao da nuvem.
+  void putRemoteLevel(String remoteId, Level lv) {
+    final local = _remote.entries.where((e) => e.value == remoteId).map((e) => e.key).firstOrNull;
+    if (local != null && custom.any((c) => c.id == local)) {
+      lv.id = local;
+      custom = custom.map((c) => c.id == local ? lv : c).toList();
+    } else {
+      lv.id = 'r$remoteId';
+      custom.add(lv);
+      _remote[lv.id!] = remoteId;
+      store.set('remote-levels', _remote);
+    }
+    store.set('levels', custom.map((l) => l.toJson()).toList());
   }
 }

@@ -27,8 +27,13 @@ jobs:
       - run: flutter test
       # WebAssembly (com a versão JS para navegadores sem suporte) e o motor
       # gráfico servido junto do jogo (sem CDN), para o modo offline guardar tudo
-      # a versão do jogo vem do histórico em lib/core/changelog.dart
-      - run: flutter build web --wasm --release --no-web-resources-cdn --base-href "/geringonca/"
+      # a versão do jogo vem do histórico em lib/core/changelog.dart; o endereço e a chave
+      # pública do Supabase vêm das variáveis do repositório (veja docs/SUPABASE.md).
+      # Sem elas, o jogo sai sem conta e sem limite de fases.
+      - run: >-
+          flutter build web --wasm --release --no-web-resources-cdn --base-href "/geringonca/"
+          --dart-define=SUPABASE_URL=${{ vars.SUPABASE_URL }}
+          --dart-define=SUPABASE_PUBLISHABLE_KEY=${{ vars.SUPABASE_PUBLISHABLE_KEY }}
       # service worker com a lista de arquivos e a versão desta publicação
       - run: python3 tool/gen_sw.py build/web
       - uses: actions/upload-pages-artifact@v3

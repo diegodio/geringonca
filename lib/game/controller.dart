@@ -21,6 +21,7 @@ import '../core/levels.dart';
 import '../core/model.dart';
 import '../core/share.dart';
 import '../core/sim.dart';
+import 'account.dart';
 import 'fx.dart';
 import 'progress.dart';
 import 'storage.dart';
@@ -276,8 +277,23 @@ class GameController extends GameState with _BuildTools, _CameraInput, _RunContr
     notifyListeners();
   }
 
+  /// Conta do jogador (nula nos testes e quando o jogo não tem servidor).
+  Account? account;
+
+  /// Redesenha a tela depois de uma mudança de fora (a conta entrou ou saiu).
+  void refresh() {
+    if (!progress.isUnlocked(level.id!) && mode == Mode.build && !testing) selectLevel('l1');
+    notifyListeners();
+  }
+
+  static String get needsAccountText => tr('Entre na sua conta para jogar a partir da fase {n}.', {'n': kGuestLevels + 1});
+
   /// Troca de fase pela lista. Fases bloqueadas avisam o que falta.
   void chooseLevel(String id) {
+    if (progress.needsAccount(id)) {
+      _deny(needsAccountText);
+      return notifyListeners();
+    }
     final b = progress.blocker(id);
     if (b != null) {
       _deny(tr('Fase bloqueada: conclua "{b}" para liberar.', {'b': tr(b.name)}));
@@ -331,6 +347,11 @@ class GameController extends GameState with _BuildTools, _CameraInput, _RunContr
       progress.importBuild(id, normalizeParts(o['parts'], lv), ball != null && lv.zone.contains(ball) ? ball : null);
     }
     shareOpen = false;
+    if (progress.needsAccount(id)) {
+      say(tr('A engenhoca de "{lv}" ficou guardada. Entre na sua conta para jogar esta fase.', {'lv': tr(lv.name)}));
+      notifyListeners();
+      return false;
+    }
     final blocker = progress.blocker(id);
     if (blocker != null) {
       say(tr('A engenhoca de "{lv}" ficou guardada, mas a fase ainda está bloqueada: conclua "{b}" para liberar.', {'lv': tr(lv.name), 'b': tr(blocker.name)}));
