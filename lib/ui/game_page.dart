@@ -106,23 +106,34 @@ class _GamePageState extends State<GamePage> {
     if (g.testing) return g.backToEditor(); // no teste, voltar leva ao editor
     if (g.mode == Mode.edit) return g.tell(tr('Salve ou cancele a fase antes de voltar ao menu.'));
     if (g.mode == Mode.run) g.stop();
-    Navigator.of(context).maybePop();
+    // pop direto (não maybePop): o maybePop passaria de novo pelo PopScope e,
+    // com a tela recém-saída do editor, podia voltar aqui sem fim e travar o jogo
+    final nav = Navigator.of(context);
+    if (nav.canPop()) {
+      nav.pop();
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     final c = Palette.of(context);
     _game.palette = c;
-    return PopScope(
-      canPop: g.mode != Mode.edit && !g.testing,
-      onPopInvokedWithResult: (didPop, _) {
-        if (didPop) {
-          if (g.mode == Mode.run) g.stop();
-        } else {
-          _backToMenu();
-        }
-      },
-      child: Scaffold(
+    // o PopScope é refeito a cada mudança do jogo: o "pode sair" acompanha o modo
+    // (no editor e no teste, voltar não sai da tela)
+    return ListenableBuilder(
+      listenable: g,
+      builder: (context, _) => PopScope(
+        canPop: g.mode != Mode.edit && !g.testing,
+        onPopInvokedWithResult: (didPop, _) {
+          if (didPop) {
+            if (g.mode == Mode.run) g.stop();
+          } else if (g.testing) {
+            g.backToEditor();
+          } else if (g.mode == Mode.edit) {
+            g.tell(tr('Salve ou cancele a fase antes de voltar ao menu.'));
+          }
+        },
+        child: Scaffold(
         backgroundColor: c.bg,
         body: SafeArea(
           child: ListenableBuilder(
@@ -148,6 +159,7 @@ class _GamePageState extends State<GamePage> {
             }),
           ),
         ),
+      ),
       ),
     );
   }
