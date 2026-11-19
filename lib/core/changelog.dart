@@ -17,7 +17,6 @@ const List<ChangelogEntry> kChangelog = [
     version: '0.25.00',
     date: '2026-11-19',
     items: [
-      'Contas: sem conta você joga as 7 primeiras fases; com conta, todas, com o progresso e as suas fases salvos na nuvem.',
       'Corrigida a trava ao salvar uma fase do editor e voltar ao menu.',
     ],
   ),
