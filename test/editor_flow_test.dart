@@ -7,6 +7,7 @@ import 'package:geringonca/core/model.dart';
 import 'package:geringonca/game/controller.dart';
 import 'package:geringonca/game/storage.dart';
 import 'package:geringonca/ui/game_page.dart';
+import 'package:geringonca/ui/menu_page.dart';
 
 Future<void> _frames(WidgetTester t, int n) async {
   for (var i = 0; i < n; i++) {
@@ -68,4 +69,36 @@ void main() {
       }
     });
   }
+
+  testWidgets('criar fase pelo menu, testar, vencer, salvar e voltar ao menu', (t) async {
+    t.view
+      ..physicalSize = const Size(412, 915)
+      ..devicePixelRatio = 1;
+    addTearDown(t.view.reset);
+    final g = GameController(Store(null));
+    await t.pumpWidget(MaterialApp(home: MenuPage(g: g)));
+    await _frames(t, 10);
+    await t.tap(find.text('Criar fase'));
+    await _frames(t, 30);
+    expect(g.mode, Mode.edit);
+    await t.tap(find.text('Testar').first);
+    await _frames(t, 10);
+    g.parts = sampleFor(g.level, g.ball0)!;
+    g.togglePlay();
+    for (var i = 0; i < 8 * 60 && !g.won; i++) {
+      await t.pump(const Duration(milliseconds: 16));
+    }
+    expect(g.won, isTrue);
+    await t.tap(find.byTooltip('Menu').first); // da vitória do teste, volta ao editor
+    await _frames(t, 10);
+    expect(g.mode, Mode.edit);
+    await t.tap(find.text('SALVAR FASE').first);
+    await _frames(t, 10);
+    expect(g.mode, Mode.build);
+    await t.tap(find.byTooltip('Menu').first); // agora volta ao menu, sem travar
+    await _frames(t, 30);
+    expect(find.byType(GamePage), findsNothing);
+    expect(find.text('FICHA DE PROGRESSO'), findsOneWidget);
+    expect(t.takeException(), isNull);
+  });
 }

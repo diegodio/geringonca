@@ -10,8 +10,10 @@ import '../core/version.dart';
 import '../game/controller.dart';
 import '../game/ink.dart';
 import '../game/palette.dart';
+import '../game/progress.dart';
 import 'game_page.dart';
 import 'how_to_play.dart';
+import 'account_sheet.dart';
 import 'changelog_dialog.dart';
 import 'level_thumb.dart';
 import 'logo.dart';
@@ -30,6 +32,11 @@ class MenuPage extends StatelessWidget {
   }
 
   void _openLevel(BuildContext context, Level lv) {
+    // sem conta, só as primeiras fases: abre a conta para entrar
+    if (g.progress.needsAccount(lv.id!)) {
+      showAccountSheet(context, g);
+      return;
+    }
     final blocker = g.progress.blocker(lv.id!);
     if (blocker != null) {
       ScaffoldMessenger.of(context)
@@ -73,6 +80,14 @@ class MenuPage extends StatelessWidget {
                             child: FittedBox(fit: BoxFit.scaleDown, child: LogoWord(height: low ? 64 : 112)),
                           ),
                         ),
+                        // conta: entrar, criar conta e sincronização (só quando o jogo tem servidor)
+                        if (g.account?.enabled ?? false)
+                          IconButton(
+                            tooltip: tr(g.account!.signedIn ? 'Sua conta' : 'Entrar'),
+                            icon: Icon(g.account!.signedIn ? Icons.account_circle : Icons.account_circle_outlined,
+                                color: g.account!.signedIn ? c.zone : c.muted, size: 24),
+                            onPressed: () => showAccountSheet(context, g),
+                          ),
                         // opções num canto discreto: sons, vibração e posição do painel
                         IconButton(
                           tooltip: tr('Opções'),
@@ -104,6 +119,25 @@ class MenuPage extends StatelessWidget {
                       ]),
                       const SizedBox(height: 18),
                       _ProgressCard(c: c, g: g, done: done, stars: stars, maxStars: maxStars),
+                      // sem conta: convite para entrar (só as primeiras fases ficam abertas)
+                      if ((g.account?.enabled ?? false) && !g.account!.signedIn) ...[
+                        const SizedBox(height: 12),
+                        Container(
+                          padding: const EdgeInsets.fromLTRB(14, 10, 10, 10),
+                          decoration: BoxDecoration(color: c.paper, borderRadius: BorderRadius.circular(8), border: Border.all(color: c.accent)),
+                          child: Row(children: [
+                            Icon(Icons.lock_open, color: c.accent, size: 20),
+                            const SizedBox(width: 10),
+                            Expanded(
+                              child: Text(
+                                  tr('Sem conta você joga as {n} primeiras fases. Entre para liberar todas e guardar o progresso na nuvem.', {'n': kGuestLevels}),
+                                  style: GoogleFonts.ibmPlexSans(fontSize: 13.5, color: c.ink)),
+                            ),
+                            const SizedBox(width: 8),
+                            TB(c: c, small: true, primary: true, label: 'Entrar', onTap: () => showAccountSheet(context, g)),
+                          ]),
+                        ),
+                      ],
                       const SizedBox(height: 26),
                       // uma prancha por capítulo, em ordem de dificuldade
                       for (final (ci, (title, sub, count)) in kChapters.indexed) ...[
@@ -205,8 +239,13 @@ class _LevelCard extends StatelessWidget {
     final medals = [if (tg.t != null) m['t'] == true, if (tg.n != null) m['n'] == true, if (tg.c != null) m['c'] == true];
     final current = g.level.id == id && open;
     // bloqueada: aponta pelo número (que cabe no cartão) a fase que falta concluir
-    final need = open ? 0 : kBuiltin.indexOf(pr.blocker(id)!) + 1;
-    final status = !open ? tr('Conclua a {n}', {'n': need.toString().padLeft(2, '0')}) : tr(done ? 'Concluída' : 'Nova');
+    final account = pr.needsAccount(id); // sem conta, depois das primeiras fases
+    final need = open || account ? 0 : kBuiltin.indexOf(pr.blocker(id)!) + 1;
+    final status = account
+        ? tr('Só com conta')
+        : !open
+            ? tr('Conclua a {n}', {'n': need.toString().padLeft(2, '0')})
+            : tr(done ? 'Concluída' : 'Nova');
     return SizedBox(
       width: width,
       child: Material(

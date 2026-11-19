@@ -4,12 +4,15 @@ import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:forge2d/forge2d.dart';
 
+import 'game/account.dart';
 import 'game/controller.dart';
 import 'game/fx.dart';
 import 'game/palette.dart';
 import 'game/storage.dart';
 import 'ui/game_page.dart';
 import 'ui/menu_page.dart';
+import 'net/backend.dart';
+import 'ui/account_sheet.dart';
 import 'ui/platform/link.dart';
 
 Future<void> main() async {
@@ -28,7 +31,27 @@ Future<void> main() async {
   // (o próprio Flutter guarda o ouvinte enquanto o app vive)
   AppLifecycleListener(onHide: store.flush, onPause: store.flush, onDetach: store.flush);
   final g = GameController(store)..fxOut = playFx;
+  // conta: só quando a publicação traz o endereço e a chave do Supabase
+  Backend? backend;
+  if (kBackendConfigured) {
+    try {
+      backend = await SupabaseBackend.start(redirectTo: pageUrl());
+    } catch (_) {
+      backend = null; // sem servidor: o jogo segue só no aparelho
+    }
+  }
+  final account = Account(backend, g.progress);
+  g.account = account;
+  account.addListener(g.refresh);
+  g.refresh();
   runApp(GeringoncaApp(controller: g));
+  // chegou pelo link de "esqueci minha senha": pede a senha nova
+  void askNewPassword() {
+    final ctx = _nav.currentContext;
+    if (account.recovering && ctx != null) showAccountSheet(ctx, g);
+  }
+  account.addListener(askNewPassword);
+  WidgetsBinding.instance.addPostFrameCallback((_) => askNewPassword());
   // aberto por um link de compartilhamento (#c=...): vai direto para a fase
   final code = takeLinkCode();
   if (code != null) WidgetsBinding.instance.addPostFrameCallback((_) => _openLink(g, code));

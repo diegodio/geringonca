@@ -39,6 +39,7 @@ dependencies:
   google_fonts: ^9.0.0
   flame: ^1.38.2
   web: ^1.1.0
+  supabase_flutter: ^2.18.3
 dev_dependencies:
   flutter_test:
     sdk: flutter
