@@ -35,8 +35,8 @@ class WinPanel extends StatelessWidget {
             Text('${unit == '\$' ? '\$' : ''}${f(got)}${unit == 's' ? ' s' : ''}', style: GoogleFonts.ibmPlexMono(fontSize: 13, color: c.ink)),
             const SizedBox(width: 8),
             Expanded(
-              child: Text(detail,
-                  overflow: TextOverflow.ellipsis, style: GoogleFonts.ibmPlexMono(fontSize: 12, color: ok ? c.zone : c.goal)),
+              // no painel estreito (celular deitado) quebra a linha em vez de cortar o número
+              child: Text(detail, style: GoogleFonts.ibmPlexMono(fontSize: 12, color: ok ? c.zone : c.goal)),
             ),
           ]),
         ));
