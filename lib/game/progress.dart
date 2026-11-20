@@ -187,7 +187,14 @@ class Progress {
   }
 
   // ---------- fases próprias ----------
-  String _newId() => 'c${DateTime.now().millisecondsSinceEpoch.toRadixString(36)}';
+  /// Id novo pela hora; se já existe uma fase com ele (duas no mesmo milissegundo), avança.
+  String _newId() {
+    var t = DateTime.now().millisecondsSinceEpoch;
+    while (find('c${t.toRadixString(36)}') != null) {
+      t++;
+    }
+    return 'c${t.toRadixString(36)}';
+  }
 
   void _saveCustom() {
     store.set('levels', custom.map((l) => l.toJson()).toList());

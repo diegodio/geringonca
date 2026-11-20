@@ -59,4 +59,19 @@ void main() {
     expect(blocked.importCode(encodeShare(locked, [], locked.ball)), isFalse);
     expect(blocked.importCode('lixo'), isFalse);
   });
+
+  test('link com % quebrado no endereço avisa em vez de derrubar o jogo', () {
+    final g = GameController(Store(null));
+    expect(g.importCode('https://x.github.io/geringonca/#c=%E0%A4%A'), isFalse);
+    expect(g.hint, contains('inválido'));
+  });
+
+  test('código sem fase (ou de uma fase pronta que não existe mais) não cria fase vazia', () {
+    for (final c in ['{}', '{"level":5}', jsonEncode({'v': 1, 'ref': 'l999', 'parts': [], 'ball': null})]) {
+      final g = GameController(Store(null));
+      expect(g.importCode(c), isFalse, reason: c);
+      expect(g.progress.custom, isEmpty, reason: c);
+      expect(g.hint, contains('inválido'), reason: c);
+    }
+  });
 }

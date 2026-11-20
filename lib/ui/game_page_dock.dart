@@ -49,7 +49,7 @@ extension _Dock on _GamePageState {
             child: Row(children: [
               Icon(Icons.info_outline, size: 15, color: c.muted),
               const SizedBox(width: 6),
-              Expanded(child: Text(rules.join(' · '), style: GoogleFonts.ibmPlexSans(fontSize: 12, color: c.muted))),
+              Expanded(child: Text(rules.join(' · '), style: withSymbols(GoogleFonts.ibmPlexSans(fontSize: 12, color: c.muted)))),
             ]),
           )
         : const SizedBox.shrink();
@@ -71,7 +71,7 @@ extension _Dock on _GamePageState {
         note,
         Padding(
           padding: const EdgeInsets.only(bottom: 6),
-          child: Text(g.countText, style: GoogleFonts.ibmPlexMono(fontSize: 11, color: c.muted)),
+          child: Text(g.countText, style: withSymbols(GoogleFonts.ibmPlexMono(fontSize: 11, color: c.muted))),
         ),
         LayoutBuilder(builder: (context, box) {
           final w = (box.maxWidth - 6) / 2;
@@ -109,7 +109,7 @@ extension _Dock on _GamePageState {
     Widget speed(double s, String t) => Padding(
           padding: const EdgeInsets.only(right: 4),
           child: ChoiceChip(
-            label: Text(t, style: GoogleFonts.ibmPlexMono(fontSize: 13, color: g.speed == s ? c.paper : c.ink)),
+            label: Text(t, style: withSymbols(GoogleFonts.ibmPlexMono(fontSize: 13, color: g.speed == s ? c.paper : c.ink))),
             selected: g.speed == s,
             showCheckmark: false,
             selectedColor: c.ink,

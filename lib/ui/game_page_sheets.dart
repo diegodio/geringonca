@@ -14,7 +14,7 @@ extension _Sheets on _GamePageState {
             child: SingleChildScrollView(
               padding: EdgeInsets.fromLTRB(20, 0, 20, 20 + MediaQuery.of(ctx).viewInsets.bottom),
               child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-                Text(tr(title), style: GoogleFonts.chakraPetch(fontSize: 22, fontWeight: FontWeight.w700, color: c.ink)),
+                Text(tr(title), style: withSymbols(GoogleFonts.chakraPetch(fontSize: 22, fontWeight: FontWeight.w700, color: c.ink))),
                 const SizedBox(height: 12),
                 body(ctx),
               ]),
@@ -29,8 +29,8 @@ extension _Sheets on _GamePageState {
           return ListTile(
             contentPadding: EdgeInsets.zero,
             selected: l.id == g.level.id,
-            leading: Text(number, style: GoogleFonts.chakraPetch(fontSize: 18, fontWeight: FontWeight.w700, color: pr.isDone(l.id!) ? c.zone : c.muted)),
-            title: Text(tr(l.name), style: GoogleFonts.ibmPlexSans(fontSize: 15, fontWeight: FontWeight.w600, color: open ? c.ink : c.muted)),
+            leading: Text(number, style: withSymbols(GoogleFonts.chakraPetch(fontSize: 18, fontWeight: FontWeight.w700, color: pr.isDone(l.id!) ? c.zone : c.muted))),
+            title: Text(tr(l.name), style: withSymbols(GoogleFonts.ibmPlexSans(fontSize: 15, fontWeight: FontWeight.w600, color: open ? c.ink : c.muted))),
             trailing: open
                 ? Row(mainAxisSize: MainAxisSize.min, children: [
                     for (var k = 0; k < 3; k++) Icon(k < stars ? Icons.star : Icons.star_border, size: 18, color: k < stars ? c.medal : c.line),
@@ -61,13 +61,13 @@ extension _Sheets on _GamePageState {
               const SizedBox(width: 6),
               Expanded(
                 child: Text(tr(lv.verified ? 'Verificada: o autor venceu esta fase do jeito que ela está.' : 'Ainda não verificada: ninguém venceu esta fase do jeito que ela está.'),
-                    style: GoogleFonts.ibmPlexSans(fontSize: 13, color: lv.verified ? c.zone : c.muted)),
+                    style: withSymbols(GoogleFonts.ibmPlexSans(fontSize: 13, color: lv.verified ? c.zone : c.muted))),
               ),
             ]),
             const SizedBox(height: 10),
           ],
           if (lv.tip.isNotEmpty) ...[
-            Text(tr(lv.tip), style: GoogleFonts.ibmPlexSans(fontSize: 14.5, height: 1.4, color: c.ink)),
+            Text(tr(lv.tip), style: withSymbols(GoogleFonts.ibmPlexSans(fontSize: 14.5, height: 1.4, color: c.ink))),
             const SizedBox(height: 14),
           ],
           label(c, 'Medalhas'),
@@ -83,14 +83,14 @@ extension _Sheets on _GamePageState {
               contentPadding: EdgeInsets.zero,
               dense: true,
               leading: Icon(badges.contains(id) ? Icons.verified : Icons.verified_outlined, color: badges.contains(id) ? c.zone : c.muted),
-              title: Text(tr(name), style: GoogleFonts.ibmPlexSans(fontSize: 14, fontWeight: FontWeight.w600, color: c.ink)),
-              subtitle: Text(tr(desc), style: GoogleFonts.ibmPlexSans(fontSize: 13, color: c.muted)),
+              title: Text(tr(name), style: withSymbols(GoogleFonts.ibmPlexSans(fontSize: 14, fontWeight: FontWeight.w600, color: c.ink))),
+              subtitle: Text(tr(desc), style: withSymbols(GoogleFonts.ibmPlexSans(fontSize: 13, color: c.muted))),
             ),
           if (lv.allowed != null) ...[
             const SizedBox(height: 10),
             label(c, 'Peças liberadas nesta fase'),
             const SizedBox(height: 6),
-            Text(lv.allowed!.map((t) => tr(kPieceNames[t]!)).join(', '), style: GoogleFonts.ibmPlexSans(fontSize: 14, color: c.ink)),
+            Text(lv.allowed!.map((t) => tr(kPieceNames[t]!)).join(', '), style: withSymbols(GoogleFonts.ibmPlexSans(fontSize: 14, color: c.ink))),
           ],
           if (lv.looseBall || lv.budget != null) ...[
             const SizedBox(height: 10),
@@ -98,9 +98,9 @@ extension _Sheets on _GamePageState {
             const SizedBox(height: 6),
             if (lv.looseBall)
               Text(tr('Bola solta: nenhuma peça pode ser presa à bola, e ela não liga o motor de uma roda.'),
-                  style: GoogleFonts.ibmPlexSans(fontSize: 14, color: c.ink)),
+                  style: withSymbols(GoogleFonts.ibmPlexSans(fontSize: 14, color: c.ink))),
             if (lv.budget != null)
-              Text(tr('Orçamento: a engenhoca pode custar no máximo \${b}.', {'b': lv.budget}), style: GoogleFonts.ibmPlexSans(fontSize: 14, color: c.ink)),
+              Text(tr('Orçamento: a engenhoca pode custar no máximo \${b}.', {'b': lv.budget}), style: withSymbols(GoogleFonts.ibmPlexSans(fontSize: 14, color: c.ink))),
           ],
         ]);
       });
@@ -116,14 +116,14 @@ extension _Sheets on _GamePageState {
       g.tell(msg);
     }
 
-    final sub = GoogleFonts.ibmPlexSans(fontSize: 13.5, color: c.muted);
+    final sub = withSymbols(GoogleFonts.ibmPlexSans(fontSize: 13.5, color: c.muted));
     _sheet(c, 'Compartilhar', (ctx) => Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
           Text(tr('O link abre o jogo nesta fase com a sua engenhoca montada. Mande para alguém tentar bater o seu tempo.'), style: sub),
           const SizedBox(height: 10),
           Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(color: c.bg, borderRadius: BorderRadius.circular(8), border: Border.all(color: c.line)),
-            child: Text(link, maxLines: 2, overflow: TextOverflow.ellipsis, style: GoogleFonts.ibmPlexMono(fontSize: 12, color: c.ink)),
+            child: Text(link, maxLines: 2, overflow: TextOverflow.ellipsis, style: withSymbols(GoogleFonts.ibmPlexMono(fontSize: 12, color: c.ink))),
           ),
           const SizedBox(height: 10),
           Wrap(spacing: 8, runSpacing: 8, children: [
@@ -147,7 +147,7 @@ extension _Sheets on _GamePageState {
             controller: paste,
             minLines: 1,
             maxLines: 4,
-            style: GoogleFonts.ibmPlexMono(fontSize: 12, color: c.ink),
+            style: withSymbols(GoogleFonts.ibmPlexMono(fontSize: 12, color: c.ink)),
             decoration: InputDecoration(
                 hintText: tr('https://…#c=…  ou  OG1:…'),
                 filled: true,

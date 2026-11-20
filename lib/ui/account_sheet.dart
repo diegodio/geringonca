@@ -159,12 +159,12 @@ class _AccountPanelState extends State<AccountPanel> {
       if (_error != null)
         Padding(
           padding: const EdgeInsets.only(top: 8),
-          child: Text(_error!, style: GoogleFonts.ibmPlexSans(fontSize: 13.5, color: c.goal)),
+          child: Text(_error!, style: withSymbols(GoogleFonts.ibmPlexSans(fontSize: 13.5, color: c.goal))),
         ),
       if (_info != null)
         Padding(
           padding: const EdgeInsets.only(top: 8),
-          child: Text(_info!, style: GoogleFonts.ibmPlexSans(fontSize: 13.5, color: c.zone)),
+          child: Text(_info!, style: withSymbols(GoogleFonts.ibmPlexSans(fontSize: 13.5, color: c.zone))),
         ),
     ],
   );
@@ -173,13 +173,13 @@ class _AccountPanelState extends State<AccountPanel> {
     padding: const EdgeInsets.only(bottom: 4),
     child: Text(
       tr(s),
-      style: GoogleFonts.chakraPetch(fontSize: 22, fontWeight: FontWeight.w700, color: c.ink),
+      style: withSymbols(GoogleFonts.chakraPetch(fontSize: 22, fontWeight: FontWeight.w700, color: c.ink)),
     ),
   );
 
   Widget _sub(String s) => Padding(
     padding: const EdgeInsets.only(bottom: 14),
-    child: Text(s, style: GoogleFonts.ibmPlexSans(fontSize: 14, color: c.muted)),
+    child: Text(s, style: withSymbols(GoogleFonts.ibmPlexSans(fontSize: 14, color: c.muted))),
   );
 
   @override
@@ -221,14 +221,14 @@ class _AccountPanelState extends State<AccountPanel> {
               Icon(a.syncError != null ? Icons.cloud_off_outlined : Icons.cloud_done_outlined, color: a.syncError != null ? c.goal : c.zone, size: 20),
               const SizedBox(width: 8),
               Expanded(
-                child: Text(status, style: GoogleFonts.ibmPlexSans(fontSize: 14, color: c.ink)),
+                child: Text(status, style: withSymbols(GoogleFonts.ibmPlexSans(fontSize: 14, color: c.ink))),
               ),
             ],
           ),
           const SizedBox(height: 6),
           Text(
             tr('Todas as fases liberadas. O progresso e as fases que você cria ficam iguais em qualquer aparelho em que entrar.'),
-            style: GoogleFonts.ibmPlexSans(fontSize: 13, color: c.muted),
+            style: withSymbols(GoogleFonts.ibmPlexSans(fontSize: 13, color: c.muted)),
           ),
           const SizedBox(height: 16),
           Wrap(

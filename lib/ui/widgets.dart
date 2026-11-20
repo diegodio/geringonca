@@ -7,7 +7,7 @@ import '../game/palette.dart';
 
 /// Rótulo pequeno em caixa alta.
 Widget label(Palette c, String s) =>
-    Text(tr(s).toUpperCase(), style: GoogleFonts.ibmPlexMono(fontSize: 11, letterSpacing: 1, color: c.muted));
+    Text(tr(s).toUpperCase(), style: withSymbols(GoogleFonts.ibmPlexMono(fontSize: 11, letterSpacing: 1, color: c.muted)));
 
 /// Amostras de cor das peças.
 class Sw extends StatelessWidget {
@@ -31,7 +31,7 @@ class Sw extends StatelessWidget {
           border: border != null ? Border.all(color: border!, width: 1.5) : null,
         ),
         child: letter != null
-            ? Text(letter!, style: GoogleFonts.ibmPlexMono(fontSize: 9, height: 1, fontWeight: FontWeight.w700, color: Colors.white))
+            ? Text(letter!, style: withSymbols(GoogleFonts.ibmPlexMono(fontSize: 9, height: 1, fontWeight: FontWeight.w700, color: Colors.white)))
             : null,
       );
 }
@@ -66,8 +66,8 @@ class TB extends StatelessWidget {
     final fg = primary ? (running ? Colors.white : c.paper) : c.ink;
     final bd = primary ? bg : (pressed ? c.ink : c.line);
     final style = primary
-        ? GoogleFonts.chakraPetch(fontSize: 14, fontWeight: FontWeight.w700, letterSpacing: .6, color: fg)
-        : GoogleFonts.ibmPlexSans(fontSize: small ? 13 : 14, fontWeight: FontWeight.w500, color: fg);
+        ? withSymbols(GoogleFonts.chakraPetch(fontSize: 14, fontWeight: FontWeight.w700, letterSpacing: .6, color: fg))
+        : withSymbols(GoogleFonts.ibmPlexSans(fontSize: small ? 13 : 14, fontWeight: FontWeight.w500, color: fg));
     Widget btn = Opacity(
       opacity: onTap == null ? .4 : 1,
       child: Material(
@@ -89,7 +89,7 @@ class TB extends StatelessWidget {
                 Text(primary ? tr(label).toUpperCase() : tr(label), style: style),
                 if (cost != null) ...[
                   const SizedBox(width: 6),
-                  Text(cost!, style: GoogleFonts.ibmPlexMono(fontSize: 11.5, color: c.muted)),
+                  Text(cost!, style: withSymbols(GoogleFonts.ibmPlexMono(fontSize: 11.5, color: c.muted))),
                 ],
               ]),
             ),
@@ -198,8 +198,8 @@ class PieceChip extends StatelessWidget {
                   Text(tr(name),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: GoogleFonts.ibmPlexSans(fontSize: 12.5, height: 1.15, fontWeight: FontWeight.w600, color: selected ? c.paper : c.ink)),
-                  Text(cost, style: GoogleFonts.ibmPlexMono(fontSize: 10, height: 1.15, color: selected ? c.paper.withValues(alpha: .75) : c.muted)),
+                      style: withSymbols(GoogleFonts.ibmPlexSans(fontSize: 12.5, height: 1.15, fontWeight: FontWeight.w600, color: selected ? c.paper : c.ink))),
+                  Text(cost, style: withSymbols(GoogleFonts.ibmPlexMono(fontSize: 10, height: 1.15, color: selected ? c.paper.withValues(alpha: .75) : c.muted))),
                 ]),
               ),
             ]),
@@ -223,8 +223,8 @@ class PieceChip extends StatelessWidget {
                 SizedBox(height: 18, child: Center(child: swatch)),
                 const SizedBox(height: 3),
                 Text(tr(name),
-                    style: GoogleFonts.ibmPlexSans(fontSize: 12.5, height: 1.15, fontWeight: FontWeight.w600, color: selected ? c.paper : c.ink)),
-                Text(cost, style: GoogleFonts.ibmPlexMono(fontSize: 10.5, height: 1.15, color: selected ? c.paper.withValues(alpha: .75) : c.muted)),
+                    style: withSymbols(GoogleFonts.ibmPlexSans(fontSize: 12.5, height: 1.15, fontWeight: FontWeight.w600, color: selected ? c.paper : c.ink))),
+                Text(cost, style: withSymbols(GoogleFonts.ibmPlexMono(fontSize: 10.5, height: 1.15, color: selected ? c.paper.withValues(alpha: .75) : c.muted))),
               ]),
             ),
           ),
@@ -272,7 +272,7 @@ class MedalChip extends StatelessWidget {
         child: Row(mainAxisSize: MainAxisSize.min, children: [
           Icon(on ? Icons.star : Icons.star_border, size: 15, color: on ? c.medalInk : c.muted),
           const SizedBox(width: 5),
-          Flexible(child: Text(text, style: GoogleFonts.ibmPlexMono(fontSize: 12, color: on ? c.medalInk : c.muted))),
+          Flexible(child: Text(text, style: withSymbols(GoogleFonts.ibmPlexMono(fontSize: 12, color: on ? c.medalInk : c.muted)))),
         ]),
       );
 }

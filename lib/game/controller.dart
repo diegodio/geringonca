@@ -304,20 +304,6 @@ class GameController extends GameState with _BuildTools, _CameraInput, _RunContr
   }
 
   // ---------- compartilhar ----------
-  bool shareOpen = false;
-  String shareCode = '';
-
-  void toggleShare() {
-    shareOpen = !shareOpen;
-    if (shareOpen) shareCode = encodeShare(level, parts, ball0);
-    notifyListeners();
-  }
-
-  void closeShare() {
-    shareOpen = false;
-    notifyListeners();
-  }
-
   String currentCode() => encodeShare(level, parts, ball0);
 
   /// Link para esta fase e a engenhoca atual (o código vai depois do #, não sai do aparelho
@@ -327,26 +313,32 @@ class GameController extends GameState with _BuildTools, _CameraInput, _RunContr
   /// Abre um código ou link recebido. Verdadeiro quando a fase ficou aberta na bancada.
   bool importCode(String code) {
     final i = code.indexOf('#c=');
-    if (i >= 0) code = Uri.decodeComponent(code.substring(i + 3));
     Map<String, dynamic> o;
+    Level? lv;
     try {
+      if (i >= 0) code = Uri.decodeComponent(code.substring(i + 3));
       o = decodeShare(code);
+      // fase pronta pela referência; senão a fase vem no código (ou o código é a própria fase)
+      final ref = o['ref'];
+      if (!(ref is String && isBuiltin(ref))) {
+        final m = o['level'] is Map ? o['level'] : o;
+        if (m is! Map || !(m.containsKey('zone') || m.containsKey('goal'))) throw const FormatException('sem fase');
+        lv = Level.fromJson(m);
+      }
     } catch (_) {
       _deny(tr('Código inválido. Cole o link ou o código completo (começa por OG1:).'));
       notifyListeners();
       return false;
     }
     if (mode == Mode.run) stop();
-    final ref = o['ref'];
-    final id = ref is String && isBuiltin(ref) ? ref : progress.importLevel(Level.fromJson(o['level'] ?? o));
-    final lv = progress.find(id)!;
+    final id = lv == null ? o['ref'] as String : progress.importLevel(lv);
+    lv = progress.find(id)!;
     final hasParts = o['parts'] is List;
     if (hasParts) {
       final b = Pt.fromJson(o['ball']);
       final ball = b == null ? null : Pt(rnd(b.x), rnd(b.y));
       progress.importBuild(id, normalizeParts(o['parts'], lv), ball != null && lv.zone.contains(ball) ? ball : null);
     }
-    shareOpen = false;
     if (progress.needsAccount(id)) {
       say(tr('A engenhoca de "{lv}" ficou guardada. Entre na sua conta para jogar esta fase.', {'lv': tr(lv.name)}));
       notifyListeners();

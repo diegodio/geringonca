@@ -26,9 +26,6 @@ mixin _CameraInput on GameState {
     notifyListeners();
   }
 
-  void zoomIn() => zoomAt(Pt(kW / 2, kH / 2), 1.5);
-  void zoomOut() => zoomAt(Pt(kW / 2, kH / 2), 1 / 1.5);
-
   void zoomFit() {
     cam = Cam();
     notifyListeners();
@@ -49,8 +46,6 @@ mixin _CameraInput on GameState {
   }
 
   // ---------- toques ----------
-  bool hasPointer(int id) => _pointers.containsKey(id);
-
   /// [sp] em coordenadas da bancada (0..1000, 0..560) sem zoom.
   void pointerDown(int id, Pt sp, {bool secondary = false}) {
     _pointers[id] = sp;
