@@ -304,20 +304,6 @@ class GameController extends GameState with _BuildTools, _CameraInput, _RunContr
   }
 
   // ---------- compartilhar ----------
-  bool shareOpen = false;
-  String shareCode = '';
-
-  void toggleShare() {
-    shareOpen = !shareOpen;
-    if (shareOpen) shareCode = encodeShare(level, parts, ball0);
-    notifyListeners();
-  }
-
-  void closeShare() {
-    shareOpen = false;
-    notifyListeners();
-  }
-
   String currentCode() => encodeShare(level, parts, ball0);
 
   /// Link para esta fase e a engenhoca atual (o código vai depois do #, não sai do aparelho
@@ -353,7 +339,6 @@ class GameController extends GameState with _BuildTools, _CameraInput, _RunContr
       final ball = b == null ? null : Pt(rnd(b.x), rnd(b.y));
       progress.importBuild(id, normalizeParts(o['parts'], lv), ball != null && lv.zone.contains(ball) ? ball : null);
     }
-    shareOpen = false;
     if (progress.needsAccount(id)) {
       say(tr('A engenhoca de "{lv}" ficou guardada. Entre na sua conta para jogar esta fase.', {'lv': tr(lv.name)}));
       notifyListeners();
