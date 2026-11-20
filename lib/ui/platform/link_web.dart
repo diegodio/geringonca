@@ -11,7 +11,11 @@ String? takeLinkCode() {
   if (!hash.startsWith('#c=')) return null;
   final loc = web.window.location;
   web.window.history.replaceState(null, '', '${loc.pathname}${loc.search}');
-  return Uri.decodeComponent(hash.substring(3));
+  try {
+    return Uri.decodeComponent(hash.substring(3));
+  } on ArgumentError {
+    return hash.substring(3); // % quebrado: o jogo avisa que o código é inválido
+  }
 }
 
 /// Endereço da página, sem o # e sem parâmetros.

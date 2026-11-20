@@ -327,19 +327,26 @@ class GameController extends GameState with _BuildTools, _CameraInput, _RunContr
   /// Abre um código ou link recebido. Verdadeiro quando a fase ficou aberta na bancada.
   bool importCode(String code) {
     final i = code.indexOf('#c=');
-    if (i >= 0) code = Uri.decodeComponent(code.substring(i + 3));
     Map<String, dynamic> o;
+    Level? lv;
     try {
+      if (i >= 0) code = Uri.decodeComponent(code.substring(i + 3));
       o = decodeShare(code);
+      // fase pronta pela referência; senão a fase vem no código (ou o código é a própria fase)
+      final ref = o['ref'];
+      if (!(ref is String && isBuiltin(ref))) {
+        final m = o['level'] is Map ? o['level'] : o;
+        if (m is! Map || !(m.containsKey('zone') || m.containsKey('goal'))) throw const FormatException('sem fase');
+        lv = Level.fromJson(m);
+      }
     } catch (_) {
       _deny(tr('Código inválido. Cole o link ou o código completo (começa por OG1:).'));
       notifyListeners();
       return false;
     }
     if (mode == Mode.run) stop();
-    final ref = o['ref'];
-    final id = ref is String && isBuiltin(ref) ? ref : progress.importLevel(Level.fromJson(o['level'] ?? o));
-    final lv = progress.find(id)!;
+    final id = lv == null ? o['ref'] as String : progress.importLevel(lv);
+    lv = progress.find(id)!;
     final hasParts = o['parts'] is List;
     if (hasParts) {
       final b = Pt.fromJson(o['ball']);
