@@ -14,6 +14,16 @@ typedef ChangelogEntry = ({String version, String date, List<String> items});
 
 const List<ChangelogEntry> kChangelog = [
   (
+    version: '0.26.00',
+    date: '2026-11-19',
+    items: [
+      'Abrir um link de compartilhamento com o jogo já aberto leva direto à fase.',
+      'Link ou código quebrado avisa que é inválido, em vez de travar ou criar uma fase vazia.',
+      'Os símbolos ★ e ⋮ aparecem mesmo sem internet.',
+      'Com o celular deitado, a vitória mostra inteiro o quanto faltou para cada medalha.',
+    ],
+  ),
+  (
     version: '0.25.00',
     date: '2026-11-19',
     items: [

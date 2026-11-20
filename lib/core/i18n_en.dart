@@ -2,6 +2,14 @@
 // (incluindo os marcadores {nome}); veja i18n.dart. O teste i18n_test.dart avisa
 // quando um texto novo fica sem tradução.
 const kEn = <String, String>{
+  'Abrir um link de compartilhamento com o jogo já aberto leva direto à fase.':
+      'Opening a share link while the game is already open takes you straight to the level.',
+  'Link ou código quebrado avisa que é inválido, em vez de travar ou criar uma fase vazia.':
+      'A broken link or code now says it is invalid instead of freezing or creating an empty level.',
+  'Os símbolos ★ e ⋮ aparecem mesmo sem internet.':
+      'The ★ and ⋮ symbols show up even without internet.',
+  'Com o celular deitado, a vitória mostra inteiro o quanto faltou para cada medalha.':
+      'With the phone sideways, the win screen shows in full how much was missing for each medal.',
   'Primeiros passos':
       'First steps',
   'Leve a bola até a área vermelha. Toque em Rodar para testar o exemplo.':
