@@ -2,6 +2,8 @@
 // (incluindo os marcadores {nome}); veja i18n.dart. O teste i18n_test.dart avisa
 // quando um texto novo fica sem tradução.
 const kEn = <String, String>{
+  'O pingo do I no logotipo do menu fica parado: o menu quase não gasta bateria.':
+      'The dot on the I in the menu logo stays still: the menu barely uses any battery.',
   'Abrir um link de compartilhamento com o jogo já aberto leva direto à fase.':
       'Opening a share link while the game is already open takes you straight to the level.',
   'Link ou código quebrado avisa que é inválido, em vez de travar ou criar uma fase vazia.':
