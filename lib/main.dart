@@ -6,6 +6,7 @@ import 'package:forge2d/forge2d.dart';
 
 import 'game/account.dart';
 import 'game/controller.dart';
+import 'core/i18n.dart';
 import 'game/fx.dart';
 import 'game/palette.dart';
 import 'game/storage.dart';
@@ -61,7 +62,11 @@ final _nav = GlobalKey<NavigatorState>();
 final _messenger = GlobalKey<ScaffoldMessengerState>();
 
 void _openLink(GameController g, String code) {
+  // no editor ou testando uma fase, abrir outra fase perderia o que está sendo feito
+  if (g.mode == Mode.edit || g.testing) return g.tell(tr('Salve ou cancele a fase antes de voltar ao menu.'));
   if (g.importCode(code)) {
+    // uma bancada só: volta ao menu antes de abrir (o link pode chegar com o jogo aberto)
+    _nav.currentState?.popUntil((r) => r.isFirst);
     _nav.currentState?.push(MaterialPageRoute(builder: (_) => GamePage(g: g)));
   } else {
     // código quebrado ou fase ainda bloqueada: avisa no menu
@@ -69,9 +74,44 @@ void _openLink(GameController g, String code) {
   }
 }
 
-class GeringoncaApp extends StatelessWidget {
+/// Link aberto com o jogo já aberto na aba: o navegador só troca o # do
+/// endereço, e o Flutter entrega isso como uma rota (que o jogo não tem).
+class _LinkRoutes with WidgetsBindingObserver {
+  final GameController g;
+  _LinkRoutes(this.g);
+
+  @override
+  Future<bool> didPushRouteInformation(RouteInformation info) async {
+    final loc = info.uri.toString();
+    final i = loc.indexOf('c=');
+    if (i < 0) return false;
+    _openLink(g, takeLinkCode() ?? '#c=${loc.substring(i + 2)}'); // importCode decodifica (e avisa se vier quebrado)
+    return true;
+  }
+}
+
+class GeringoncaApp extends StatefulWidget {
   final GameController controller;
   const GeringoncaApp({super.key, required this.controller});
+
+  @override
+  State<GeringoncaApp> createState() => _GeringoncaAppState();
+}
+
+class _GeringoncaAppState extends State<GeringoncaApp> {
+  late final _links = _LinkRoutes(widget.controller);
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(_links); // antes do MaterialApp: vê a rota primeiro
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(_links);
+    super.dispose();
+  }
 
   ThemeData _theme(Palette c, Brightness b) => ThemeData(
         brightness: b,
@@ -88,6 +128,6 @@ class GeringoncaApp extends StatelessWidget {
         debugShowCheckedModeBanner: false,
         theme: _theme(Palette.light, Brightness.light),
         darkTheme: _theme(Palette.dark, Brightness.dark),
-        home: MenuPage(g: controller),
+        home: MenuPage(g: widget.controller),
       );
 }

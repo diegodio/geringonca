@@ -13,7 +13,7 @@ String? takeLinkCode() {
   web.window.history.replaceState(null, '', '${loc.pathname}${loc.search}');
   try {
     return Uri.decodeComponent(hash.substring(3));
-  } on ArgumentError {
+  } catch (_) {
     return hash.substring(3); // % quebrado: o jogo avisa que o código é inválido
   }
 }
