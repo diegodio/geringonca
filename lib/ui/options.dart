@@ -18,7 +18,7 @@ Future<void> showOptions(BuildContext context, GameController g) {
       listenable: g,
       builder: (ctx, _) => AlertDialog(
         backgroundColor: c.paper,
-        title: Text(tr('Opções'), style: GoogleFonts.chakraPetch(fontWeight: FontWeight.w700, color: c.ink)),
+        title: Text(tr('Opções'), style: withSymbols(GoogleFonts.chakraPetch(fontWeight: FontWeight.w700, color: c.ink))),
         contentPadding: const EdgeInsets.fromLTRB(8, 12, 8, 0),
         content: SizedBox(
           width: 380,
@@ -27,7 +27,7 @@ Future<void> showOptions(BuildContext context, GameController g) {
         actionsAlignment: MainAxisAlignment.spaceBetween,
         actions: [
           // versão do jogo num canto da janela
-          Padding(padding: const EdgeInsets.only(left: 12), child: Text(versionLabel, style: GoogleFonts.ibmPlexMono(fontSize: 11, color: c.muted))),
+          Padding(padding: const EdgeInsets.only(left: 12), child: Text(versionLabel, style: withSymbols(GoogleFonts.ibmPlexMono(fontSize: 11, color: c.muted)))),
           TextButton(onPressed: () => Navigator.of(ctx).pop(), child: Text(tr('Fechar'))),
         ],
       ),
@@ -44,8 +44,8 @@ class OptionsPanel extends StatelessWidget {
   Widget build(BuildContext context) => ListenableBuilder(
         listenable: g,
         builder: (context, _) {
-          final title = GoogleFonts.ibmPlexSans(fontSize: 15, fontWeight: FontWeight.w600, color: c.ink);
-          final sub = GoogleFonts.ibmPlexSans(fontSize: 12.5, color: c.muted);
+          final title = withSymbols(GoogleFonts.ibmPlexSans(fontSize: 15, fontWeight: FontWeight.w600, color: c.ink));
+          final sub = withSymbols(GoogleFonts.ibmPlexSans(fontSize: 12.5, color: c.muted));
           Widget side(PanelSide v, String t, String s) => RadioListTile<PanelSide>(
                 value: v,
                 dense: true,
@@ -71,7 +71,7 @@ class OptionsPanel extends StatelessWidget {
             const SizedBox(height: 8),
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 4, 16, 0),
-              child: Text(tr('PEÇAS E FERRAMENTAS'), style: GoogleFonts.ibmPlexMono(fontSize: 12, letterSpacing: 1, color: c.muted)),
+              child: Text(tr('PEÇAS E FERRAMENTAS'), style: withSymbols(GoogleFonts.ibmPlexMono(fontSize: 12, letterSpacing: 1, color: c.muted))),
             ),
             RadioGroup<PanelSide>(
               groupValue: g.panelSide,
@@ -85,7 +85,7 @@ class OptionsPanel extends StatelessWidget {
             const SizedBox(height: 8),
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 4, 16, 0),
-              child: Text('IDIOMA · LANGUAGE', style: GoogleFonts.ibmPlexMono(fontSize: 12, letterSpacing: 1, color: c.muted)),
+              child: Text('IDIOMA · LANGUAGE', style: withSymbols(GoogleFonts.ibmPlexMono(fontSize: 12, letterSpacing: 1, color: c.muted))),
             ),
             RadioGroup<String>(
               groupValue: g.langPref,

@@ -24,6 +24,7 @@ Future<void> main() async {
     for (final (name, file) in [('IBM Plex Sans', 'ibmplexsans'), ('IBM Plex Mono', 'ibmplexmono'), ('Chakra Petch', 'chakrapetch')]) {
       yield LicenseEntryWithLineBreaks([name], await rootBundle.loadString('assets/fonts/OFL-$file.txt'));
     }
+    yield LicenseEntryWithLineBreaks(['Noto Sans Symbols 2', 'Noto Sans Ethiopic', 'Noto Color Emoji'], await rootBundle.loadString('assets/symbols/OFL-noto.txt'));
   });
   // na web, carrega o Box2D em WebAssembly direto do lugar certo (sem tentativas)
   await initializeForge2D(wasmUri: kIsWeb ? Uri.parse('assets/packages/forge2d/lib/src/backend/wasm/box2d.wasm') : null);
@@ -116,6 +117,8 @@ class _GeringoncaAppState extends State<GeringoncaApp> {
   ThemeData _theme(Palette c, Brightness b) => ThemeData(
         brightness: b,
         useMaterial3: true,
+        // símbolos que as fontes do jogo não têm, sem buscar fonte na internet (veja pubspec.yaml)
+        fontFamilyFallback: kSymbolFonts,
         scaffoldBackgroundColor: c.bg,
         colorScheme: ColorScheme.fromSeed(seedColor: c.accent, brightness: b, surface: c.paper),
       );

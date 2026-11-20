@@ -66,6 +66,21 @@ flutter:
   # nada é buscado na internet ao abrir, e a primeira visita já funciona offline.
   assets:
     - assets/fonts/
+    - assets/symbols/OFL-noto.txt
+
+  # Reserva para os poucos símbolos que as fontes do jogo não têm (★ ⋮ ▶):
+  # pedaços das fontes Noto que o Flutter buscaria no Google na hora (e que,
+  # sem internet, viravam quadradinhos). Ficam na reserva do tema (main.dart).
+  fonts:
+    - family: GeringoncaSymbols
+      fonts:
+        - asset: assets/symbols/GeringoncaSymbols.ttf
+    - family: GeringoncaDots
+      fonts:
+        - asset: assets/symbols/GeringoncaDots.ttf
+    - family: GeringoncaPlay
+      fonts:
+        - asset: assets/symbols/GeringoncaPlay.ttf
 
   # To add assets to your application, add an assets section, like this:
   # assets:

@@ -27,9 +27,9 @@ class HowToPlay extends StatelessWidget {
           SizedBox(
             width: 300,
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Text(tr(h), style: GoogleFonts.chakraPetch(fontSize: 17, fontWeight: FontWeight.w700, color: c.ink)),
+              Text(tr(h), style: withSymbols(GoogleFonts.chakraPetch(fontSize: 17, fontWeight: FontWeight.w700, color: c.ink))),
               const SizedBox(height: 6),
-              Text(tr(p), style: GoogleFonts.ibmPlexSans(fontSize: 14, color: c.ink, height: 1.5)),
+              Text(tr(p), style: withSymbols(GoogleFonts.ibmPlexSans(fontSize: 14, color: c.ink, height: 1.5))),
             ]),
           ),
       ]);

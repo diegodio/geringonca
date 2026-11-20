@@ -66,7 +66,7 @@ class _GamePageState extends State<GamePage> {
   @override
   void initState() {
     super.initState();
-    _game = OficinaGame(g, mono: GoogleFonts.ibmPlexMono().fontFamily!, display: GoogleFonts.chakraPetch().fontFamily!);
+    _game = OficinaGame(g, mono: withSymbols(GoogleFonts.ibmPlexMono()).fontFamily!, display: withSymbols(GoogleFonts.chakraPetch()).fontFamily!);
     g.addListener(_sync);
     // qualquer mudança no jogo acorda a bancada (ela para de desenhar quando nada muda);
     // a escuta fica aqui porque a bancada pode ser recriada e perder a dela
@@ -185,11 +185,11 @@ class _GamePageState extends State<GamePage> {
                 Text(g.mode == Mode.edit ? tr('Editando: {n}', {'n': lv.name}) : g.testing ? tr('Testando: {n}', {'n': lv.name}) : tr(lv.name),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: GoogleFonts.chakraPetch(fontSize: narrow ? 16 : (compact ? 19 : 22), fontWeight: FontWeight.w700, color: c.ink)),
+                    style: withSymbols(GoogleFonts.chakraPetch(fontSize: narrow ? 16 : (compact ? 19 : 22), fontWeight: FontWeight.w700, color: c.ink))),
                 if (g.mode != Mode.edit)
                   Row(children: [
                     Text(g.testing ? tr('Fase de teste') : idx >= 0 ? tr('Fase {n}', {'n': (idx + 1).toString().padLeft(2, '0')}) : tr('Minha fase'),
-                        style: GoogleFonts.ibmPlexMono(fontSize: 11.5, color: c.muted)),
+                        style: withSymbols(GoogleFonts.ibmPlexMono(fontSize: 11.5, color: c.muted))),
                     if (!g.testing) Icon(Icons.expand_more, size: 16, color: c.muted),
                   ]),
               ]),
@@ -308,7 +308,7 @@ class _GamePageState extends State<GamePage> {
                 child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
                   Icon(Icons.screen_rotation_outlined, size: 20, color: c.muted),
                   const SizedBox(width: 8),
-                  Flexible(child: Text(tr('Gire o celular para ver a bancada maior.'), style: GoogleFonts.ibmPlexSans(fontSize: 13, color: c.muted))),
+                  Flexible(child: Text(tr('Gire o celular para ver a bancada maior.'), style: withSymbols(GoogleFonts.ibmPlexSans(fontSize: 13, color: c.muted)))),
                 ]),
               ),
           ]),
@@ -350,8 +350,8 @@ class _GamePageState extends State<GamePage> {
                 child: Text(g.hint,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
-                    style: GoogleFonts.ibmPlexSans(
-                        fontSize: 12, height: 1.25, color: g.hintWin ? c.goal : c.muted, fontWeight: g.hintWin ? FontWeight.w600 : FontWeight.w400)),
+                    style: withSymbols(GoogleFonts.ibmPlexSans(
+                        fontSize: 12, height: 1.25, color: g.hintWin ? c.goal : c.muted, fontWeight: g.hintWin ? FontWeight.w600 : FontWeight.w400))),
               ),
             ],
           ]),
@@ -433,12 +433,12 @@ class _GamePageState extends State<GamePage> {
             child: Text(g.hint,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
-                style: GoogleFonts.ibmPlexSans(
-                    fontSize: 13, height: 1.3, color: g.hintWin ? c.goal : c.muted, fontWeight: g.hintWin ? FontWeight.w600 : FontWeight.w400)),
+                style: withSymbols(GoogleFonts.ibmPlexSans(
+                    fontSize: 13, height: 1.3, color: g.hintWin ? c.goal : c.muted, fontWeight: g.hintWin ? FontWeight.w600 : FontWeight.w400))),
           ),
           if (g.mode == Mode.build) ...[
             const SizedBox(width: 8),
-            Text(g.countText, style: GoogleFonts.ibmPlexMono(fontSize: 11.5, color: c.muted)),
+            Text(g.countText, style: withSymbols(GoogleFonts.ibmPlexMono(fontSize: 11.5, color: c.muted))),
           ],
         ]),
       );
@@ -462,12 +462,12 @@ class _GamePageState extends State<GamePage> {
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
                 child: Text(tr('Pular tutorial'),
-                    style: GoogleFonts.ibmPlexSans(fontSize: 12.5, color: c.muted, decoration: TextDecoration.underline, decorationColor: c.muted)),
+                    style: withSymbols(GoogleFonts.ibmPlexSans(fontSize: 12.5, color: c.muted, decoration: TextDecoration.underline, decorationColor: c.muted))),
               ),
             ),
         ]),
         const SizedBox(height: 2),
-        Text(tr(s.text), style: GoogleFonts.ibmPlexSans(fontSize: dense ? 12.5 : 14, height: dense ? 1.25 : 1.35, color: c.ink)),
+        Text(tr(s.text), style: withSymbols(GoogleFonts.ibmPlexSans(fontSize: dense ? 12.5 : 14, height: dense ? 1.25 : 1.35, color: c.ink))),
         if (s.next != null) ...[
           SizedBox(height: dense ? 6 : 8),
           TB(c: c, small: true, primary: true, label: s.next!, onTap: g.tutNext),

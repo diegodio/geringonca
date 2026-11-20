@@ -31,12 +31,12 @@ class WinPanel extends StatelessWidget {
           child: Row(children: [
             Icon(have ? Icons.star : Icons.star_border, size: 18, color: have ? c.medal : c.muted),
             const SizedBox(width: 8),
-            SizedBox(width: 64, child: Text(tr(name), style: GoogleFonts.ibmPlexSans(fontSize: 14, fontWeight: FontWeight.w600, color: c.ink))),
-            Text('${unit == '\$' ? '\$' : ''}${f(got)}${unit == 's' ? ' s' : ''}', style: GoogleFonts.ibmPlexMono(fontSize: 13, color: c.ink)),
+            SizedBox(width: 64, child: Text(tr(name), style: withSymbols(GoogleFonts.ibmPlexSans(fontSize: 14, fontWeight: FontWeight.w600, color: c.ink)))),
+            Text('${unit == '\$' ? '\$' : ''}${f(got)}${unit == 's' ? ' s' : ''}', style: withSymbols(GoogleFonts.ibmPlexMono(fontSize: 13, color: c.ink))),
             const SizedBox(width: 8),
             Expanded(
               // no painel estreito (celular deitado) quebra a linha em vez de cortar o número
-              child: Text(detail, style: GoogleFonts.ibmPlexMono(fontSize: 12, color: ok ? c.zone : c.goal)),
+              child: Text(detail, style: withSymbols(GoogleFonts.ibmPlexMono(fontSize: 12, color: ok ? c.zone : c.goal))),
             ),
           ]),
         ));
@@ -54,8 +54,8 @@ class WinPanel extends StatelessWidget {
         Expanded(
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Text(tr(i.replay ? 'Replay concluído' : 'Fase concluída!'),
-                style: GoogleFonts.chakraPetch(fontSize: 22, fontWeight: FontWeight.w700, color: c.goal)),
-            Text('${fmt(i.t)} s · ${trN(i.n, '1 peça', '{n} peças')} · \$${i.c}', style: GoogleFonts.ibmPlexMono(fontSize: 12.5, color: c.muted)),
+                style: withSymbols(GoogleFonts.chakraPetch(fontSize: 22, fontWeight: FontWeight.w700, color: c.goal))),
+            Text('${fmt(i.t)} s · ${trN(i.n, '1 peça', '{n} peças')} · \$${i.c}', style: withSymbols(GoogleFonts.ibmPlexMono(fontSize: 12.5, color: c.muted))),
           ]),
         ),
       ]),
@@ -70,7 +70,7 @@ class WinPanel extends StatelessWidget {
                 visualDensity: VisualDensity.compact,
                 avatar: Icon(Icons.verified_outlined, size: 16, color: c.zone),
                 label: Text(i.freshBadges.contains(b.$1) ? tr('{c} · novo!', {'c': tr(b.$2)}) : tr(b.$2),
-                    style: GoogleFonts.ibmPlexSans(fontSize: 12.5, color: c.ink)),
+                    style: withSymbols(GoogleFonts.ibmPlexSans(fontSize: 12.5, color: c.ink))),
                 backgroundColor: c.bg,
                 side: BorderSide(color: c.line),
               ),
@@ -80,7 +80,7 @@ class WinPanel extends StatelessWidget {
         Row(children: [
           Icon(Icons.lock_open, size: 18, color: c.zone),
           const SizedBox(width: 6),
-          Text(tr('Fase liberada: {lv}', {'lv': tr(i.unlocked!)}), style: GoogleFonts.ibmPlexSans(fontSize: 14, fontWeight: FontWeight.w600, color: c.zone)),
+          Text(tr('Fase liberada: {lv}', {'lv': tr(i.unlocked!)}), style: withSymbols(GoogleFonts.ibmPlexSans(fontSize: 14, fontWeight: FontWeight.w600, color: c.zone))),
         ]),
       Wrap(spacing: 8, runSpacing: 8, children: [
         if (i.next != null && !i.replay) TB(c: c, primary: true, icon: Icons.arrow_forward, label: 'Próxima fase', onTap: g.goNext),

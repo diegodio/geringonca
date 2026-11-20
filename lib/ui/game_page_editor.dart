@@ -4,7 +4,7 @@ part of 'game_page.dart';
 extension _Editor on _GamePageState {
   // ---------- editor de fases ----------
   Widget _num(Palette c, String k, String text) => Row(mainAxisSize: MainAxisSize.min, children: [
-        Text(tr(text), style: GoogleFonts.ibmPlexSans(fontSize: 13, color: c.muted)),
+        Text(tr(text), style: withSymbols(GoogleFonts.ibmPlexSans(fontSize: 13, color: c.muted))),
         const SizedBox(width: 6),
         SizedBox(
           width: 70,
@@ -12,7 +12,7 @@ extension _Editor on _GamePageState {
             controller: _tg[k],
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
             onChanged: (v) => g.setTarget(k, v),
-            style: GoogleFonts.ibmPlexSans(fontSize: 14, color: c.ink),
+            style: withSymbols(GoogleFonts.ibmPlexSans(fontSize: 14, color: c.ink)),
             decoration: InputDecoration(hintText: '—', isDense: true, border: OutlineInputBorder(borderSide: BorderSide(color: c.line))),
           ),
         ),
@@ -97,9 +97,9 @@ extension _Editor on _GamePageState {
     final step = g.gridStep, single = const ['zone', 'goal', 'ball'].contains(s.kind);
     String m(double v) => '${fmt(v / 100)} m';
     Widget stepper(String name, String value, String prop, double d) => Row(children: [
-          Expanded(child: Text(tr(name), style: GoogleFonts.ibmPlexSans(fontSize: 13, color: c.muted))),
+          Expanded(child: Text(tr(name), style: withSymbols(GoogleFonts.ibmPlexSans(fontSize: 13, color: c.muted)))),
           IconBtn(c: c, icon: Icons.remove, tooltip: 'Diminuir', size: 36, onTap: () => g.eAdjust(prop, -d)),
-          SizedBox(width: 74, child: Text(value, textAlign: TextAlign.center, style: GoogleFonts.ibmPlexMono(fontSize: 13, color: c.ink))),
+          SizedBox(width: 74, child: Text(value, textAlign: TextAlign.center, style: withSymbols(GoogleFonts.ibmPlexMono(fontSize: 13, color: c.ink)))),
           IconBtn(c: c, icon: Icons.add, tooltip: 'Aumentar', size: 36, onTap: () => g.eAdjust(prop, d)),
         ]);
     final rows = <Widget>[
@@ -117,11 +117,11 @@ extension _Editor on _GamePageState {
             stepper('Posição x', m(math.min(l.a.x, l.b.x)), 'x', step),
             stepper('Posição y', m(math.min(l.a.y, l.b.y)), 'y', step),
             if (l.hasShaft)
-              Text(tr('Vertical e no nível do chão: abre um poço embaixo.'), style: GoogleFonts.ibmPlexSans(fontSize: 12.5, color: c.muted)),
+              Text(tr('Vertical e no nível do chão: abre um poço embaixo.'), style: withSymbols(GoogleFonts.ibmPlexSans(fontSize: 12.5, color: c.muted))),
           ],
         Seg sg => [
             Text('${fmt(dist(sg.a, sg.b) / 100)} m · ${(math.atan2(sg.a.y - sg.b.y, sg.b.x - sg.a.x) * 180 / math.pi).round()}°',
-                style: GoogleFonts.ibmPlexMono(fontSize: 13, color: c.ink)),
+                style: withSymbols(GoogleFonts.ibmPlexMono(fontSize: 13, color: c.ink))),
             stepper('Posição x', m(math.min(sg.a.x, sg.b.x)), 'x', step),
             stepper('Posição y', m(math.min(sg.a.y, sg.b.y)), 'y', step),
             Align(
@@ -146,7 +146,7 @@ extension _Editor on _GamePageState {
       decoration: BoxDecoration(color: c.bg, borderRadius: BorderRadius.circular(10), border: Border.all(color: c.accent.withValues(alpha: .5))),
       child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
         Row(children: [
-          Expanded(child: Text(tr(names[s.kind]!), style: GoogleFonts.ibmPlexSans(fontSize: 14, fontWeight: FontWeight.w700, color: c.ink))),
+          Expanded(child: Text(tr(names[s.kind]!), style: withSymbols(GoogleFonts.ibmPlexSans(fontSize: 14, fontWeight: FontWeight.w700, color: c.ink)))),
           if (!single) IconBtn(c: c, icon: Icons.copy_all_outlined, tooltip: 'Duplicar', size: 36, onTap: g.eDuplicate),
           if (!single) IconBtn(c: c, icon: Icons.delete_outline, tooltip: 'Apagar', size: 36, onTap: g.eDelete),
         ]),
@@ -161,7 +161,7 @@ extension _Editor on _GamePageState {
           for (final (id, name, _, sw) in _pieces(c))
             FilterChip(
               avatar: sw,
-              label: Text(tr(name), style: GoogleFonts.ibmPlexSans(fontSize: 13, color: c.ink)),
+              label: Text(tr(name), style: withSymbols(GoogleFonts.ibmPlexSans(fontSize: 13, color: c.ink))),
               selected: g.editAllows(id),
               selectedColor: c.zone.withValues(alpha: .18),
               checkmarkColor: c.zone,
@@ -174,7 +174,7 @@ extension _Editor on _GamePageState {
         Wrap(spacing: 10, runSpacing: 6, crossAxisAlignment: WrapCrossAlignment.center, children: [
           FilterChip(
             avatar: Icon(Icons.sports_baseball_outlined, size: 18, color: c.ink),
-            label: Text(tr('Bola solta'), style: GoogleFonts.ibmPlexSans(fontSize: 13, color: c.ink)),
+            label: Text(tr('Bola solta'), style: withSymbols(GoogleFonts.ibmPlexSans(fontSize: 13, color: c.ink))),
             tooltip: tr('Nada pode ser preso à bola, e ela não liga motor de roda'),
             selected: lv.looseBall,
             selectedColor: c.zone.withValues(alpha: .18),
@@ -184,7 +184,7 @@ extension _Editor on _GamePageState {
             onSelected: (_) => g.toggleLooseBall(),
           ),
           Row(mainAxisSize: MainAxisSize.min, children: [
-            Text(tr('Orçamento (\$)'), style: GoogleFonts.ibmPlexSans(fontSize: 13, color: c.muted)),
+            Text(tr('Orçamento (\$)'), style: withSymbols(GoogleFonts.ibmPlexSans(fontSize: 13, color: c.muted))),
             const SizedBox(width: 6),
             SizedBox(
               width: 80,
@@ -192,7 +192,7 @@ extension _Editor on _GamePageState {
                 controller: _budget,
                 keyboardType: TextInputType.number,
                 onChanged: g.setBudget,
-                style: GoogleFonts.ibmPlexSans(fontSize: 14, color: c.ink),
+                style: withSymbols(GoogleFonts.ibmPlexSans(fontSize: 14, color: c.ink)),
                 decoration: InputDecoration(hintText: tr('sem'), isDense: true, border: OutlineInputBorder(borderSide: BorderSide(color: c.line))),
               ),
             ),
@@ -208,7 +208,7 @@ extension _Editor on _GamePageState {
         controller: _name,
         maxLength: 40,
         onChanged: g.setEditName,
-        style: GoogleFonts.ibmPlexSans(fontSize: 15, color: c.ink),
+        style: withSymbols(GoogleFonts.ibmPlexSans(fontSize: 15, color: c.ink)),
         decoration: InputDecoration(labelText: tr('Nome da fase'), counterText: '', isDense: true, border: OutlineInputBorder(borderSide: BorderSide(color: c.line))),
       ),
       TextField(
@@ -217,7 +217,7 @@ extension _Editor on _GamePageState {
         minLines: 1,
         maxLines: 3,
         onChanged: g.setEditTip,
-        style: GoogleFonts.ibmPlexSans(fontSize: 14, color: c.ink),
+        style: withSymbols(GoogleFonts.ibmPlexSans(fontSize: 14, color: c.ink)),
         decoration: InputDecoration(
             labelText: tr('Dica para quem joga'), counterText: '', isDense: true, border: OutlineInputBorder(borderSide: BorderSide(color: c.line))),
       ),
@@ -226,7 +226,7 @@ extension _Editor on _GamePageState {
         const SizedBox(width: 8),
         Expanded(
           child: Text(tr(ok ? 'Verificada: você venceu a fase do jeito que ela está.' : 'Não verificada: toque em Testar e vença uma vez.'),
-              style: GoogleFonts.ibmPlexSans(fontSize: 13, color: ok ? c.zone : c.muted)),
+              style: withSymbols(GoogleFonts.ibmPlexSans(fontSize: 13, color: ok ? c.zone : c.muted))),
         ),
       ]),
       label(c, 'Metas das medalhas'),

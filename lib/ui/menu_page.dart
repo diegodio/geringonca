@@ -50,7 +50,7 @@ class MenuPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = Palette.of(context);
-    final ink = Ink(g, c, mono: GoogleFonts.ibmPlexMono().fontFamily!, display: GoogleFonts.chakraPetch().fontFamily!);
+    final ink = Ink(g, c, mono: withSymbols(GoogleFonts.ibmPlexMono()).fontFamily!, display: withSymbols(GoogleFonts.chakraPetch()).fontFamily!);
     return Scaffold(
       backgroundColor: c.bg,
       body: Stack(children: [
@@ -99,7 +99,7 @@ class MenuPage extends StatelessWidget {
                       SizedBox(height: 18, child: CustomPaint(painter: _BenchRule(c))),
                       SizedBox(height: low ? 8 : 12),
                       Text(tr('Monte engenhocas com barras, rodas e ímãs e leve a bola até a meta.'),
-                          style: GoogleFonts.ibmPlexSans(fontSize: 16, color: c.ink.withValues(alpha: .75))),
+                          style: withSymbols(GoogleFonts.ibmPlexSans(fontSize: 16, color: c.ink.withValues(alpha: .75)))),
                       SizedBox(height: low ? 10 : 18),
                       Wrap(spacing: 10, runSpacing: 10, crossAxisAlignment: WrapCrossAlignment.center, children: [
                         TB(
@@ -131,7 +131,7 @@ class MenuPage extends StatelessWidget {
                             Expanded(
                               child: Text(
                                   tr('Sem conta você joga as {n} primeiras fases. Entre para liberar todas e guardar o progresso na nuvem.', {'n': kGuestLevels}),
-                                  style: GoogleFonts.ibmPlexSans(fontSize: 13.5, color: c.ink)),
+                                  style: withSymbols(GoogleFonts.ibmPlexSans(fontSize: 13.5, color: c.ink))),
                             ),
                             const SizedBox(width: 8),
                             TB(c: c, small: true, primary: true, label: 'Entrar', onTap: () => showAccountSheet(context, g)),
@@ -181,13 +181,13 @@ class MenuPage extends StatelessWidget {
                           child: Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 6),
                             child: Text('v$kAppVersion',
-                                style: GoogleFonts.ibmPlexMono(
-                                    fontSize: 11.5, color: c.accent, decoration: TextDecoration.underline, decorationColor: c.accent)),
+                                style: withSymbols(GoogleFonts.ibmPlexMono(
+                                    fontSize: 11.5, color: c.accent, decoration: TextDecoration.underline, decorationColor: c.accent))),
                           ),
                         ),
-                        Text(versionLabel.substring('v$kAppVersion'.length), style: GoogleFonts.ibmPlexMono(fontSize: 11.5, color: c.muted)),
+                        Text(versionLabel.substring('v$kAppVersion'.length), style: withSymbols(GoogleFonts.ibmPlexMono(fontSize: 11.5, color: c.muted))),
                       ]),
-                      Text('© 2026 Aftershock Studios', textAlign: TextAlign.center, style: GoogleFonts.ibmPlexMono(fontSize: 11, color: c.muted)),
+                      Text('© 2026 Aftershock Studios', textAlign: TextAlign.center, style: withSymbols(GoogleFonts.ibmPlexMono(fontSize: 11, color: c.muted))),
                     ]),
                   ),
                 ),
@@ -213,7 +213,7 @@ class MenuPage extends StatelessWidget {
         context: context,
         builder: (ctx) => AlertDialog(
           backgroundColor: c.paper,
-          title: Text(tr('Como jogar'), style: GoogleFonts.chakraPetch(fontWeight: FontWeight.w700, color: c.ink)),
+          title: Text(tr('Como jogar'), style: withSymbols(GoogleFonts.chakraPetch(fontWeight: FontWeight.w700, color: c.ink))),
           content: SingleChildScrollView(child: HowToPlay(c: c)),
           actions: [TextButton(onPressed: () => Navigator.of(ctx).pop(), child: Text(tr('Fechar')))],
         ),
@@ -284,7 +284,7 @@ class _LevelCard extends StatelessWidget {
                       borderRadius: const BorderRadius.only(bottomRight: Radius.circular(8)),
                     ),
                     child: Text(number!.toString().padLeft(2, '0'),
-                        style: GoogleFonts.chakraPetch(fontSize: 15, height: 1.1, fontWeight: FontWeight.w700, color: c.paper)),
+                        style: withSymbols(GoogleFonts.chakraPetch(fontSize: 15, height: 1.1, fontWeight: FontWeight.w700, color: c.paper))),
                   ),
                 ),
               if (done)
@@ -301,7 +301,7 @@ class _LevelCard extends StatelessWidget {
                 Text(tr(lv.name),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: GoogleFonts.ibmPlexSans(fontSize: 14.5, fontWeight: FontWeight.w600, color: open ? c.ink : c.muted)),
+                    style: withSymbols(GoogleFonts.ibmPlexSans(fontSize: 14.5, fontWeight: FontWeight.w600, color: open ? c.ink : c.muted))),
                 const SizedBox(height: 4),
                 Row(children: [
                   for (final on in medals) Icon(on ? Icons.star : Icons.star_border, size: 17, color: on ? c.medal : c.muted),
@@ -312,7 +312,7 @@ class _LevelCard extends StatelessWidget {
                       message: tr('Desafios extras ganhos'),
                       child: Row(mainAxisSize: MainAxisSize.min, children: [
                         Icon(Icons.verified, size: 15, color: c.zone),
-                        Text('${pr.badgesOf(id).length}', style: GoogleFonts.ibmPlexMono(fontSize: 11, color: c.zone)),
+                        Text('${pr.badgesOf(id).length}', style: withSymbols(GoogleFonts.ibmPlexMono(fontSize: 11, color: c.zone))),
                       ]),
                     ),
                   ],
@@ -322,7 +322,7 @@ class _LevelCard extends StatelessWidget {
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         textAlign: TextAlign.end,
-                        style: GoogleFonts.ibmPlexMono(fontSize: 11, color: current ? c.ink : c.muted)),
+                        style: withSymbols(GoogleFonts.ibmPlexMono(fontSize: 11, color: current ? c.ink : c.muted))),
                   ),
                 ]),
               ]),
@@ -347,7 +347,7 @@ class _Stamp extends StatelessWidget {
           border: Border.all(color: c.zone, width: 2),
           borderRadius: BorderRadius.circular(4),
         ),
-        child: Text(text, style: GoogleFonts.chakraPetch(fontSize: 12, fontWeight: FontWeight.w700, letterSpacing: 1.5, color: c.zone)),
+        child: Text(text, style: withSymbols(GoogleFonts.chakraPetch(fontSize: 12, fontWeight: FontWeight.w700, letterSpacing: 1.5, color: c.zone))),
       );
 }
 
@@ -380,16 +380,16 @@ class _Sheet extends StatelessWidget {
           Expanded(
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               if (number != null)
-                Text(tr('CAPÍTULO {n}', {'n': number}), style: GoogleFonts.ibmPlexMono(fontSize: 11, letterSpacing: 1.2, color: c.muted)),
-              Text(title, style: GoogleFonts.chakraPetch(fontSize: 22, height: 1.1, fontWeight: FontWeight.w700, color: c.ink)),
+                Text(tr('CAPÍTULO {n}', {'n': number}), style: withSymbols(GoogleFonts.ibmPlexMono(fontSize: 11, letterSpacing: 1.2, color: c.muted))),
+              Text(title, style: withSymbols(GoogleFonts.chakraPetch(fontSize: 22, height: 1.1, fontWeight: FontWeight.w700, color: c.ink))),
               const SizedBox(height: 2),
-              Text(sub, style: GoogleFonts.ibmPlexSans(fontSize: 13.5, color: c.muted)),
+              Text(sub, style: withSymbols(GoogleFonts.ibmPlexSans(fontSize: 13.5, color: c.muted))),
             ]),
           ),
           if (count > 0) ...[
             const SizedBox(width: 10),
             Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
-              Text('$done/$count', style: GoogleFonts.chakraPetch(fontSize: 18, fontWeight: FontWeight.w700, color: done == count ? c.zone : c.ink)),
+              Text('$done/$count', style: withSymbols(GoogleFonts.chakraPetch(fontSize: 18, fontWeight: FontWeight.w700, color: done == count ? c.zone : c.ink))),
               const SizedBox(height: 4),
               SizedBox(width: 74, height: 12, child: CustomPaint(painter: _RodGauge(c, done / count))),
             ]),
@@ -419,8 +419,8 @@ class _ProgressCard extends StatelessWidget {
       parts.add(kBuiltin.skip(first).take(n).where((l) => pr.isDone(l.id!)).length / n);
       first += n;
     }
-    TextStyle big(Color col) => GoogleFonts.chakraPetch(fontSize: 24, height: 1, fontWeight: FontWeight.w700, color: col);
-    final small = GoogleFonts.ibmPlexMono(fontSize: 11.5, color: c.muted);
+    TextStyle big(Color col) => withSymbols(GoogleFonts.chakraPetch(fontSize: 24, height: 1, fontWeight: FontWeight.w700, color: col));
+    final small = withSymbols(GoogleFonts.ibmPlexMono(fontSize: 11.5, color: c.muted));
     return CustomPaint(
       foregroundPainter: _Tape(c),
       child: Container(
@@ -435,7 +435,7 @@ class _ProgressCard extends StatelessWidget {
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
                 child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                  Text(tr('FICHA DE PROGRESSO'), style: GoogleFonts.ibmPlexMono(fontSize: 11, letterSpacing: 1.2, color: c.muted)),
+                  Text(tr('FICHA DE PROGRESSO'), style: withSymbols(GoogleFonts.ibmPlexMono(fontSize: 11, letterSpacing: 1.2, color: c.muted))),
                   const SizedBox(height: 8),
                   Wrap(spacing: 22, runSpacing: 8, crossAxisAlignment: WrapCrossAlignment.end, children: [
                     Row(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.end, children: [
@@ -545,7 +545,7 @@ class _ChapterWheel extends CustomPainter {
     canvas.drawCircle(o, r * .52, Paint()..color = c.paper);
     canvas.drawCircle(o, r * .52, ink..strokeWidth = 1.5);
     final tp = TextPainter(
-      text: TextSpan(text: n == null ? '★' : '$n', style: GoogleFonts.chakraPetch(fontSize: r * .7, fontWeight: FontWeight.w700, color: c.ink)),
+      text: TextSpan(text: n == null ? '★' : '$n', style: withSymbols(GoogleFonts.chakraPetch(fontSize: r * .7, fontWeight: FontWeight.w700, color: c.ink))),
       textDirection: TextDirection.ltr,
     )..layout();
     tp.paint(canvas, o - Offset(tp.width / 2, tp.height / 2));

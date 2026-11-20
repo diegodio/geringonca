@@ -1,6 +1,15 @@
 import 'package:flutter/material.dart';
 
 /// Cores do caderno de laboratório, em claro e escuro (as mesmas da versão HTML).
+
+/// Fontes de reserva com os poucos símbolos que as fontes do jogo não têm (★ ⋮ ▶);
+/// sem elas, o Flutter buscaria uma fonte no Google, e sem internet o símbolo sumia.
+const kSymbolFonts = ['GeringoncaSymbols', 'GeringoncaDots', 'GeringoncaPlay'];
+
+/// Estilo do google_fonts com a reserva de símbolos (ele fixa a própria lista de
+/// reserva, então a do tema não chega até o texto).
+TextStyle withSymbols(TextStyle s) => s.copyWith(fontFamilyFallback: [...?s.fontFamilyFallback, ...kSymbolFonts]);
+
 class Palette {
   final Color bg, paper, grid, gridMajor, ink, muted, line, zone, goal, ground, ball, rod, water, cw, ccw, free, mN, mS, accent, lift, door, crate, medal, medalInk;
   const Palette({

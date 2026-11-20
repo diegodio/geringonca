@@ -10,7 +10,7 @@ Future<void> showChangelog(BuildContext context, Palette c) => showDialog<void>(
       context: context,
       builder: (ctx) => AlertDialog(
         backgroundColor: c.paper,
-        title: Text(tr('Versões'), style: GoogleFonts.chakraPetch(fontWeight: FontWeight.w700, color: c.ink)),
+        title: Text(tr('Versões'), style: withSymbols(GoogleFonts.chakraPetch(fontWeight: FontWeight.w700, color: c.ink))),
         content: SizedBox(
           width: 420,
           child: SingleChildScrollView(
@@ -18,12 +18,12 @@ Future<void> showChangelog(BuildContext context, Palette c) => showDialog<void>(
               for (final (i, e) in kChangelog.indexed) ...[
                 if (i > 0) Divider(height: 24, color: c.line),
                 Row(children: [
-                  Text('v${e.version}', style: GoogleFonts.chakraPetch(fontSize: 16, fontWeight: FontWeight.w700, color: c.ink)),
+                  Text('v${e.version}', style: withSymbols(GoogleFonts.chakraPetch(fontSize: 16, fontWeight: FontWeight.w700, color: c.ink))),
                   const SizedBox(width: 8),
-                  Text(e.date, style: GoogleFonts.ibmPlexMono(fontSize: 11.5, color: c.muted)),
+                  Text(e.date, style: withSymbols(GoogleFonts.ibmPlexMono(fontSize: 11.5, color: c.muted))),
                   if (i == 0) ...[
                     const SizedBox(width: 8),
-                    Text(tr('esta versão'), style: GoogleFonts.ibmPlexMono(fontSize: 11.5, color: c.zone)),
+                    Text(tr('esta versão'), style: withSymbols(GoogleFonts.ibmPlexMono(fontSize: 11.5, color: c.zone))),
                   ],
                 ]),
                 const SizedBox(height: 6),
@@ -31,8 +31,8 @@ Future<void> showChangelog(BuildContext context, Palette c) => showDialog<void>(
                   Padding(
                     padding: const EdgeInsets.only(bottom: 4),
                     child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                      Text('•  ', style: GoogleFonts.ibmPlexSans(fontSize: 14, color: c.muted)),
-                      Expanded(child: Text(tr(it), style: GoogleFonts.ibmPlexSans(fontSize: 14, height: 1.35, color: c.ink))),
+                      Text('•  ', style: withSymbols(GoogleFonts.ibmPlexSans(fontSize: 14, color: c.muted))),
+                      Expanded(child: Text(tr(it), style: withSymbols(GoogleFonts.ibmPlexSans(fontSize: 14, height: 1.35, color: c.ink)))),
                     ]),
                   ),
               ],
