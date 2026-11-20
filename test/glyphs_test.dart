@@ -1,6 +1,10 @@
 // Todo caractere dos textos do jogo precisa estar numa fonte que vai junto com
 // ele. Senão, na web, o Flutter busca uma fonte no Google na hora; sem internet,
 // o caractere vira um quadradinho (foi o que aconteceu com o ⋮ e o ★).
+// Lê as fontes do disco: só roda fora do navegador.
+@TestOn('vm')
+library;
+
 import 'dart:io';
 import 'dart:typed_data';
 
