@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
@@ -6,60 +5,13 @@ import 'package:flutter/material.dart';
 import '../game/palette.dart';
 
 /// Logotipo: "GERINGONÇA" montado com as peças do jogo (barras de madeira com
-/// juntas, rodas, borracha e a bola), no mesmo traço da bancada.
-/// Só o pingo do I se mexe: a bola quica em cima da letra de tempos em tempos.
-class LogoWord extends StatefulWidget {
+/// juntas, rodas, borracha e a bola). Parado: o pingo do I descansa em cima da
+/// letra (sem quique, o menu não desenha quadro nenhum e não gasta bateria).
+class LogoWord extends StatelessWidget {
   final double height;
   const LogoWord({super.key, this.height = 64});
 
-  @override
-  State<LogoWord> createState() => _LogoWordState();
-}
-
-class _LogoWordState extends State<LogoWord> with SingleTickerProviderStateMixin {
   static final _word = LogoArt.word();
-  // Só os pulos são animados (o começo do ciclo de [pingoAt]); no descanso nenhum
-  // quadro é desenhado, para o menu não gastar bateria à toa.
-  static const _cycle = 2600, _bounce = .56; // até o fim do último achatamento
-  late final AnimationController _anim = AnimationController(vsync: this, duration: Duration(milliseconds: (_cycle * _bounce).round()));
-  late final Animation<double> _t = _anim.drive(Tween(begin: 0, end: _bounce));
-  Timer? _rest;
-  bool _calm = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _anim.addStatusListener((s) {
-      if (s == AnimationStatus.completed && !_calm) {
-        _rest = Timer(Duration(milliseconds: (_cycle * (1 - _bounce)).round()), _jump);
-      }
-    });
-  }
-
-  void _jump() {
-    if (mounted && !_calm) _anim.forward(from: 0);
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    // quem pede menos movimento no aparelho vê a bola parada
-    _calm = MediaQuery.disableAnimationsOf(context);
-    if (_calm) {
-      _rest?.cancel();
-      _anim.stop();
-      _anim.value = 1; // descansando no I
-    } else if (!_anim.isAnimating && _rest?.isActive != true) {
-      _jump();
-    }
-  }
-
-  @override
-  void dispose() {
-    _rest?.cancel();
-    _anim.dispose();
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -69,10 +21,10 @@ class _LogoWordState extends State<LogoWord> with SingleTickerProviderStateMixin
       header: true,
       child: ExcludeSemantics(
         child: SizedBox(
-          height: widget.height,
+          height: height,
           child: AspectRatio(
             aspectRatio: _word.bounds.width / _word.bounds.height,
-            child: RepaintBoundary(child: CustomPaint(painter: LogoPainter(_word, c, bounce: _t))),
+            child: RepaintBoundary(child: CustomPaint(painter: LogoPainter(_word, c))),
           ),
         ),
       ),
