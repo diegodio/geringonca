@@ -1,4 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:geringonca/core/levels.dart';
+import 'package:geringonca/game/progress.dart';
 import 'package:geringonca/game/storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -35,5 +37,15 @@ void main() {
     final s = Store(null)..set('x', 1);
     s.flush();
     expect(s.get<int>('x', 5), 5);
+  });
+
+  test('duas fases próprias criadas no mesmo instante não dividem o mesmo id', () {
+    final pr = Progress(Store(null));
+    final a = pr.saveLevel(blankLevel()..name = 'A');
+    final b = pr.importLevel(blankLevel()..name = 'B');
+    final c = pr.saveLevel(blankLevel()..name = 'C');
+    expect({a, b, c}, hasLength(3));
+    pr.deleteLevel(a);
+    expect(pr.custom.map((l) => l.name), ['B', 'C']);
   });
 }
