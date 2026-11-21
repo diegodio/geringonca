@@ -28,12 +28,13 @@ jobs:
       # WebAssembly (com a versão JS para navegadores sem suporte) e o motor
       # gráfico servido junto do jogo (sem CDN), para o modo offline guardar tudo
       # a versão do jogo vem do histórico em lib/core/changelog.dart; o endereço e a chave
-      # pública do Supabase vêm das variáveis do repositório (veja docs/SUPABASE.md).
-      # Sem elas, o jogo sai sem conta e sem limite de fases.
+      # pública do Supabase: as do projeto geringonca (públicas por natureza; quem
+      # protege os dados são as regras do banco). Variáveis do repositório com os
+      # mesmos nomes, se existirem, têm preferência (veja docs/SUPABASE.md).
       - run: >-
           flutter build web --wasm --release --no-web-resources-cdn --base-href "/geringonca/"
-          --dart-define=SUPABASE_URL=${{ vars.SUPABASE_URL }}
-          --dart-define=SUPABASE_PUBLISHABLE_KEY=${{ vars.SUPABASE_PUBLISHABLE_KEY }}
+          --dart-define=SUPABASE_URL=${{ vars.SUPABASE_URL || 'https://kphgpybhubdluhjdresk.supabase.co' }}
+          --dart-define=SUPABASE_PUBLISHABLE_KEY=${{ vars.SUPABASE_PUBLISHABLE_KEY || 'sb_publishable_CgivNdU8UaBr0PifwIkYlw_I4-RLO8-' }}
       # service worker com a lista de arquivos e a versão desta publicação
       - run: python3 tool/gen_sw.py build/web
       - uses: actions/upload-pages-artifact@v3

@@ -38,6 +38,9 @@ begin
 end;
 $$;
 
+-- só o gatilho chama a função (ninguém de fora, pela API)
+revoke execute on function public.criar_perfil() from public, anon, authenticated;
+
 drop trigger if exists ao_criar_usuario on auth.users;
 create trigger ao_criar_usuario
   after insert on auth.users
